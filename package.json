@@ -5,10 +5,10 @@
   "version": "0.0.1",
   "private": false,
   "engines": {
-    "node": "6.*"
+    "node": "12.*"
   },
   "scripts": {
-    "start": "node server/server.js",
+    "start": "cp .env.prod .env && node server/server.js",
     "startdev": "cp .env.dev .env && node --inspect server/server.js"
   },
   "repository": {

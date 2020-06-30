@@ -5,18 +5,22 @@ It uses a pouchDB to store notes to the local storage and can synchronize with a
 This application can be run either on a mobile (using PWA), in a browser or as a desktop application (using electron).
 
 ## installation
-As always, type  `npm install`
+As always, type  `npm install` from the 'server' and 'client' directories.
 
 ## usage
 
 ### in development
-the following command is used to start the dev server (from the project root/client)
+Start first the nodeJS server (from the PROJECT_ROOT)
 
-      npm start
+     yarn run startdev
+
+the following command is used to start the client server in development mode (from the project root/client)
+
+      yarn start
 
 To test the application under electron, build the code using 
 
-     npm run buildElectron
+     yarn buildElectron
 
 A 'www' directory will be created. This directory will be used for NodeJS as well as for electron.
 
@@ -24,24 +28,21 @@ To test with electron, launch electron from the project's 'client' directory :
 
      electron .
 
-To test with NodeJS, go to root directory and start nodeJS with 
-
-     npm start
 
 ### build prepare for the different deployment targets
 
 - First, build the application for the 'client' directory. For the web, PWA or mobile targets :
 
-          ionic build --prod or npm run buildProd
+          ionic build --prod or yarn buildProd
 
      For the Electron target :
 
-        npm run buildElectron
+        yarn buildElectron
 
 - Second, push or create the deployment package
      - For Electron : prepare to build the electron desktop application using electron builder
 
-               npm run dist
+               yarn dist
 
           A 'dist' directory will be created under the root of the project.
           A 'dmg' file has been created, double click on the file to install on the OS.<br>
