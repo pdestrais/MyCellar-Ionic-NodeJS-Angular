@@ -1,0 +1,5 @@
+---
+applications:
+ - name: myCellar
+   host:  pdestrais-mycellar
+   memory: 128M

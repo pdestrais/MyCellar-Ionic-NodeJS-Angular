@@ -1,0 +1,17 @@
+<ion-app>
+  <ion-split-pane contentId="main-content" *ngIf="currentUser">
+    <ion-menu contentId="main-content">
+      <ion-header>
+        <ion-toolbar color="medium">
+          <ion-title>Menu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-multi-level-side-menu [settings]="sideMenuSettings" [options]="options"
+          (change)="onOptionSelected($event)"></app-multi-level-side-menu>
+      </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+  <ion-router-outlet *ngIf="!currentUser" id="main-content"></ion-router-outlet>
+</ion-app>

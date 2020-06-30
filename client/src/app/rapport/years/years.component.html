@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      {{'page.report' | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <app-breadcrumb [breadcrumb]="breadcrumb"></app-breadcrumb>
+  <app-element-list [elementList]="elementList" [typeView]="typeView" elementType='year' [preSelectedType]="type"
+    [preSelectedOrigine]="origine"></app-element-list>
+</ion-content>

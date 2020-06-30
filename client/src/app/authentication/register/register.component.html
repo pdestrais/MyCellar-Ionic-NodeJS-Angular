@@ -1,0 +1,74 @@
+<ion-content color="primary">
+  <form #form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <ion-grid>
+      <ion-row color="primary" class="ion-justify-content-center">
+        <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
+          <div class="ion-text-center">
+            <h3>Register for your account!</h3>
+          </div>
+          <div class="ion-padding">
+            <ion-item>
+              <ion-label for="username" position="floating">{{"register.username" | translate }}</ion-label>
+              <ion-input type="text" formControlName="username"
+                [ngClass]="{ 'is-invalid': !f.username.valid && (f.username.dirty || submitted) }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.username" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="firstName" position="floating">{{"register.firstname" | translate }}</ion-label>
+              <ion-input type="text" formControlName="firstName"
+                [ngClass]="{ 'is-invalid': submitted && f.firstName.errors }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.firstName" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="lastName" position="floating">{{"register.lastname" | translate }}</ion-label>
+              <ion-input type="text" formControlName="lastName"
+                [ngClass]="{ 'is-invalid': submitted && f.lastName.errors }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.lastName" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="password" position="floating">{{"register.password" | translate }}</ion-label>
+              <ion-input type="password" formControlName="password"
+                [ngClass]="{ 'is-invalid': submitted && f.password.errors }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.password" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="confirm" position="floating" placeholder="Password again">
+                {{"register.confirmPassword" | translate }}
+              </ion-label>
+              <ion-input type="password" formControlName="confirm"
+                [ngClass]="{ 'is-invalid': submitted && f.confirm.errors }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.confirmPassword" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="email" position="floating" placeholder="your@email.com">
+                {{"register.email" | translate }}
+              </ion-label>
+              <ion-input type="email" formControlName="email" [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
+              </ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                <p class="invalid"> {{"register.email" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+          </div>
+          <div class="ion-padding">
+            <ion-button size="large" type="submit" [disabled]="!registerForm.valid" expand="block">Register</ion-button>
+          </div>
+          <div class="ion-padding">
+            <ion-back-button color="light" defaultHref="home" text="{{'general.back' | translate }}" type="button"></ion-back-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+
+</ion-content>

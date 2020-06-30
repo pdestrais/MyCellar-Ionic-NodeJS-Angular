@@ -1,0 +1,4 @@
+<ion-chip *ngFor="let bc of breadcrumb" (click)="goBack(bc.backUrlTree)" color="dark" outline=true>
+  <ion-label color="dark">{{ bc.key}} ({{bc.value}}) </ion-label>
+  <ion-icon name="arrow-dropright"></ion-icon>
+</ion-chip>

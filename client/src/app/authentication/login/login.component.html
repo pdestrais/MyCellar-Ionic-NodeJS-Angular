@@ -1,0 +1,49 @@
+<ion-content color="primary" class="ion-padding">
+  <form #form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <ion-grid>
+      <ion-row color="primary" class="ion-justify-content-center">
+        <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
+          <div class="ion-text-center">
+            <h3>{{'login.title' | translate }}</h3>
+          </div>
+          <div class="ion-padding">
+            <ion-item>
+              <ion-label for="username" position="floating">{{'login.username' | translate }}</ion-label>
+              <ion-input type="text" formControlName="username"
+                [ngClass]="{ 'is-invalid': submitted && f.username.errors }"></ion-input>
+              <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                <div *ngIf="f.username.errors.required">Username is required</div>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="password" position="floating">{{'login.password' | translate }}</ion-label>
+              <ion-input type="password" formControlName="password"
+                [ngClass]="{ 'is-invalid': submitted && f.password.errors }"></ion-input>
+              <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                <div *ngIf="f.password.errors.required">Password is required</div>
+              </div>
+            </ion-item>
+          </div>
+          <div class="ion-padding">
+            <ion-button size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="ion-justify-content-center">
+        <div>
+          {{'login.register1' | translate }} <a routerLink='/register'>
+            {{'login.register2' | translate }}</a> {{'login.register3' | translate }}
+        </div>
+      </ion-row>
+      <ion-row></ion-row>
+      <ion-row></ion-row>
+      <br><br>
+      <ion-row class="ion-justify-content-center">
+        <div>
+          <a routerLink='/user-management/resetpwd'>
+            {{'login.forgotten' | translate }}</a> 
+        </div>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>

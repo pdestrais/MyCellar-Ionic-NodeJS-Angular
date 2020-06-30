@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      {{'page.changepwd' | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form #form [formGroup]="changepwdForm" (ngSubmit)="onSubmit()">
+    <ion-grid>
+      <ion-row color="primary" class="ion-justify-content-center">
+        <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
+          <div class="ion-text-center">
+            <h3>{{'changepwd.title' | translate }}</h3>
+          </div>
+          <div class="ion-padding">
+            <ion-item>
+              <ion-label for="oldPassword" position="floating">{{"changepwd.oldPassword" | translate }}</ion-label>
+              <ion-input type="password" formControlName="oldPassword"
+                [ngClass]="{ 'is-invalid': f.oldPassword.dirty && f.oldPassword.errors }"></ion-input>
+              <div *ngIf="!f.oldPassword.valid  && (f.oldPassword.dirty || submitted)">
+                <p class="invalid"> {{"changepwd.oldPassword" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="newPassword" position="floating">{{"changepwd.newPassword" | translate }}</ion-label>
+              <ion-input type="password" formControlName="newPassword"
+                [ngClass]="{ 'is-invalid': f.newPassword.dirty && f.newPassword.errors }"></ion-input>
+              <div *ngIf="!f.newPassword.valid  && (f.newPassword.dirty || submitted)">
+                <p class="invalid"> {{"changepwd.newPassword" | translate }} {{"general.required" | translate }}</p>
+              </div>
+            </ion-item>
+            <ion-item>
+              <ion-label for="confirmationPassword" position="floating">{{"changepwd.confirmationPassword" | translate }}</ion-label>
+              <ion-input type="password" formControlName="confirmationPassword"
+                [ngClass]="{ 'is-invalid': f.confirmationPassword.dirty && (f.confirmationPassword.errors || changepwdForm.errors)}"></ion-input>
+              <div *ngIf="!f.confirmationPassword.valid  && (f.confirmationPassword.dirty || submitted) && f.confirmationPassword.errors.required">
+                <p class="invalid"> {{"changepwd.confirmationPassword" | translate }} {{"general.required" | translate }}</p>
+              </div>
+              <div *ngIf="changepwdForm.errors  && (f.confirmationPassword.dirty || submitted)">
+                <p class="invalid"> {{"changepwd.confirmationPassword" | translate }} {{"changepwd.confirmpwdnotequalnewpwd" | translate }}</p>
+              </div>
+            </ion-item>
+          </div>
+          <div class="ion-padding">
+            <ion-button size="medium" type="submit" [disabled]="!changepwdForm.valid" expand="block">{{"changepwd.title" | translate }}</ion-button>
+          </div>
+          <div class="ion-padding">
+            <ion-back-button color="danger" text="{{'back.button' | translate }}"></ion-back-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>

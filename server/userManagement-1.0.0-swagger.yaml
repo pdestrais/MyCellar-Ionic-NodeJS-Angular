@@ -1,0 +1,706 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/pdestrais4/userManagement/1.0.0
+info:
+  description: User Management API
+  version: "1.0.0"
+  title: User Management API
+  contact:
+    email: philippe.destrais@gmail.com
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+tags:
+  - name: business
+    description: Business operations available to regular offer business functionalities to users via the UI
+  - name: technical
+    description: This is a technical request called by other user exposed requests
+paths:
+  /api/sendEMail:
+    post:
+      tags:
+        - technical
+      description: Private endpoint to send a mail to the requestor.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendEMailRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/createUserMngmtRequest:
+    post:
+      tags:
+        - technical
+      summary: create user requests (registration or password reset) in user management table.
+      operationId: createUserMngmtRequest
+      description: |
+        By passing in the appropriate request, you can create user request in the user request management table.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/RegistrationUserReq"
+                - $ref: "#/components/schemas/ResetPwdUserReq"
+        description: User request content
+      responses:
+        "200":
+          description: user request created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: request ID.
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/upsertUserData:
+    post:
+      tags:
+        - technical
+      summary: Private endpoint to insert or update user data (including password) in the user table.
+      operationId: upsertUserData
+      description: |
+        Private endpoint to insert or update user data (including password) in the user table.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/CreateUserReq"
+                - $ref: "#/components/schemas/UpdateUserStateReq"
+                - $ref: "#/components/schemas/UpdateUserPasswordReq"
+                - $ref: "#/components/schemas/UpdateUserDataReq"
+        description: User request content
+      responses:
+        "200":
+          description: user request created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: request ID.
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/processSignupRequest:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to receive request for a new signup to the application.
+      operationId: processSignupRequest
+      description: |
+        Public endpoint to receive request for a new signup to the application. It will 
+        1. create an entry into the registration table, 
+        2. Send registration confirmation on email address
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupReq"
+        description: User signup request content
+      responses:
+        "200":
+          description: user signup request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupOKResp"
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: "Username already exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/approveUserSignupRequest/{id}:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to approve the request for a new signup (used by the site admin)
+      operationId: approveUserSignupRequest
+      description: |
+        Public endpoint to approve the request for a new signup (used by the site admin) 
+        It will
+          1. generate a new password
+          
+          Then, 
+          
+          if it is a signup confirmation
+          
+          2. create an entry into the user table (with user data and the newly generated password - state is registrationDone)
+          3. create Wine Database corresponding to the chosen username
+          4. send mail to user with newly generated password
+          
+          If it is a password reset confirmation
+          
+          2. update user data with newly generated password
+          3. send mail to user to confirm password reset and communicate the newly (temporary) generated password
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The registration ID
+      responses:
+        "200":
+          description: user signup request approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupOKResp"
+        "400":
+          description: "missing registrationID parameter"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "No registration request found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/processUserRequestConfirmation/{id}:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to finalize the request for a new signup or for a password reset request to the application
+      operationId: processUserRequestConfirmation
+      description: |
+        Public endpoint to finalize the request for a new signup to the application. 
+        It will
+          1. generate a new password
+          
+          Then, 
+          
+          if it is a signup confirmation
+          
+          2. create an entry into the user table (with user data and the newly generated password - state is registrationDone)
+          3. create Wine Database corresponding to the chosen username
+          4. send mail to user with newly generated password
+          
+          If it is a password reset confirmation
+          
+          2. update user data with newly generated password
+          3. send mail to user to confirm password reset and communicate the newly (temporary) generated password
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The registration ID
+      responses:
+        "200":
+          description: user signup request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupOKResp"
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: "Username already exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/resetPassword:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to receive request for a password reset request.
+      operationId: resetPassword
+      description: |
+        Public endpoint to receive request for a password reset request. It will 
+        1. create an entry into the registration table
+        2. Send registration confirmation on email address
+        3. Update user data status to 'resetPasswordPending'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPwdReq"
+        description: User password reset request content
+      responses:
+        "200":
+          description: user signup request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupOKResp"
+        "400":
+          description: "missing or invalid input, object invalid or parameter"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Username doesn't exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/changePassword:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to receive request to change password.
+      operationId: changePassword
+      description: |
+        Public endpoint to to receive request to change password. It will 
+        1. verify old password
+        2. Update user password if user is not in 'resetPasswordPending' state. State is then set to 'standard'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePwdReq"
+        description: User password reset request content
+      responses:
+        "200":
+          description: user signup request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePwdOKResp"
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "bad password"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Password reset pending"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Username doesn't exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/updateUserData:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to update any user data (except password).
+      operationId: updateUserData
+      description: |
+        Public endpoint to to update any user data (except password). It will update user data and set state to 'standard'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserProfileReq"
+        description: User password reset request content
+      responses:
+        "200":
+          description: user signup request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePwdOKResp"
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Username doesn't exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/login:
+    post:
+      tags:
+        - business
+      summary: Public endpoint to log in.
+      operationId: login
+      description: |
+        Public endpoint to log into the application. It will 
+        1. verify the password
+        2. if correct, generate a jwt token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePwdReq"
+        description: User password reset request content
+      responses:
+        "200":
+          description: |
+            login successfull or need to change password (UI to take action)
+
+            translateKey will be either 'OK' or 'changePassword'
+
+            The user object contains a property token that contains the jwt token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePwdOKResp"
+        "400":
+          description: "missing or invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "bad password"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Username doesn't exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    SendEMailRequest:
+      type: object
+      properties:
+        to:
+          type: string
+        from:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+      required:
+        - to
+        - subject
+        - message
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            key:
+              type: string
+            type:
+              type: string
+            title:
+              type: string
+    RegistrationUserReq:
+      required:
+        - type
+        - username
+        - email
+      properties:
+        type:
+          type: string
+          enum: ["Registration"]
+        username:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+          example: +32123123456
+      type: object
+    ResetPwdUserReq:
+      required:
+        - type
+        - tempPwd
+      properties:
+        type:
+          type: string
+          enum: ["passwordReset"]
+        tempPwd:
+          type: string
+      type: object
+    CreateUserReq:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: ["create"]
+        username:
+          type: string
+        password:
+          type: string
+        state:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+      required:
+        - action
+        - username
+        - email
+        - password
+        - state
+    UpdateUserStateReq:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: ["update"]
+        username:
+          type: string
+        state:
+          type: string
+      required:
+        - action
+        - username
+        - state
+    UpdateUserPasswordReq:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: ["update"]
+        username:
+          type: string
+        password:
+          type: string
+        state:
+          type: string
+      required:
+        - action
+        - username
+        - password
+        - state
+    UpdateUserDataReq:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: ["update"]
+        username:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+      required:
+        - action
+        - username
+    SignupReq:
+      required:
+        - username
+        - email
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+          example: +32123123456
+      type: object
+    ChangePwdReq:
+      required:
+        - username
+        - oldPassword
+        - newPassword
+      properties:
+        username:
+          type: string
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+      type: object
+    ResetPwdReq:
+      required:
+        - username
+      properties:
+        username:
+          type: string
+      type: object
+    SignupOKResp:
+      type: object
+      properties:
+        message:
+          type: string
+        translateKey:
+          type: string
+        registrationID:
+          type: string
+    ProcessUserRequestConfirmationOKResp:
+      type: object
+      properties:
+        message:
+          type: string
+        translateKey:
+          type: string
+        password:
+          type: string
+    ChangePwdOKResp:
+      type: object
+      properties:
+        message:
+          type: string
+        translateKey:
+          type: string
+        user:
+          type: object
+    UpdateUserProfileReq:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+      required:
+        - username
+    LoginReq:
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      type: object

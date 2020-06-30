@@ -1,0 +1,16 @@
+.item {
+  --padding-bottom: 0px;
+  --padding-top: 0px;
+  --min-height: 30px;
+  /* <- this can be whatever you need */
+}
+
+ion-label {
+  //margin: 13px 8px 13px 0;
+  margin: 0px;
+}
+
+ion-icon {
+  --min-height: 30px;
+  font-size: 16px;
+}

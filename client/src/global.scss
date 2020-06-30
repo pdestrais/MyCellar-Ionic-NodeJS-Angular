@@ -1,0 +1,52 @@
+// http://ionicframework.com/docs/theming/
+@import '~@ionic/angular/css/core.css';
+@import '~@ionic/angular/css/normalize.css';
+@import '~@ionic/angular/css/structure.css';
+@import '~@ionic/angular/css/typography.css';
+
+@import '~@ionic/angular/css/padding.css';
+@import '~@ionic/angular/css/float-elements.css';
+@import '~@ionic/angular/css/text-alignment.css';
+@import '~@ionic/angular/css/text-transformation.css';
+@import '~@ionic/angular/css/flex-utils.css';
+
+/* .modal-wrapper.modal-wrapper-md.sc-ion-modal-md {
+  height: 640px;
+  width: 360px;
+}
+
+.modal-wrapper.modal-wrapper-ios.sc-ion-modal-ios {
+  height: 640px;
+  width: 360px;
+}
+ */
+
+/* div.modal-wrapper {
+  height: 640px;
+  width: 360px;
+} */
+
+/* ion-modal {
+  --width: auto;
+} */
+
+ion-modal.auto-height {
+  &.bottom {
+    align-items: flex-end;
+  }
+
+  --height: auto;
+  --width: 360px;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+
+    .inner-content {
+      /* max-height: 80vh; */
+      overflow: auto;
+      padding: 10px;
+    }
+  }
+}
