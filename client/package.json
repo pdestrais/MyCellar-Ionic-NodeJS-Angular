@@ -57,8 +57,8 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~10.12.0",
     "codelyzer": "~4.5.0",
-    "electron": "^9.0.5",
-    "electron-builder": "^22.7.0",
+    "electron": "8.2.0",
+    "electron-builder": "^22.4.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.1.4",
@@ -74,7 +74,7 @@
   "main": "electron/main.js",
   "description": "An Ionic project",
   "build": {
-    "appId": "org.pdestrais.cellar-ionic4",
+    "appId": "org.pdestrais.cellar-ionic5",
     "files": [
       "electron/main.js",
       "www/**/*"
