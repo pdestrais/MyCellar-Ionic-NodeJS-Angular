@@ -29,7 +29,7 @@ To test with electron, launch electron from the project's 'client' directory :
      electron .
 
 
-### build prepare for the different deployment targets
+### for production : build for the different deployment targets
 
 - First, build the application for the 'client' directory. For the web, PWA or mobile targets :
 
