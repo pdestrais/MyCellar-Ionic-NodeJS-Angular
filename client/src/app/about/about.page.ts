@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 export class AboutPage implements OnInit {
 	public appInfo: any = {
 		name: 'MyCellar',
-		version: '3.0',
+		version: '3.1',
 		author: 'Philippe Destrais',
 		ionic: '5',
 		angular: '9'

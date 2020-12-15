@@ -23,12 +23,18 @@ export class ReadyToDrinkPage implements OnInit {
 		this.readyToDrinkList = [];
 		this.PouchdbService.getDocsOfType('vin').then((vins) => {
 			vins.forEach((v) => {
-				if (v.apogee) {
+				if (v.apogee && v.nbreBouteillesReste > 0) {
 					let drinkFromTo = v.apogee.split('-');
-					if (parseInt(drinkFromTo[0]) <= now.year() && parseInt(drinkFromTo[1]) >= now.year())
+					if (parseInt(drinkFromTo[0]) <= now.year() && parseInt(drinkFromTo[1]) >= now.year()) {
+						v.apogeeTo = drinkFromTo[1];
+						if (v.apogeeTo - now.year() <= 0) v.color = 'danger';
+						else if (v.apogeeTo - now.year() > 0 && v.apogeeTo - now.year() <= 2) v.color = 'warning';
+						else v.color = 'light';
 						this.readyToDrinkList.push(v);
+					}
 				}
 			});
+			this.readyToDrinkList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
 		});
 	}
 

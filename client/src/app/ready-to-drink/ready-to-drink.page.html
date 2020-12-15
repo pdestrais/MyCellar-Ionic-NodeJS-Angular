@@ -15,10 +15,14 @@
     <ion-row>
       <ion-col *ngFor="let wine of readyToDrinkList">
         <ion-card (click)="selectWine(wine)">
-          <ion-card-header>
+          <ion-card-header color= {{wine.color}}>
             {{wine.nom}}
           </ion-card-header>
           <ion-card-content>
+            {{'wine.apogee' | translate }} : {{wine.apogee}}<br><br>
+            
+            {{'wine.type' | translate }} : {{wine.type.nom}}<br>
+            {{'wine.purchaseDate' | translate }} : {{wine.dateAchat}}<br>
             {{'wine.price' | translate }} : {{wine.prixAchat}} - {{'wine.location' | translate }} :
             {{wine.localisation}}
             <br> {{'wine.bottlesLeft' | translate }} :
