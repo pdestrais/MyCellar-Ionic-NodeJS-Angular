@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+client/build
+client/dist
+client/e2e
+client/electron
+client/node_modules
+client/www
