@@ -11,6 +11,7 @@ var https = require('https');
 var dotenv = require('dotenv')
   .config();
 var jsrender = require('jsrender');
+var nodemailer = require('nodemailer');
 
 const length = 128;
 const digest = 'sha256';
@@ -213,69 +214,48 @@ app.post("/api/sendEMail", function (request, response, next) {
       });
   }
 
-  var send = require('gmail-send')({
-    //var send = require('../index.js')({
-    user: process.env.gmailUserId,
-    // user: credentials.user,                  // Your GMail account used to send emails
-    pass: process.env.gmailUserPwd,
-    // pass: credentials.pass,                  // Application-specific password
-    //to: 'user@gmail.com',
-    // to:   credentials.user,                  // Send to yourself
-    // you also may set array of recipients:
-    // [ 'user1@gmail.com', 'user2@gmail.com' ]
-    // from:    credentials.user,            // from: by default equals to user
-    // replyTo: credentials.user,            // replyTo: by default undefined
-    // bcc: 'some-user@mail.com',            // almost any option of `nodemailer` will be passed to it
-    subject: request.body.subject,
-    //text: request.body.message, // Plain text
-    html: '<b>html text</b>' // HTML
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.gmailUserId,
+      pass: process.env.gmailUserPwd
+    }
   });
 
+  let message = {};
+
   if (!request.body.template) {
-    send({
-      user: process.env.gmailUserId,
-      pass: process.env.gmailUserPwd,
+    message = {
+      from: process.env.gmailUserId,
       to: request.body.to,
-      from: request.body.from || process.env.gmailUserId,
       subject: request.body.subject,
-      text: request.body.message
-    }, function (err, res) {
-      if (err != null) {
-        console.log('gmail send message call error returned')
-        response.status(500)
-          .send(err)
-      } else {
-        console.log("gmail send message call returned without error");
-        response.send({
-          result: 'OK'
-        })
-      }
-      console.log('send() callback returned: err:', err, '; res:', res);
-    });
+      text: request.body.message,
+    };
+
   } else {
     let htmlMessage = jsrender.renderFile('./server/templates/' + request.body.template, request.body.message);
-    send({
-      user: process.env.gmailUserId,
-      pass: process.env.gmailUserPwd,
+    message = {
+      from: process.env.gmailUserId,
       to: request.body.to,
-      from: request.body.from || process.env.gmailUserId,
       subject: request.body.subject,
-      /*html: '<b>html text</b>'*/
-      html: htmlMessage
-    }, function (err, res) {
-      if (err != null) {
-        console.log('gmail send message call error returned')
-        response.status(500)
-          .send(err)
-      } else {
-        console.log("gmail send message call returned without error");
-        response.send({
-          result: 'OK'
-        })
-      }
-      console.log('send() callback returned: err:', err, '; res:', res);
-    });
+      html: htmlMessage,
+    };
   }
+  transporter.sendMail(message, function (err, res) {
+    if (err != null) {
+      console.log('gmail smtp send message call error returned')
+      response.status(500)
+        .send(err)
+    } else {
+      console.log("gmail smtp send message call returned without error");
+      response.send({
+        result: 'OK'
+      })
+    }
+    console.log('send() callback returned: err:', err, '; res:', res);
+  })
 });
 
 /* Private endpoint to insert or update user data (including password) in the user table.
@@ -1982,9 +1962,18 @@ app.post('/api/loginold', function (request, response, next) {
 
 });
 
-app.get("/api/test", function (request, response, next) {
-  let result = funB();
-  console.log("/api/test result :" + JSON.stringify(result));
+app.get("/api/ping", function (request, response, next) {
+  resp = {
+    status: 'backend API server available',
+    environment: {
+      dbHost: process.env.dbHost,
+      dbHostServiceUsername: process.env.dbHostServiceUsername,
+      secret: process.env.secret,
+      gmailClientId: process.env.gmailClientID
+    }
+  }
+  response.json(resp);
+
 })
 
 //serve static file (index.html, images, css)

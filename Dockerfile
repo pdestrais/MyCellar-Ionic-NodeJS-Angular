@@ -47,6 +47,7 @@ WORKDIR /app
 COPY --from=build /app/www /app/client/www
 COPY package.json /app/package.json
 COPY ./server /app/server
+COPY .env.prod /app/.env
 RUN npm install
 EXPOSE 5001
 CMD [ "node", "server/server.js" ]
