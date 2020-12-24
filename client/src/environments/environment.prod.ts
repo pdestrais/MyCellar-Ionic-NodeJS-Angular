@@ -1,4 +1,5 @@
 export const environment = {
 	production: true,
-	APIEndpoint: ''
+	APIEndpoint: '',
+	version: require('../../package.json').version
 };

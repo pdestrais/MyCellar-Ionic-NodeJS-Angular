@@ -12,6 +12,7 @@ var dotenv = require('dotenv')
   .config();
 var jsrender = require('jsrender');
 var nodemailer = require('nodemailer');
+var environment = require('../package.json');
 
 const length = 128;
 const digest = 'sha256';
@@ -215,12 +216,12 @@ app.post("/api/sendEMail", function (request, response, next) {
   }
 
   let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: "smtp.scarlet.be",
     port: 465,
     secure: true,
     auth: {
-      user: process.env.gmailUserId,
-      pass: process.env.gmailUserPwd
+      user: process.env.mailUserId,
+      pass: process.env.mailUserPwd
     }
   });
 
@@ -228,7 +229,7 @@ app.post("/api/sendEMail", function (request, response, next) {
 
   if (!request.body.template) {
     message = {
-      from: process.env.gmailUserId,
+      from: process.env.emailAdmin,
       to: request.body.to,
       subject: request.body.subject,
       text: request.body.message,
@@ -237,7 +238,7 @@ app.post("/api/sendEMail", function (request, response, next) {
   } else {
     let htmlMessage = jsrender.renderFile('./server/templates/' + request.body.template, request.body.message);
     message = {
-      from: process.env.gmailUserId,
+      from: process.env.mailUserId,
       to: request.body.to,
       subject: request.body.subject,
       html: htmlMessage,
@@ -1555,7 +1556,7 @@ app.post("/api/registerViaMail", function (request, response, next) {
     //var send = require('../index.js')({
     user: process.env.userId,
     // user: credentials.user,                  // Your GMail account used to send emails
-    pass: process.env.gmailUserPwd,
+    pass: process.env.mailUserPwd,
     // pass: credentials.pass,                  // Application-specific password
     //to: 'user@gmail.com',
     // to:   credentials.user,                  // Send to yourself
@@ -1969,8 +1970,9 @@ app.get("/api/ping", function (request, response, next) {
       dbHost: process.env.dbHost,
       dbHostServiceUsername: process.env.dbHostServiceUsername,
       secret: process.env.secret,
-      gmailClientId: process.env.gmailClientID
-    }
+      mailUserId: process.env.mailUserId
+    },
+    backendVersion: environment.version
   }
   response.json(resp);
 

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 @Component({
 	selector: 'app-about',
@@ -8,7 +9,7 @@ import { Component, OnInit } from '@angular/core';
 export class AboutPage implements OnInit {
 	public appInfo: any = {
 		name: 'MyCellar',
-		version: '3.1',
+		version: environment.version,
 		author: 'Philippe Destrais',
 		ionic: '5',
 		angular: '9'

@@ -4,7 +4,8 @@
 
 export const environment = {
 	production: false,
-	APIEndpoint: 'http://localhost:5001'
+	APIEndpoint: 'http://localhost:5001',
+	version: require('../../package.json').version
 };
 
 /*
