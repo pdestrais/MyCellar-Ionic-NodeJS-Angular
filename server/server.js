@@ -13,6 +13,7 @@ var dotenv = require('dotenv')
 var jsrender = require('jsrender');
 var nodemailer = require('nodemailer');
 var environment = require('../package.json');
+const json = require("body-parser/lib/types/json");
 
 const length = 128;
 const digest = 'sha256';
@@ -234,23 +235,25 @@ app.post("/api/sendEMail", function (request, response, next) {
       subject: request.body.subject,
       text: request.body.message,
     };
-
   } else {
     let htmlMessage = jsrender.renderFile('./server/templates/' + request.body.template, request.body.message);
     message = {
-      from: process.env.mailUserId,
+      from: process.env.emailAdmin,
       to: request.body.to,
       subject: request.body.subject,
       html: htmlMessage,
     };
   }
+
+  console.log("[sendEMail]mail message : " + JSON.stringify(message));
+
   transporter.sendMail(message, function (err, res) {
     if (err != null) {
-      console.log('gmail smtp send message call error returned')
+      console.log('mail smtp send message call error returned')
       response.status(500)
         .send(err)
     } else {
-      console.log("gmail smtp send message call returned without error");
+      console.log("mail smtp send message call returned without error");
       response.send({
         result: 'OK'
       })
