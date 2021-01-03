@@ -509,6 +509,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
 //    address: request.body.address || "",
 //    phone: request.body.phone || ""
 app.post("/api/processSignupRequest", function (request, response, next) {
+  console.log('[processSignupRequest]api called with body : ', JSON.stringify(request.body));
   if (!request.body.hasOwnProperty('email') || !request.body.hasOwnProperty('username')) {
     return response.status(400)
       .send({
@@ -603,7 +604,7 @@ app.post("/api/processSignupRequest", function (request, response, next) {
                   email: request.body.email,
                   phone: request.body.phone || '',
                   address: request.body.address || '',
-                  url: process.env.environment == 'dev' ? process.env.apiserver + ':' + port + '/api/approveUserSignupRequest/' + createUserReqResponse.data.id : process.env.apiserver + '/api/sendEMail' + createUserReqResponse.data.id
+                  url: process.env.environment == 'dev' ? process.env.apiserver + ':' + port + '/api/approveUserSignupRequest/' + createUserReqResponse.data.id : process.env.apiserver + '/api/approveUserSignupRequest/' + createUserReqResponse.data.id
                 },
                 template: "approveReqTmpl.html"
               }
@@ -628,6 +629,8 @@ app.post("/api/processSignupRequest", function (request, response, next) {
 // endpoint to the administrator to approval the request for a new signup to the application 
 // It will send registration confirmation on email address
 app.get("/api/approveUserSignupRequest/:id", function (request, response, next) {
+
+  console.log('[approveUserSignupRequest]api called with parameter : ', JSON.stringify(request.params));
 
   // fetch request from user-mngmt table correponding to received id
   var reqID = request.params.id;
@@ -669,7 +672,8 @@ app.get("/api/approveUserSignupRequest/:id", function (request, response, next) 
                 title: "Email confirmation",
                 text1: "Thank you for signin up to get a myCellar account !!",
                 text2: "Before having you on board, please confirm you email address.",
-                url: process.env.apiserver + ':' + port + "/api/processUserRequestConfirmation/" + res.data._id
+                url: process.env.environment == 'dev' ? process.env.apiserver + ':' +
+                  port + "/api/processUserRequestConfirmation/" + res.data._id : process.env.apiserver + "/api/processUserRequestConfirmation/" + res.data._id
               },
               template: "confirmEmailTmpl.html"
               /*"Click on the following URL to validate the registration request: " + process.env.apiserver + "/api/processUserRequestConfirmation" + res.data.id*/
@@ -709,6 +713,8 @@ app.get("/api/approveUserSignupRequest/:id", function (request, response, next) 
 // request path contains the user request id :
 // TODO change name into something more generic like : processRequestConfirmation
 app.get("/api/processUserRequestConfirmation/:id", function (request, response, next) {
+
+  console.log('[processUserRequestConfirmation]api called with parameter : ', JSON.stringify(request.params));
 
   // Generate password
   var newPwd = Math.random()
@@ -888,6 +894,8 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
 // - {message, translateKey, user}
 app.post('/api/login', function (request, response, next) {
 
+  console.log('[login]api called with body : ', JSON.stringify(request.body));
+
   if (!request.body.hasOwnProperty('username')) {
     return response.status(400)
       .send({
@@ -1035,6 +1043,8 @@ app.post('/api/login', function (request, response, next) {
 // - username (mandatory)
 app.post("/api/resetPassword", function (request, response, next) {
 
+  console.log('[resetPassword]api called with body : ', JSON.stringify(request.body));
+
   if (!request.body.hasOwnProperty('username')) {
     return response.status(400)
       .send({
@@ -1165,6 +1175,8 @@ app.post("/api/resetPassword", function (request, response, next) {
 // - Error
 // - {message, translateKey}
 app.post('/api/changePassword', function (request, response, next) {
+
+  console.log('[changePassword]api called with body : ', JSON.stringify(request.body));
 
   if (!request.body.hasOwnProperty('username')) {
     return response.status(400)
@@ -1316,6 +1328,8 @@ app.post('/api/changePassword', function (request, response, next) {
 // - Error
 // - {message "update user data successfull", translateKey}
 app.post('/api/updateUserData', function (request, response, next) {
+
+  console.log('[updateUserData]api called with body : ', JSON.stringify(request.body));
 
   if (!request.body.hasOwnProperty('username')) {
     return response.status(400)

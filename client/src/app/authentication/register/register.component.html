@@ -10,33 +10,45 @@
             <ion-item>
               <ion-label for="username" position="floating">{{"register.username" | translate }}</ion-label>
               <ion-input type="text" formControlName="username"
-                [ngClass]="{ 'is-invalid': !f.username.valid && (f.username.dirty || submitted) }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                [ngClass]="{ 'is-invalid': !f.username.valid && (f.username.dirty) }"></ion-input>
+              <div *ngIf="!f.username.valid  && (f.username.dirty)  && f.username.errors.required">
                 <p class="invalid"> {{"register.username" | translate }} {{"general.required" | translate }}</p>
+              </div>
+              <div *ngIf="!f.username.valid  && (f.username.dirty)  && f.username.errors.whitespace">
+                <p class="invalid"> {{"register.username" | translate }} {{"general.containsWhitespace" | translate }}</p>
+              </div>
+              <div *ngIf="!f.username.valid  && (f.username.dirty)  && f.username.errors.pattern">
+                <p class="invalid"> {{"register.username" | translate }} {{"general.underscore" | translate }}</p>
+              </div>
+              <div *ngIf="!f.username.valid  && (f.username.dirty)  && f.username.errors.minlength">
+                <p class="invalid"> {{"register.username" | translate }} {{"general.minlength" | translate }}</p>
               </div>
             </ion-item>
             <ion-item>
               <ion-label for="firstName" position="floating">{{"register.firstname" | translate }}</ion-label>
               <ion-input type="text" formControlName="firstName"
-                [ngClass]="{ 'is-invalid': submitted && f.firstName.errors }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                [ngClass]="{ 'is-invalid': !f.firstName.valid && f.firstName.dirty }"></ion-input>
+              <div *ngIf="!f.firstName.valid  && (f.firstName.dirty)  && f.firstName.errors.required">
                 <p class="invalid"> {{"register.firstName" | translate }} {{"general.required" | translate }}</p>
               </div>
             </ion-item>
             <ion-item>
               <ion-label for="lastName" position="floating">{{"register.lastname" | translate }}</ion-label>
               <ion-input type="text" formControlName="lastName"
-                [ngClass]="{ 'is-invalid': submitted && f.lastName.errors }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                [ngClass]="{ 'is-invalid': !f.lastName.valid && f.lastName.dirty }"></ion-input>
+              <div *ngIf="!f.lastName.valid  && (f.lastName.dirty)  && f.lastName.errors.required">
                 <p class="invalid"> {{"register.lastName" | translate }} {{"general.required" | translate }}</p>
               </div>
             </ion-item>
             <ion-item>
               <ion-label for="password" position="floating">{{"register.password" | translate }}</ion-label>
               <ion-input type="password" formControlName="password"
-                [ngClass]="{ 'is-invalid': submitted && f.password.errors }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                [ngClass]="{ 'is-invalid': !f.password.valid && f.password.dirty }"></ion-input>
+              <div *ngIf="!f.password.valid  && (f.password.dirty)  && f.password.errors.required">
                 <p class="invalid"> {{"register.password" | translate }} {{"general.required" | translate }}</p>
+              </div>
+              <div *ngIf="!f.password.valid  && (f.password.dirty)  && f.password.errors.minlength">
+                <p class="invalid"> {{"register.password" | translate }} {{"general.minlength" | translate }}</p>
               </div>
             </ion-item>
             <ion-item>
@@ -44,19 +56,28 @@
                 {{"register.confirmPassword" | translate }}
               </ion-label>
               <ion-input type="password" formControlName="confirm"
-                [ngClass]="{ 'is-invalid': submitted && f.confirm.errors }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+                [ngClass]="{ 'is-invalid': !f.confirm.valid && f.confirm.dirty }"></ion-input>
+              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors.required">
                 <p class="invalid"> {{"register.confirmPassword" | translate }} {{"general.required" | translate }}</p>
+              </div>
+              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors.minlength">
+                <p class="invalid"> {{"register.confirmPassword" | translate }} {{"general.minlength" | translate }}</p>
+              </div>
+              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors?.password_mismatch">
+                <p class="invalid"> {{"register.passwordMismatch" | translate }}</p>
               </div>
             </ion-item>
             <ion-item>
               <ion-label for="email" position="floating" placeholder="your@email.com">
                 {{"register.email" | translate }}
               </ion-label>
-              <ion-input type="email" formControlName="email" [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
+              <ion-input type="email" formControlName="email" [ngClass]="{ 'is-invalid': !f.email.valid && f.email.dirty }">
               </ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+              <div *ngIf="!f.email.valid  && (f.email.dirty) && f.email.errors.required">
                 <p class="invalid"> {{"register.email" | translate }} {{"general.required" | translate }}</p>
+              </div>
+              <div *ngIf="!f.email.valid  && (f.email.dirty) && f.email.errors.pattern">
+                <p class="invalid"> {{"register.validEmail" | translate }}</p>
               </div>
             </ion-item>
           </div>

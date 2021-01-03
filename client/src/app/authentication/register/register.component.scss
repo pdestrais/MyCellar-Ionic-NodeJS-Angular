@@ -22,3 +22,11 @@ p.invalid {
   background-size: calc(.75em + .375rem) calc(.75em + .375rem);
   background-repeat: no-repeat;
 }
+
+:host {
+  ion-item {
+    --border-color: white; // default underline color
+    --highlight-color-invalid: rgb(255, 251, 0); // invalid underline color
+    --highlight-color-valid: green; // valid underline color
+  }
+}

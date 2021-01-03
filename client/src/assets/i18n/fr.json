@@ -138,7 +138,11 @@
     "isDeleted": "est effacé",
     "isNotDeleted": "n'est pas effacé",
     "newAppInstance": "C'est votre première utilisation de l'aplication. Vous n'avez pas encore choisi votre langue de préférence, c'est pourquoi l'anglais est utilisé. Pour changer de langue, allez dans le menu et choisissez 'configuration'.",
-    "back": "Retour"
+    "back": "Retour",
+    "minlength": "doit contenir au moins 6 caractères",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "validEmail": "Adresse mail non valide",
+    "underscore": "doit être en minuscules"
   },
   "login": {
     "title": "Connexion",

@@ -138,7 +138,11 @@
     "isDeleted": "is deleted",
     "isNotDeleted": "is not deleted",
     "newAppInstance": "You're just starting using the application. Languages preferences are not set, therefore english is used. To choose your language, go to configuration.",
-    "back": "Back"
+    "back": "Back",
+    "minlength": "must be at least 6 characters long",
+    "passwordMismatch": "Passwords don't match",
+    "validEmail": "Invalid email adress",
+    "underscore": "must be in lower case"
   },
   "login": {
     "title": "Please login",
