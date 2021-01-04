@@ -707,7 +707,7 @@ app.get("/api/approveUserSignupRequest/:id", function (request, response, next) 
 // endpoint to finalize the request for a new signup to the application 
 // It will
 //    1. generate a new password
-//    2. create an entry into the user table (with user data and newly generate password - state is registrationDone)
+//    2. create an entry into the user table (with user data and newly generate password - state is registrationConfirmed)
 //    3. create Wine Database corresponding to the chosen username
 //    4. send mail to user with newly generated password
 // request path contains the user request id :
@@ -762,7 +762,7 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
               address: res.data.address || "",
               email: res.data.email || "",
               phone: res.data.phone || "",
-              state: 'registrationDone',
+              state: 'registrationConfirmed',
               app: 'mycellar'
             }
           }
@@ -806,14 +806,10 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
                 .then(axios.spread((firstResponse, secondResponse) => {
                   console.log(JSON.stringify(firstResponse.data), JSON.stringify(
                     secondResponse.data));
+                  let htmlToReturn = jsrender.renderFile('./server/templates/confirmRegistrationTmpl.html', sendMailReq.data.message);
+                  console.log('[processUserRequestConfirmation]api returns : ' + htmlToReturn);
                   return response.status(200)
-                    .send(jsrender.renderFile('./server/templates/confirmRegistrationTmpl.html', sendMailReq.data.message))
-                  /*                     .send({
-                                        message: "User " + res.data.username + " registration done",
-                                        translateKey: "registrationDONE",
-                                        password: newPwd
-                                      })
-                   */
+                    .send(htmlToReturn)
                 }))
                 .catch(error => handleError("processUserRequestConfirmation (combined)", error, response));
             })
@@ -830,7 +826,7 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
               username: res.data.username,
               action: 'update',
               password: newPwd,
-              state: 'resetPasswordDone'
+              state: 'resetPasswordConfirmed'
             }
           }
           // send mail
@@ -860,12 +856,6 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
                 secondResponse.data));
               return response.status(200)
                 .send(jsrender.renderFile('./server/templates/confirmRegistrationTmpl.html', sendMailReq.data.message))
-              /*                 .send({
-                                message: "User " + res.data.username + " password reset done",
-                                translateKey: "passwordResetDONE",
-                                password: newPwd
-                              })
-               */
             }))
             .catch(error => handleError("processUserRequestConfirmation (combined)", error, response));
 
@@ -880,7 +870,6 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
             message: 'No registration request found'
           });
       }
-
     })
     .catch(error => handleError("processUserRequestConfirmation", error, response));
 });
@@ -996,11 +985,12 @@ app.post('/api/login', function (request, response, next) {
             });
             user.token = token;
             delete user.salt;
-            if (user.state == 'resetPasswordDone' || user.state == 'registrationDone') {
+            if (user.state == 'resetPasswordConfirmed' || user.state == 'registrationConfirmed') {
+              // After the user confirmed his request to register or to reset password from the mail he got in his mail box, we send back a special field "action" with value "changePassword" that will be checked in the client, to force the user to set a new password
               return response.status(200)
                 .send({
                   code: "changePassword",
-                  code_: "changePassword",
+                  action: "changePassword",
                   type: 'business',
                   subtype: 'Force to change password',
                   resource: '/api/login',
@@ -1992,7 +1982,6 @@ app.get("/api/ping", function (request, response, next) {
     backendVersion: environment.version
   }
   response.json(resp);
-
 })
 
 //serve static file (index.html, images, css)

@@ -66,9 +66,8 @@ export class LoginComponent implements OnInit {
 		this.authenticationService.login(this.f.username.value, this.f.password.value).pipe(first()).subscribe(
 			(data) => {
 				debug('[onSubmit]Login request returns : ' + JSON.stringify(data));
-				if (data.code_) {
-					// The code field used send back by the nodeJS API endpoint is somewhere overwritten to 'OK" => reason for this extra 'code_'
-					// we got a change password instruction back
+				if (data.action == 'changePassword') {
+					// If the login apii call sends an action field set to 'changePassword', we need to force the user to change his password
 					this.presentToast(
 						this.translate.instant('login.forcedPasswordChange'),
 						'success',

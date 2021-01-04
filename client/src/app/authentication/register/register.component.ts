@@ -36,71 +36,23 @@ export class RegisterComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.registerForm = this.formBuilder.group(
-			{
-				firstName: [ '', Validators.required ],
-				lastName: [ '', Validators.required ],
-				username: [
-					'',
-					[
-						Validators.required,
-						Validators.minLength(6),
-						Validators.pattern('^[a-z]+$'),
-						this.noWhitespaceValidator
-					]
-				],
-				password: [ '', [ Validators.required, Validators.minLength(6) ] ],
-				confirm: [ '', [ Validators.required, Validators.minLength(6) ] ],
-				email: [
-					'',
-					[ Validators.required, Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$') ]
+		this.registerForm = this.formBuilder.group({
+			firstName: [ '', Validators.required ],
+			lastName: [ '', Validators.required ],
+			username: [
+				'',
+				[
+					Validators.required,
+					Validators.minLength(6),
+					Validators.pattern('^[a-z]+$'),
+					this.noWhitespaceValidator
 				]
-			},
-			{
-				validator: this.passwordValidator('password', 'confirm')
-			}
-		);
-	}
-
-	passwordValidator(formCtrlOne, formCtrlTwo) {
-		return (fg: FormGroup) => {
-			// Select the two form conrols from the form group
-			// on which the comparison is to be performed.
-			const fieldOne = fg.controls[formCtrlOne];
-			const fieldTwo = fg.controls[formCtrlTwo];
-			if (fieldOne && fieldTwo) {
-				if (fieldOne.value || fieldTwo.value) {
-					if (fieldOne.value !== fieldTwo.value) {
-						// Use set error methods like this to append
-						// 'password_mismatch' error
-						// with the existing errors.
-						fieldOne.setErrors({
-							...fieldOne.errors,
-							...{ password_mismatch: true }
-						});
-						fieldTwo.setErrors({
-							...fieldTwo.errors,
-							...{ password_mismatch: true }
-						});
-					} else {
-						let fieldOneError = { ...fieldOne.errors };
-						delete fieldOneError['password_mismatch'];
-						// If there is no keys in the error object,
-						// it means that the control has no error
-						// In that case set the object as null
-						// Setting null as error to a form field
-						// makes the form control valid
-						fieldOneError = Object.keys(fieldOneError).length > 0 ? fieldOneError : null;
-						fieldOne.setErrors(fieldOneError);
-
-						let fieldTwoError = { ...fieldTwo.errors };
-						delete fieldTwoError['password_mismatch'];
-						fieldTwoError = Object.keys(fieldTwoError).length > 0 ? fieldTwoError : null;
-						fieldTwo.setErrors(fieldTwoError);
-					}
-				}
-			}
-		};
+			],
+			email: [
+				'',
+				[ Validators.required, Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$') ]
+			]
+		});
 	}
 
 	noWhitespaceValidator(control: FormControl) {

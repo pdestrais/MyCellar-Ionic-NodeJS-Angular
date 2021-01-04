@@ -41,33 +41,6 @@
               </div>
             </ion-item>
             <ion-item>
-              <ion-label for="password" position="floating">{{"register.password" | translate }}</ion-label>
-              <ion-input type="password" formControlName="password"
-                [ngClass]="{ 'is-invalid': !f.password.valid && f.password.dirty }"></ion-input>
-              <div *ngIf="!f.password.valid  && (f.password.dirty)  && f.password.errors.required">
-                <p class="invalid"> {{"register.password" | translate }} {{"general.required" | translate }}</p>
-              </div>
-              <div *ngIf="!f.password.valid  && (f.password.dirty)  && f.password.errors.minlength">
-                <p class="invalid"> {{"register.password" | translate }} {{"general.minlength" | translate }}</p>
-              </div>
-            </ion-item>
-            <ion-item>
-              <ion-label for="confirm" position="floating" placeholder="Password again">
-                {{"register.confirmPassword" | translate }}
-              </ion-label>
-              <ion-input type="password" formControlName="confirm"
-                [ngClass]="{ 'is-invalid': !f.confirm.valid && f.confirm.dirty }"></ion-input>
-              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors.required">
-                <p class="invalid"> {{"register.confirmPassword" | translate }} {{"general.required" | translate }}</p>
-              </div>
-              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors.minlength">
-                <p class="invalid"> {{"register.confirmPassword" | translate }} {{"general.minlength" | translate }}</p>
-              </div>
-              <div *ngIf="!f.confirm.valid  && (f.confirm.dirty)  && f.confirm.errors?.password_mismatch">
-                <p class="invalid"> {{"register.passwordMismatch" | translate }}</p>
-              </div>
-            </ion-item>
-            <ion-item>
               <ion-label for="email" position="floating" placeholder="your@email.com">
                 {{"register.email" | translate }}
               </ion-label>

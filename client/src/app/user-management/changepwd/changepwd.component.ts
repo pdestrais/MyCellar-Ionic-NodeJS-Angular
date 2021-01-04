@@ -4,8 +4,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ValidatorFn } from '@angular/forms';
 import { first } from 'rxjs/operators';
-import { ToastController, AlertController } from '@ionic/angular';
+import { ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { UserManagementService } from '../../services/user-management.service';
+import { PouchdbService } from './../../services/pouchdb.service';
 
 import * as Debugger from 'debug';
 const debug = Debugger('app:changepwd');
@@ -27,6 +28,9 @@ export class ChangepwdComponent implements OnInit {
 	public changepwdForm: FormGroup;
 	loading = false;
 	submitted = false;
+	loadingOverlay: HTMLIonLoadingElement;
+	returnUrl: string = '/';
+	cloudantURL = 'https://';
 
 	constructor(
 		private formBuilder: FormBuilder,
@@ -35,6 +39,8 @@ export class ChangepwdComponent implements OnInit {
 		private userManagementService: UserManagementService,
 		private toastCtrl: ToastController,
 		private alertController: AlertController,
+		private loadingCtrl: LoadingController,
+		private dataService: PouchdbService,
 		private translate: TranslateService
 	) {}
 
@@ -81,6 +87,53 @@ export class ChangepwdComponent implements OnInit {
 						duration: 3000
 					});
 					toast.present();
+					let previousUser = JSON.parse(localStorage.getItem('previousUser')) || { username: '' };
+					if (data.user.username != previousUser.username) {
+						this.cloudantURL =
+							this.cloudantURL +
+							data.user.dbUser +
+							':' +
+							data.user.dbPassword +
+							'@' +
+							data.user.dbServer +
+							'/cellar$' +
+							data.user.username;
+						debug('[onSubmit] reloading local database from : ' + this.cloudantURL);
+						this.loadingCtrl.create({ message: 'loading database' }).then((overlay) => {
+							this.loadingOverlay = overlay;
+							this.loadingOverlay.present();
+						});
+						let subscription = this.dataService.dbEvents$.subscribe(async (event) => {
+							if (event.eventType == 'dbReplicationCompleted' || event.eventType == 'dbSynchronized') {
+								debug('[ngOnInit] replication is finished');
+								this.loadingOverlay.dismiss();
+								const toast = await this.toastCtrl.create({
+									color: 'success',
+									message: this.translate.instant('config.syncOKMessage'),
+									duration: 3000
+								});
+								toast.present();
+								this.router.navigate([ this.returnUrl ]);
+								subscription.unsubscribe();
+							}
+							if (event.eventType == 'dbReplicationFailed' || event.eventType == 'dbSyncFailed') {
+								debug('[ngOnInit] replication failed');
+								const toast = await this.toastCtrl.create({
+									color: 'danger',
+									message: this.translate.instant('config.syncKOMessage', {
+										errorMessage: JSON.stringify(event.error)
+									}),
+									duration: 3000
+								});
+								toast.present();
+								subscription.unsubscribe();
+							}
+						});
+						this.dataService.remote = this.cloudantURL;
+						localStorage.setItem('myCellar.remoteDBURL', this.dataService.remote);
+						this.dataService.replicateRemoteToLocal();
+					}
+
 					this.router.navigate([ '/home' ]);
 				},
 				async (error) => {
