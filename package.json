@@ -25,7 +25,7 @@
     "fast-html-parser": "^1.0.1",
     "jsonwebtoken": "^8.5.0",
     "jsrender": "^1.0.6",
-    "nodemailer": "^6.4.17"
+    "nodemailer": "^6.4.16"
   },
   "author": "Philippe Destrais",
   "license": "Apache-2.0"
