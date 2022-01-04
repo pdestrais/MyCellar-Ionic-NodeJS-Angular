@@ -12,7 +12,8 @@
     "about": "About",
     "logout": "Logout",
     "register": "Register user",
-    "profile": "User Profile"
+    "profile": "User Profile",
+    "rapport": "Report"
   },
   "config": {
     "dbServerURL": "DB server URL",

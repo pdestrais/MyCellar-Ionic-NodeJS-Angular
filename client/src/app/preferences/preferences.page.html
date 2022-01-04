@@ -3,28 +3,53 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>
-      {{'page.config' | translate }}
-    </ion-title>
+    <ion-title> {{'page.config' | translate }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <ion-grid>
     <ion-row class="ion-justify-content-center">
-      <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
+      <ion-col
+        class="ion-align-self-center"
+        size-md="6"
+        size-lg="5"
+        size-xs="12"
+      >
         <ion-item-group>
           <ion-item-divider color="secondary">
             <ion-label>{{'config.language' | translate }}</ion-label>
           </ion-item-divider>
           <ion-item id="configuration-select5">
-            <ion-select [(ngModel)]="language" (ionChange)="languageChange($event)" name="langue" interface="popover">
-              <ion-select-option *ngFor="let lang of supportedLanguages | keyvalue" [value]="lang.key">
+            <ion-select
+              [(ngModel)]="language"
+              (ionChange)="languageChange($event)"
+              name="langue"
+              interface="popover"
+            >
+              <ion-select-option
+                *ngFor="let lang of supportedLanguages | keyvalue"
+                [value]="lang.key"
+              >
                 {{lang.value | translate }}
               </ion-select-option>
             </ion-select>
           </ion-item>
-
+        </ion-item-group>
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col
+        class="ion-align-self-center"
+        size-md="6"
+        size-lg="5"
+        size-xs="12"
+      >
+        <ion-item-group>
+          <ion-item-divider color="secondary">
+            <ion-label>{{'config.dbServerURL' | translate }}</ion-label>
+          </ion-item-divider>
+          <ion-item id="configuration-select5"> {{remoteDB}} </ion-item>
         </ion-item-group>
       </ion-col>
     </ion-row>

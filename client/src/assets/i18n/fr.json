@@ -12,7 +12,8 @@
     "about": "A propos",
     "logout": "Déconnection",
     "register": "Enregistrer utilisateur",
-    "profile": "Profil utilisateur"
+    "profile": "Profil utilisateur",
+    "rapport": "Rapport"
   },
   "config": {
     "dbServerURL": "URL server DB distant",
