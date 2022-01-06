@@ -17,7 +17,7 @@
     "url": "https://github.com/pdestrais/mycellar-ionic4-nodejs"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "body-parser": "^1.17.x",
     "cfenv": "^1.0.x",
     "compression": "^1.7.4",
