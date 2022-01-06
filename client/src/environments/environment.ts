@@ -3,9 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-	production: false,
-	APIEndpoint: 'http://localhost:5001',
-	version: require('../../package.json').version
+  production: false,
+  APIEndpoint: "http://localhost:8080",
+  version: require("../../package.json").version,
 };
 
 /*
