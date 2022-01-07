@@ -14,6 +14,7 @@ var jsrender = require("jsrender");
 var nodemailer = require("nodemailer");
 var environment = require("../package.json");
 const json = require("body-parser/lib/types/json");
+const fs = require("fs");
 
 const length = 128;
 const digest = "sha256";
@@ -1626,6 +1627,17 @@ console.log("pwd : " + process.cwd());
 var staticFileRootPath = process.cwd() + "/client/www";
 console.log("staticFileRootPath : " + staticFileRootPath);
 //app.use(express.static(__dirname + "./../client/www"));
+fs.readdir(staticFileRootPath, function (err, files) {
+  //handling error
+  if (err) {
+    return console.log("Unable to scan directory: " + err);
+  }
+  //listing all files using forEach
+  files.forEach(function (file) {
+    // Do whatever you want to do with the file
+    console.log(file);
+  });
+});
 app.use(express.static(staticFileRootPath));
 
 app.get("*", function (request, response) {
