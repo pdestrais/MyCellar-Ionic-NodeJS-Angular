@@ -47,7 +47,8 @@ WORKDIR /app
 COPY --from=build /app/www /app/client/www
 COPY package.json /app/package.json
 COPY ./server /app/server
-COPY .env.prod /app/.env
+#not needed for deployment on code engine ans env variable are defined in code engine
+#COPY .env.prod /app/.env
 RUN npm install
-EXPOSE 5001
+EXPOSE 8080
 CMD [ "node", "server/server.js" ]
