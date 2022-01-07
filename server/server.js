@@ -1623,12 +1623,14 @@ app.get("/api/ping", function (request, response, next) {
 //serve static file (index.html, images, css)
 console.log("__dirname : " + __dirname);
 console.log("pwd : " + process.cwd());
+var staticFileRootPath = process.cwd() + "/client/www";
+console.log("staticFileRootPath : " + staticFileRootPath);
 //app.use(express.static(__dirname + "./../client/www"));
-app.use(express.static(process.cwd() + "/client/www"));
+app.use(express.static(staticFileRootPath));
 
 app.get("*", function (request, response) {
   response.sendFile("index.html", {
-    root: "./client/www",
+    root: staticFileRootPath,
   });
 });
 
