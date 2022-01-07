@@ -1621,14 +1621,17 @@ app.get("/api/ping", function (request, response, next) {
 });
 
 //serve static file (index.html, images, css)
-app.use(express.static(__dirname + "/../client/www"));
+console.log("__dirname : " + __dirname);
+console.log("pwd : " + process.cwd());
+//app.use(express.static(__dirname + "./../client/www"));
+app.use(express.static(process.cwd() + "/client/www"));
 
-app.get("*", function (request, response) {
+/* app.get("*", function (request, response) {
   response.sendFile("index.html", {
     root: "./client/www",
   });
 });
-
+ */
 var port = process.env.PORT || 8080;
 app.listen(port, function () {
   console.log(
