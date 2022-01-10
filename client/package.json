@@ -1,8 +1,7 @@
 {
-  "name": "cellar-ionic5",
-  "version": "3.1.4",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "name": "cellar-ionicng ",
+  "version": "4.0.0",
+  "author": "Philippe Destrais",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -20,7 +19,7 @@
     "@angular/common": "~8.2.14",
     "@angular/core": "~8.2.14",
     "@angular/forms": "~8.2.14",
-    "@angular/http": "~7.2.0",
+    "@angular/http": "^8.2.14",
     "@angular/platform-browser": "~8.2.14",
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/pwa": "^0.12.2",
@@ -72,9 +71,9 @@
     "typescript": "~3.5.3"
   },
   "main": "electron/main.js",
-  "description": "An Ionic project",
+  "description": "A Cellar application build on ionic 6 and angular",
   "build": {
-    "appId": "org.pdestrais.cellar-ionic5",
+    "appId": "org.pdestrais.cellar-ionic6",
     "files": [
       "electron/main.js",
       "www/**/*"
