@@ -26,7 +26,7 @@ export class UserManagementService {
     private authenticationService: AuthenticationService
   ) {
     if (environment.production) this.backendURL = window.location.origin;
-    else this.backendURL = "http://localhost:5001"; // for dev purposes
+    else this.backendURL = environment.APIEndpoint; // for dev purposes
   }
 
   updateUserData(user: UserModel) {

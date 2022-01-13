@@ -1,7 +1,11 @@
-<ion-list *ngIf="elementList && elementList.length>0">
-  <ion-item ion-item *ngFor="let el of elementList" (click)="selectItem(el.key,el.value)">
+<ion-list *ngIf="elementList && elementList.length > 0">
+  <ion-item
+    ion-item
+    *ngFor="let el of elementList"
+    (click)="selectItem(el.key, el.value)"
+  >
     {{ el.key }}
     <ion-badge color="light" slot="end">{{ el.value }}</ion-badge>
-    <ion-icon slot="end" name='md-arrow-dropright-circle'></ion-icon>
+    <ion-icon slot="end" name="caret-forward-outline"></ion-icon>
   </ion-item>
 </ion-list>

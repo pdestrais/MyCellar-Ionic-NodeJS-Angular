@@ -33,6 +33,7 @@ client/plugins/
 client/plugins/android.json
 client/plugins/ios.json
 client/www/
+client/.angular/cache/
 $RECYCLE.BIN/
 
 .DS_Store
