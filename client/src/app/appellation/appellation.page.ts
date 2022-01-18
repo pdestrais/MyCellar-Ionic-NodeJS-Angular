@@ -106,10 +106,7 @@ export class AppellationPage implements OnInit {
       // validation succeeded
       debug("[AppellationVin]Appellation valid");
       this.pouch
-        .saveDoc(
-          this.cleanValidatorModelObject(this.appellation),
-          "appellation"
-        )
+        .saveDoc(this.appellationForm.value, "appellation")
         .then((response) => {
           if (response.ok) {
             debug(
@@ -207,12 +204,13 @@ export class AppellationPage implements OnInit {
     if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
   }
 
-  private cleanValidatorModelObject(obj) {
+  /* NOT USED ANYMORE after using Angular Forms*/
+  /* private cleanValidatorModelObject(obj) {
     let result = {};
     for (var key in obj) {
       if (key.charAt(0) != "_" || (key == "_id" && obj[key]))
         result[key] = obj[key];
     }
     return result;
-  }
+  } */
 }

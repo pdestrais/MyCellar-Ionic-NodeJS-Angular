@@ -1,44 +1,84 @@
-import { Component, OnInit } from '@angular/core';
-import { PouchdbService } from '../services/pouchdb.service';
-import { VinModel } from '../models/cellar.model';
-import * as moment from 'moment';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { PouchdbService } from "../services/pouchdb.service";
+import { VinModel } from "../models/cellar.model";
+import * as moment from "moment";
+import { Router } from "@angular/router";
+import { IonAccordionGroup } from "@ionic/angular";
 
-import * as Debugger from 'debug';
-const debug = Debugger('app:readytodrink');
+import * as Debugger from "debug";
+const debug = Debugger("app:readytodrink");
 
 @Component({
-	selector: 'app-ready-to-drink',
-	templateUrl: './ready-to-drink.page.html',
-	styleUrls: [ './ready-to-drink.page.scss' ]
+  selector: "app-ready-to-drink",
+  templateUrl: "./ready-to-drink.page.html",
+  styleUrls: ["./ready-to-drink.page.scss"],
 })
 export class ReadyToDrinkPage implements OnInit {
-	public readyToDrinkList: Array<VinModel>;
+  public wines: Array<VinModel> = [];
+  public readyToDrinkList: Array<VinModel>;
+  public RTDList: Array<VinModel> = [];
+  public NotRTDList: Array<VinModel> = [];
+  public NearlyRTDList: Array<VinModel> = [];
+  public AlertRTDList: Array<VinModel> = [];
+  public nbrARTD: number = 0;
+  public nbrRTD: number = 0;
+  public nbrNearlyRTD: number = 0;
+  public nbrNotRTD: number = 0;
 
-	constructor(private router: Router, private PouchdbService: PouchdbService) {}
+  @ViewChild(IonAccordionGroup, { static: true })
+  accordionGroup: IonAccordionGroup;
 
-	ngOnInit() {
-		debug('[ngOnInit]entering');
-		let now = moment();
-		this.readyToDrinkList = [];
-		this.PouchdbService.getDocsOfType('vin').then((vins) => {
-			vins.forEach((v) => {
-				if (v.apogee && v.nbreBouteillesReste > 0) {
-					let drinkFromTo = v.apogee.split('-');
-					if (parseInt(drinkFromTo[0]) <= now.year() && parseInt(drinkFromTo[1]) >= now.year()) {
-						v.apogeeTo = drinkFromTo[1];
-						if (v.apogeeTo - now.year() <= 0) v.color = 'danger';
-						else if (v.apogeeTo - now.year() > 0 && v.apogeeTo - now.year() <= 2) v.color = 'warning';
-						else v.color = 'light';
-						this.readyToDrinkList.push(v);
-					}
-				}
-			});
-			this.readyToDrinkList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
-		});
-	}
+  constructor(private router: Router, private PouchdbService: PouchdbService) {}
 
-	selectWine(wine) {
-		this.router.navigate([ '/vin', wine._id ]);
-	}
+  ngOnInit() {
+    debug("[ngOnInit]entering");
+    this.getAllWines();
+  }
+
+  getAllWines() {
+    this.PouchdbService.getDocsOfType("vin")
+      .then((data) => {
+        this.wines = data;
+        let now = moment();
+        //debug('[getAllWines] all wines loaded into component ' + JSON.stringify(this.wines));
+        this.wines.forEach((v: any) => {
+          if (v.apogee && v.nbreBouteillesReste > 0) {
+            let drinkFromTo = v.apogee.split("-");
+            v.apogeeTo = drinkFromTo[1];
+            v.apogeeFrom = drinkFromTo[0];
+            /* apogee :                 FROM-2          FROM            TO            */
+            /*             <----NotRTD ---|--NearlyRTD---|-----RTD------|----ARTD---> */
+            if (now.year() - v.apogeeTo >= 0) {
+              this.nbrARTD++;
+              this.AlertRTDList.push(v);
+            } else if (now.year() <= v.apogeeTo && now.year() > v.apogeeFrom) {
+              this.nbrRTD++;
+              this.RTDList.push(v);
+            } else if (
+              now.year() > v.apogeeFrom - 2 &&
+              now.year() <= v.apogeeFrom
+            ) {
+              this.nbrNearlyRTD++;
+              this.NearlyRTDList.push(v);
+            } else {
+              this.nbrNotRTD++;
+              this.NotRTDList.push(v);
+            }
+          }
+        });
+        this.AlertRTDList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
+        this.RTDList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
+        this.NearlyRTDList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
+        this.NotRTDList.sort((a: any, b: any) => a.apogeeTo - b.apogeeTo);
+      })
+      .catch((error) => {
+        console.error(
+          "[getAllWines]problem to load vins - error : " + JSON.stringify(error)
+        );
+      });
+  }
+
+  selectWine(wine) {
+    this.router.navigate(["/vin", wine._id]);
+  }
 }

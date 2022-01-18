@@ -87,7 +87,7 @@
     "reports": "rapports",
     "content": "Contenu de la cave",
     "readyForDrinking": "Vin prêts à boire",
-    "readyForDrinkingHeader": "Les vins suivants sont à leur apogée maintenant :",
+    "readyForDrinkingHeader": "Maturité des vins :",
     "yearlyReport": "Rapport par année",
     "typeReport": "Rapport par type",
     "readyToDrink": "Prêt à boire"
@@ -103,7 +103,9 @@
   },
   "search": {
     "inStock": "vin en stock",
-    "outOfStock": "vin plus en stock"
+    "outOfStock": "vin plus en stock",
+    "winesReadyness": "Que choisir dans la cave ?",
+    "search": "Recherche par nom"
   },
   "about": {
     "appInfo": "Informations sur l'application",

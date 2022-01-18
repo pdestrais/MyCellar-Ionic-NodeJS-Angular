@@ -1,3 +1,23 @@
 ion-card {
   min-width: 300px;
 }
+
+.condensed {
+  --min-height: 30px;
+}
+
+ion-accordion[value="ARTD"] > ion-item[slot="header"]::part(native) {
+  background-color: #ec445a;
+}
+
+ion-accordion[value="RTD"] > ion-item[slot="header"]::part(native) {
+  background-color: #2ed36f;
+}
+
+ion-accordion[value="NRTD"] > ion-item[slot="header"]::part(native) {
+  background-color: #3880fe;
+}
+
+ion-accordion[value="NotRTD"] > ion-item[slot="header"]::part(native) {
+  background-color: #f4f5f8;
+}

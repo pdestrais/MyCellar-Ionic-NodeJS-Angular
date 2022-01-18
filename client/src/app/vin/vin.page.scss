@@ -28,11 +28,11 @@ label {
   cursor: pointer;
   position: relative;
   background: #3880ff;
-  border-radius: .5em;
+  border-radius: 0.5em;
   color: white;
   margin-left: 50px;
   float: right;
-  padding: .5em;
+  padding: 0.5em;
 
   /* Style as you please, it will become the visible UI component. */
 }
@@ -51,13 +51,12 @@ label.nophoto {
   overflow: hidden;
   position: relative;
   background: blue;
-  border-radius: .5em;
+  border-radius: 0.5em;
   float: left;
-  padding: .5em;
-
+  padding: 0.5em;
 }
 
-.fileContainer [type=file] {
+.fileContainer [type="file"] {
   cursor: pointer;
   display: block;
   font-size: 999px;
@@ -82,4 +81,10 @@ p.invalid {
 
 #hiddenInput {
   display: none;
+}
+
+#mingrid,
+#mincol {
+  padding-inline-start: 0;
+  padding-inline-end: 0;
 }

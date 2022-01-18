@@ -87,7 +87,7 @@
     "reports": "reports",
     "content": "Cellar content",
     "readyForDrinking": "What's ready for drinking ?",
-    "readyForDrinkingHeader": "Wines at their apogee now :",
+    "readyForDrinkingHeader": "Wines maturity :",
     "yearlyReport": "Yearly report",
     "typeReport": "Type Report",
     "readyToDrink": "Ready to Drink"
@@ -103,7 +103,9 @@
   },
   "search": {
     "inStock": "wine in stock",
-    "outOfStock": "wine out of stock"
+    "outOfStock": "wine out of stock",
+    "winesReadyness": "What can I drink ?",
+    "search": "Search by wine name"
   },
   "about": {
     "appInfo": "Application information",

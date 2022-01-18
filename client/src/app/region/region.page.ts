@@ -108,29 +108,27 @@ export class RegionPage implements OnInit {
     if (this.origineForm.valid) {
       // validation succeeded
       debug("[OrigineVin]Origine valid");
-      this.pouch
-        .saveDoc(this.cleanValidatorModelObject(this.origine), "origine")
-        .then((response) => {
-          if (response.ok) {
-            debug(
-              "[saveOrigine]Origine " + JSON.stringify(this.origine) + "saved"
-            );
-            this.presentToast(
-              this.translate.instant("general.dataSaved"),
-              "success",
-              "/home"
-            );
-            // we should also update all wines that use have this origine. If we don't do it, our report by type, origine, ... or PDF could be wrong ..
-            // or we adjust the wines loading process to include the latest versions of the type, appellations, origines based on the stored id
-            // (which doesn't change if we update the origin for example)
-          } else {
-            this.presentToast(
-              this.translate.instant("general.DBError"),
-              "error",
-              "/home"
-            );
-          }
-        });
+      this.pouch.saveDoc(this.origineForm.value, "origine").then((response) => {
+        if (response.ok) {
+          debug(
+            "[saveOrigine]Origine " + JSON.stringify(this.origine) + "saved"
+          );
+          this.presentToast(
+            this.translate.instant("general.dataSaved"),
+            "success",
+            "/home"
+          );
+          // we should also update all wines that use have this origine. If we don't do it, our report by type, origine, ... or PDF could be wrong ..
+          // or we adjust the wines loading process to include the latest versions of the type, appellations, origines based on the stored id
+          // (which doesn't change if we update the origin for example)
+        } else {
+          this.presentToast(
+            this.translate.instant("general.DBError"),
+            "error",
+            "/home"
+          );
+        }
+      });
     } else {
       debug("[Vin - saveVin]vin invalid");
       this.presentToast(
@@ -203,12 +201,13 @@ export class RegionPage implements OnInit {
     if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
   }
 
-  private cleanValidatorModelObject(obj) {
+  /* NOT USED ANYMORE after using Angular Forms*/
+  /* private cleanValidatorModelObject(obj) {
     let result = {};
     for (var key in obj) {
       if (key.charAt(0) != "_" || (key == "_id" && obj[key]))
         result[key] = obj[key];
     }
     return result;
-  }
+  } */
 }

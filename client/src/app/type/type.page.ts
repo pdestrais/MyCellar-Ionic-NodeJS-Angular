@@ -94,24 +94,22 @@ export class TypePage implements OnInit {
     if (this.typeForm.valid) {
       // validation succeeded
       debug("[TypeVin]Type valid");
-      this.pouch
-        .saveDoc(this.cleanValidatorModelObject(this.type), "type")
-        .then((response) => {
-          if (response.ok) {
-            debug("[saveType]Type " + JSON.stringify(this.type) + "saved");
-            this.presentToast(
-              this.translate.instant("general.dataSaved"),
-              "success",
-              "/home"
-            );
-          } else {
-            this.presentToast(
-              this.translate.instant("general.DBError"),
-              "error",
-              "/home"
-            );
-          }
-        });
+      this.pouch.saveDoc(this.typeForm.value, "type").then((response) => {
+        if (response.ok) {
+          debug("[saveType]Type " + JSON.stringify(this.type) + "saved");
+          this.presentToast(
+            this.translate.instant("general.dataSaved"),
+            "success",
+            "/home"
+          );
+        } else {
+          this.presentToast(
+            this.translate.instant("general.DBError"),
+            "error",
+            "/home"
+          );
+        }
+      });
     } else {
       debug("[Vin - saveVin]vin invalid");
       this.presentToast(
@@ -184,12 +182,13 @@ export class TypePage implements OnInit {
     if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
   }
 
-  private cleanValidatorModelObject(obj) {
+  /* NOT USED ANYMORE after using Angular Forms*/
+  /* private cleanValidatorModelObject(obj) {
     let result = {};
     for (var key in obj) {
       if (key.charAt(0) != "_" || (key == "_id" && obj[key]))
         result[key] = obj[key];
     }
     return result;
-  }
+  } */
 }
