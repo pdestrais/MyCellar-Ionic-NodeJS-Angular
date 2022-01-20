@@ -6,7 +6,7 @@
     "appellation": "Appellation",
     "region": "Region",
     "type": "Type",
-    "report": "Rapport/Recherche",
+    "report": "Rapport ",
     "stats": "Statistiques",
     "search": "Recherche",
     "about": "A propos",
@@ -87,7 +87,7 @@
     "reports": "rapports",
     "content": "Contenu de la cave",
     "readyForDrinking": "Vin prêts à boire",
-    "readyForDrinkingHeader": "Maturité des vins :",
+    "readyForDrinkingHeader": "Maturité des vins",
     "yearlyReport": "Rapport par année",
     "typeReport": "Rapport par type",
     "readyToDrink": "Prêt à boire"
@@ -100,6 +100,12 @@
     "threeYears": "Trois ans",
     "consumption": "Consommation",
     "now": "maintenant"
+  },
+  "readytodrink": {
+    "winesToDrinkUrgently": "Vins à boire d'urgence",
+    "winesReadyToDrink": "Vins à leur apogée",
+    "winesNearlyReadyToDrink": "Vns presque bons à déguster",
+    "winesToHold": "Vins à encore conserver"
   },
   "search": {
     "inStock": "vin en stock",

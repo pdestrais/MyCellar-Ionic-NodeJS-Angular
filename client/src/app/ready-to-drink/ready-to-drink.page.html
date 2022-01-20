@@ -3,16 +3,19 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title> {{'report.readyForDrinking' | translate }} </ion-title>
+    <ion-title> {{'report.readyForDrinkingHeader' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h5>{{'report.readyForDrinkingHeader' | translate }}</h5>
+  <!--   <h5>{{'report.readyForDrinkingHeader' | translate }}</h5>
+ -->
   <ion-accordion-group value="WinesToDrinks">
     <ion-accordion value="ARTD">
       <ion-item slot="header">
-        <ion-label>Wines to dring urgently</ion-label>
+        <ion-label
+          >{{'readytodrink.winesToDrinkUrgently' | translate }}</ion-label
+        >
       </ion-item>
 
       <ion-list slot="content">
@@ -45,7 +48,7 @@
     </ion-accordion>
     <ion-accordion value="RTD">
       <ion-item slot="header">
-        <ion-label>Wines at their best</ion-label>
+        <ion-label>{{'readytodrink.winesReadyToDrink' | translate }}</ion-label>
       </ion-item>
 
       <ion-list slot="content">
@@ -79,7 +82,9 @@
 
     <ion-accordion value="NRTD">
       <ion-item slot="header">
-        <ion-label>Wines nearly to drink</ion-label>
+        <ion-label
+          >{{'readytodrink.winesNearlyReadyToDrink' | translate }}</ion-label
+        >
       </ion-item>
 
       <ion-list slot="content">
@@ -112,7 +117,7 @@
     </ion-accordion>
     <ion-accordion value="NotRTD">
       <ion-item slot="header">
-        <ion-label>Wines to hold</ion-label>
+        <ion-label>{{'readytodrink.winesToHold' | translate }}</ion-label>
       </ion-item>
 
       <ion-list slot="content">
@@ -145,7 +150,7 @@
     </ion-accordion>
   </ion-accordion-group>
 
-  <ion-grid>
+  <!--   <ion-grid>
     <ion-row>
       <ion-col *ngFor="let wine of readyToDrinkList">
         <ion-card (click)="selectWine(wine)">
@@ -167,4 +172,5 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+ -->
 </ion-content>

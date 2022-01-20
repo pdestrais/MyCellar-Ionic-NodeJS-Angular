@@ -87,7 +87,7 @@
     "reports": "reports",
     "content": "Cellar content",
     "readyForDrinking": "What's ready for drinking ?",
-    "readyForDrinkingHeader": "Wines maturity :",
+    "readyForDrinkingHeader": "Wines maturity",
     "yearlyReport": "Yearly report",
     "typeReport": "Type Report",
     "readyToDrink": "Ready to Drink"
@@ -100,6 +100,12 @@
     "threeYears": "three years",
     "consumption": "consumption",
     "now": "now"
+  },
+  "readytodrink": {
+    "winesToDrinkUrgently": "Wines to drink urgently",
+    "winesReadyToDrink": "Wines at their best",
+    "winesNearlyReadyToDrink": "Wines nearly to drink",
+    "winesToHold": "Wines to hold before drinking"
   },
   "search": {
     "inStock": "wine in stock",
