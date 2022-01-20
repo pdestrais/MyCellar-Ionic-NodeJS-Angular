@@ -4,7 +4,7 @@ import { PouchdbService } from "../services/pouchdb.service";
 import { filter, debounce } from "rxjs/operators";
 import { NgZone } from "@angular/core";
 import { VinModel } from "../models/cellar.model";
-import * as moment from "moment";
+import dayjs from "dayjs";
 
 import * as Debugger from "debug";
 import Debug from "debug";
@@ -115,7 +115,7 @@ export class HomePage implements OnInit {
       .then((data) => {
         this.wines = data;
         this.loading = false;
-        let now = moment();
+        let now = dayjs();
         //debug('[getAllWines] all wines loaded into component ' + JSON.stringify(this.wines));
         this.wines.forEach((v: any) => {
           if (v.apogee && v.nbreBouteillesReste > 0) {

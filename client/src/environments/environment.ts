@@ -2,11 +2,14 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 declare var require: any;
+import npmPackage from "../../package.json";
 
 export const environment = {
   production: false,
   APIEndpoint: "http://localhost:8080",
-  version: require("../../package.json").version,
+  version: npmPackage.version,
+  ionic: "6",
+  angular: "12",
 };
 
 /*

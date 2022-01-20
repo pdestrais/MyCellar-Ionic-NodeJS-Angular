@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { PouchdbService } from "../services/pouchdb.service";
 import { VinModel } from "../models/cellar.model";
-import * as moment from "moment";
+import dayjs from "dayjs";
 import { Router } from "@angular/router";
 import { IonAccordionGroup } from "@ionic/angular";
 
@@ -39,7 +39,7 @@ export class ReadyToDrinkPage implements OnInit {
     this.PouchdbService.getDocsOfType("vin")
       .then((data) => {
         this.wines = data;
-        let now = moment();
+        let now = dayjs();
         //debug('[getAllWines] all wines loaded into component ' + JSON.stringify(this.wines));
         this.wines.forEach((v: any) => {
           if (v.apogee && v.nbreBouteillesReste > 0) {
