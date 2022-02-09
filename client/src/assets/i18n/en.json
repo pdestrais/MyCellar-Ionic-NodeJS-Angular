@@ -13,7 +13,8 @@
     "logout": "Logout",
     "register": "Register user",
     "profile": "User Profile",
-    "rapport": "Report"
+    "rapport": "Report",
+    "vintage": "Vintage table"
   },
   "config": {
     "dbServerURL": "DB server URL",
@@ -122,6 +123,18 @@
     "cantDeleteBecauseUsed": "This type can't be deleted because at least one wine with this type still exist in the cellar database",
     "type": "type",
     "double": "A type with the same name already exists"
+  },
+  "vintage": {
+    "introText": "Select a wine region to to show the vintage ratings per year.",
+    "selectPlaceholder": "select the region / appellation",
+    "legend": "Legend",
+    "notesInBlue": "Notes in blue (on the left) is the current tasting rating",
+    "notesInGreen": "Notes in green (on the right) is the intrinsic vintage rating",
+    "star": "difficult tasting, wait",
+    "hold": "Hold bottle in the cellar",
+    "nearlyReady": "ready to start drinking, wine is maturing",
+    "ready": "Ready to drink, tastes at their peak",
+    "decline": "In decline, wines past their peak moment"
   },
   "general": {
     "save": "save",

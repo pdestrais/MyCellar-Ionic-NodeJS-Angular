@@ -1,0 +1,959 @@
+[
+  {
+    "wineType": { "en": "Red Bordeaux", "fr": "Bordeaux Rouges" },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "19",
+        "currentTastingRating": "19",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "15",
+        "currentTastingRating": "16",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "15",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "10",
+        "currentTastingRating": "10",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "16",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "18",
+        "currentTastingRating": "14",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "15",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "16",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "15-18 C"
+  },
+  {
+    "wineType": { "en": "White Bordeaux", "fr": "Bordeaux Blancs" },
+    "ratings": [
+      {
+        "year": "2009",
+        "vintageRating": "18",
+        "currentTastingRating": "16",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "17",
+        "currentTastingRating": "14",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "12",
+        "currentTastingRating": "11",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "17",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "17",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "17",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "14",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "18",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "18",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "18",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "15",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "10-12 C"
+  },
+  {
+    "wineType": { "en": "Sweet Bordeaux", "fr": "Bordeaux Liquoreux" },
+    "ratings": [
+      {
+        "year": "2005",
+        "vintageRating": "16",
+        "currentTastingRating": "10",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2006",
+        "vintageRating": "17",
+        "currentTastingRating": "19",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2007",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "17",
+        "currentTastingRating": "16",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "19",
+        "currentTastingRating": "18",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "19",
+        "currentTastingRating": "11",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "11",
+        "currentTastingRating": "11",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "12",
+        "currentTastingRating": "11",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "14",
+        "currentTastingRating": "13",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "15",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "18",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "17",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "17",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "8-10 C"
+  },
+  {
+    "wineType": { "en": "Red Bourgognes", "fr": "Bourgognes Rouges" },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "19",
+        "currentTastingRating": "19",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "18",
+        "currentTastingRating": "18",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "14",
+        "currentTastingRating": "18",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "17",
+        "currentTastingRating": "18",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "18",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "14",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "16",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "14-15 C"
+  },
+  {
+    "wineType": { "en": "White Bourgognes", "fr": "Bourgognes Blancs" },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "14",
+        "currentTastingRating": "13",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "18",
+        "currentTastingRating": "19",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "17",
+        "currentTastingRating": "13",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "18",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "17",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "11-13 C"
+  },
+  {
+    "wineType": { "en": "Beaujolais", "fr": "Beaujolais" },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "12",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "16",
+        "currentTastingRating": "12",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "16",
+        "currentTastingRating": "18",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "15",
+        "currentTastingRating": "14",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "15",
+        "currentTastingRating": "12",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "12",
+        "currentTastingRating": "11",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "12",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "16",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "11-13 C"
+  },
+  {
+    "wineType": {
+      "en": "Provence, Lanquedoc & Vallée du Rhônes",
+      "fr": "Provence, Lanquedoc & Vallée du Rhônes"
+    },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "15",
+        "currentTastingRating": "11",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "18",
+        "currentTastingRating": "19",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "17",
+        "currentTastingRating": "12",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "15",
+        "currentTastingRating": "11",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "17",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "15",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "14 C"
+  },
+  {
+    "wineType": { "en": "Alsace (& sweets)", "fr": "Alsace (et liquoreux)" },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "13",
+        "currentTastingRating": "13",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "16",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "17",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "16",
+        "currentTastingRating": "10",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "17",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "17",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "14",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "15",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "8-10 C"
+  },
+  {
+    "wineType": {
+      "en": "Wines of Loire (& sweets)",
+      "fr": "Vins de Loire (& liquoreux)"
+    },
+    "ratings": [
+      {
+        "year": "2007",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2008",
+        "vintageRating": "13",
+        "currentTastingRating": "12",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "19",
+        "currentTastingRating": "17",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "16",
+        "currentTastingRating": "18",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "14",
+        "currentTastingRating": "10",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "11",
+        "currentTastingRating": "10",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "15",
+        "currentTastingRating": "15",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "18",
+        "currentTastingRating": "15",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "19",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "16",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "17",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "B/W: 8-10 C, R: 11-13 C"
+  },
+  {
+    "wineType": {
+      "en": "South-West (& sweets)",
+      "fr": "Sud Ouest (& liquoreux)"
+    },
+    "ratings": [
+      {
+        "year": "2008",
+        "vintageRating": "14",
+        "currentTastingRating": "12",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2009",
+        "vintageRating": "15",
+        "currentTastingRating": "19",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2010",
+        "vintageRating": "18",
+        "currentTastingRating": "17",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2011",
+        "vintageRating": "15",
+        "currentTastingRating": "11",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2012",
+        "vintageRating": "15",
+        "currentTastingRating": "12",
+        "maturityStatus": "PP"
+      },
+      {
+        "year": "2013",
+        "vintageRating": "10",
+        "currentTastingRating": "10",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2014",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "AP"
+      },
+      {
+        "year": "2015",
+        "vintageRating": "18",
+        "currentTastingRating": "14",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2016",
+        "vintageRating": "18",
+        "currentTastingRating": "16",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2017",
+        "vintageRating": "16",
+        "currentTastingRating": "14",
+        "maturityStatus": "NAP"
+      },
+      {
+        "year": "2018",
+        "vintageRating": "19",
+        "currentTastingRating": "11",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2019",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2020",
+        "vintageRating": "19",
+        "currentTastingRating": "*",
+        "maturityStatus": "H"
+      },
+      {
+        "year": "2021",
+        "vintageRating": "15",
+        "currentTastingRating": "",
+        "maturityStatus": "H"
+      }
+    ],
+    "servingTemperature": "14-15 C"
+  }
+]

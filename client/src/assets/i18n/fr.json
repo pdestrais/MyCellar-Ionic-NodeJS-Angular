@@ -13,7 +13,8 @@
     "logout": "Déconnection",
     "register": "Enregistrer utilisateur",
     "profile": "Profil utilisateur",
-    "rapport": "Rapport"
+    "rapport": "Rapport",
+    "vintage": "Information millésimes"
   },
   "config": {
     "dbServerURL": "URL server DB distant",
@@ -122,6 +123,18 @@
     "cantDeleteBecauseUsed": "This type can't be deleted because at least one wine with this type still exist in the cellar database",
     "type": "type",
     "double": "A type with the same name already exists"
+  },
+  "vintage": {
+    "introText": "selectionnez une région pour consulter les cotes des années antérieures",
+    "selectPlaceholder": "Sélectionnez une region / appellation",
+    "legend": "Légende",
+    "notesInBlue": "Les notes en bleu (à gauche) correspondent aux valeurs de dégustation actuelles",
+    "notesInGreen": "Les notes en vert (à droite) indiquent la valeur intrinsèque du millésime",
+    "star": "Dégustation difficile, attendre",
+    "hold": "Laisser vieillir en cave, bouquet encore fermé",
+    "nearlyReady": "Bouteilles à commencer à boire, bouquet est fondu, en phase de maturité",
+    "ready": "Bouteilles à consommer, donnent tous leurs arômes",
+    "decline": "En déclin, les vins ont dépassé leurs apogées."
   },
   "general": {
     "save": "sauver",

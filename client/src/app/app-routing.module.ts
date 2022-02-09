@@ -146,6 +146,11 @@ const routes: Routes = [
         (m) => m.UserManagementModule
       ),
   },
+  {
+    path: "vintage",
+    loadChildren: () =>
+      import("./vintage/vintage.module").then((m) => m.VintageModule),
+  },
 ];
 
 @NgModule({

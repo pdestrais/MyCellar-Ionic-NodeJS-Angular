@@ -1,0 +1,41 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_177_299)">
+<rect width="30" height="30" transform="matrix(1 0 0 -1 0 30)" fill="white"/>
+<circle cx="5.5" cy="10.5" r="0.5" fill="#006DF0"/>
+<circle cx="5.5" cy="10.5" r="2" stroke="#006DF0"/>
+<circle cx="25.5" cy="10.5" r="0.5" fill="#006DF0"/>
+<circle cx="25.5" cy="10.5" r="2" stroke="#006DF0"/>
+<circle cx="20.5" cy="5.5" r="0.5" fill="#006DF0"/>
+<circle cx="20.5" cy="5.5" r="2" stroke="#006DF0"/>
+<circle cx="10.5" cy="5.5" r="0.5" fill="#006DF0"/>
+<circle cx="10.5" cy="5.5" r="2" stroke="#006DF0"/>
+<circle cx="10.5" cy="15.5" r="0.5" fill="#006DF0"/>
+<circle cx="10.5" cy="15.5" r="2" stroke="#006DF0"/>
+<circle cx="10.5" cy="24.5" r="0.5" fill="#006DF0"/>
+<circle cx="10.5" cy="24.5" r="2" stroke="#006DF0"/>
+<circle cx="15.5" cy="10.5" r="0.5" fill="#006DF0"/>
+<circle cx="15.5" cy="10.5" r="2" stroke="#006DF0"/>
+<circle cx="5.5" cy="20.5" r="0.5" fill="#006DF0"/>
+<circle cx="5.5" cy="20.5" r="2" stroke="#006DF0"/>
+<circle cx="20.5" cy="25.5" r="0.5" fill="#006DF0"/>
+<circle cx="20.5" cy="25.5" r="2" stroke="#006DF0"/>
+<circle cx="20.5" cy="15.5" r="0.5" fill="#006DF0"/>
+<circle cx="20.5" cy="15.5" r="2" stroke="#006DF0"/>
+<circle cx="15.5" cy="20.5" r="0.5" fill="#006DF0"/>
+<circle cx="15.5" cy="20.5" r="2" stroke="#006DF0"/>
+<circle cx="25.5" cy="20.5" r="0.5" fill="#006DF0"/>
+<circle cx="25.5" cy="20.5" r="2" stroke="#006DF0"/>
+<line x1="1" y1="19.2929" x2="19.2929" y2="1" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="19.2929" y1="29" x2="1" y2="10.7071" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="29.2929" y1="19" x2="11" y2="0.707107" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="11" y1="29.2929" x2="29.2929" y2="11" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="1" y1="29.2929" x2="29.2929" y2="1" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="29.2929" y1="29" x2="1" y2="0.707108" stroke="#006DF0" stroke-linecap="round"/>
+<line x1="29.2929" y1="9" x2="21" y2="0.707107" stroke="#006DF0" stroke-linecap="round"/>
+</g>
+<defs>
+<clipPath id="clip0_177_299">
+<rect width="30" height="30" fill="white" transform="matrix(1 0 0 -1 0 30)"/>
+</clipPath>
+</defs>
+</svg>

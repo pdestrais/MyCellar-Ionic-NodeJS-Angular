@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      {{ "page.vintage" | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-list-header>
+      <ion-label>{{ "vintage.introText" | translate }}</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-select
+        interface="popover"
+        placeholder="{{ 'vintage.selectPlaceholder' | translate }}"
+        (ionChange)="appellationSelected($event)"
+      >
+        <ion-select-option
+          *ngFor="let appellation of appellationList"
+          [value]="appellation"
+          >{{ appellation }}</ion-select-option
+        >
+      </ion-select>
+    </ion-item>
+    <div class="container-fluid" style="margin-top: 10px">
+      <!--       <div class="table-row header">
+        <div class="text">First Name</div>
+        <div class="text">Last Name</div>
+        <div class="text">Email</div>
+        <div class="text">Birthday</div>
+        <div class="num">Min</div>
+        <div class="num">Max</div>
+        <div class="num">Avg</div>
+        <div class="num">Last</div>
+      </div>
+ -->
+      <div class="table-row">
+        <div class="box" *ngFor="let rating of appellationDetails.ratings">
+          <div class="header">{{ rating.year }}</div>
+          <div class="content">
+            <div class="rating">{{ rating.vintageRating }}</div>
+            <div>
+              <img src="{{ rating.image }}" />
+            </div>
+            <div class="current">{{ rating.currentTastingRating }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="legend" *ngIf="appellationDetails.ratings">
+      <h5>{{ "vintage.legend" | translate }}</h5>
+      <div>
+        <p>{{ "vintage.notesInBlue" | translate }}</p>
+        <p>{{ "vintage.notesInGreen" | translate }}</p>
+      </div>
+      <div>
+        <p>* : {{ "vintage.star" | translate }}</p>
+        <img src="assets/icon/NotRTD.png" />
+        <p>: {{ "vintage.hold" | translate }}</p>
+        <img src="assets/icon/NRTD.png" />
+        <p>: {{ "vintage.nearlyReady" | translate }}</p>
+        <img src="assets/icon/RTD.png" />
+        <p>: {{ "vintage.ready" | translate }}</p>
+        <img src="assets/icon/PastPeak.svg" />
+        <p>: {{ "vintage.decline" | translate }}</p>
+      </div>
+    </div>
+  </ion-list>
+</ion-content>

@@ -82,6 +82,11 @@ export class MenuService {
         iconSrc: "./assets/imgs/statistics.svg",
       },
       {
+        displayText: this.translate.instant("page.vintage"),
+        route: ["/vintage"],
+        iconSrc: "./assets/icon/vintage.svg",
+      },
+      {
         displayText: this.translate.instant("page.config"),
         route: ["/preferences"],
         iconSrc: "./assets/imgs/settings.svg",

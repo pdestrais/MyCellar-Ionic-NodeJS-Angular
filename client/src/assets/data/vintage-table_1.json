@@ -1,0 +1,439 @@
+[
+  {
+    "wineType": { "en": "Red Bordeaux", "fr": "Bordeaux Rouges" },
+    "cotation": [
+      {
+        "year": "2007",
+        "vintageValue": "16",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2008",
+        "vintageValue": "17",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2009",
+        "vintageValue": "19",
+        "currentTastingValue": "19",
+        "status": "RTD"
+      },
+      {
+        "year": "2010",
+        "vintageValue": "18",
+        "currentTastingValue": "17",
+        "status": "RTD"
+      },
+      {
+        "year": "2011",
+        "vintageValue": "15",
+        "currentTastingValue": "16",
+        "status": "RTD"
+      },
+      {
+        "year": "2012",
+        "vintageValue": "15",
+        "currentTastingValue": "17",
+        "status": "RTD"
+      },
+      {
+        "year": "2013",
+        "vintageValue": "10",
+        "currentTastingValue": "10",
+        "status": "RTD"
+      },
+      {
+        "year": "2014",
+        "vintageValue": "16",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2015",
+        "vintageValue": "18",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2016",
+        "vintageValue": "19",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2017",
+        "vintageValue": "16",
+        "currentTastingValue": "17",
+        "status": "RTD"
+      },
+      {
+        "year": "2018",
+        "vintageValue": "19",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2019",
+        "vintageValue": "19",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2020",
+        "vintageValue": "19",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2021",
+        "vintageValue": "16",
+        "currentTastingValue": "",
+        "status": "RTD"
+      }
+    ],
+    "servingTemperature": "15-18 C"
+  },
+  {
+    "wineType": { "en": "White Bordeaux", "fr": "Bordeaux Blancs" },
+    "cotation": [
+      {
+        "year": "2009",
+        "vintageValue": "18",
+        "currentTastingValue": "16",
+        "status": "RTD"
+      },
+      {
+        "year": "2010",
+        "vintageValue": "18",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2011",
+        "vintageValue": "17",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2012",
+        "vintageValue": "17",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2013",
+        "vintageValue": "12",
+        "currentTastingValue": "11",
+        "status": "RTD"
+      },
+      {
+        "year": "2014",
+        "vintageValue": "17",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2015",
+        "vintageValue": "17",
+        "currentTastingValue": "16",
+        "status": "RTD"
+      },
+      {
+        "year": "2016",
+        "vintageValue": "17",
+        "currentTastingValue": "17",
+        "status": "RTD"
+      },
+      {
+        "year": "2017",
+        "vintageValue": "14",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2018",
+        "vintageValue": "18",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2019",
+        "vintageValue": "18",
+        "currentTastingValue": "",
+        "status": "RTD"
+      },
+      {
+        "year": "2020",
+        "vintageValue": "18",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2021",
+        "vintageValue": "15",
+        "currentTastingValue": "",
+        "status": "RTD"
+      }
+    ],
+    "servingTemperature": "10-12 C"
+  },
+  {
+    "wineType": { "en": "Sweet Bordeaux", "fr": "Bordeaux Liquoreux" },
+    "cotation": [
+      {
+        "year": "2005",
+        "vintageValue": "16",
+        "currentTastingValue": "10",
+        "status": "RTD"
+      },
+      {
+        "year": "2006",
+        "vintageValue": "17",
+        "currentTastingValue": "19",
+        "status": "RTD"
+      },
+      {
+        "year": "2007",
+        "vintageValue": "19",
+        "currentTastingValue": "16",
+        "status": "RTD"
+      },
+      {
+        "year": "2008",
+        "vintageValue": "17",
+        "currentTastingValue": "16",
+        "status": "RTD"
+      },
+      {
+        "year": "2009",
+        "vintageValue": "19",
+        "currentTastingValue": "18",
+        "status": "RTD"
+      },
+      {
+        "year": "2010",
+        "vintageValue": "18",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2011",
+        "vintageValue": "19",
+        "currentTastingValue": "11",
+        "status": "RTD"
+      },
+      {
+        "year": "2012",
+        "vintageValue": "11",
+        "currentTastingValue": "11",
+        "status": "RTD"
+      },
+      {
+        "year": "2013",
+        "vintageValue": "12",
+        "currentTastingValue": "11",
+        "status": "RTD"
+      },
+      {
+        "year": "2014",
+        "vintageValue": "14",
+        "currentTastingValue": "13",
+        "status": "RTD"
+      },
+      {
+        "year": "2015",
+        "vintageValue": "15",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2016",
+        "vintageValue": "16",
+        "currentTastingValue": "14",
+        "status": "RTD"
+      },
+      {
+        "year": "2017",
+        "vintageValue": "17",
+        "currentTastingValue": "15",
+        "status": "RTD"
+      },
+      {
+        "year": "2018",
+        "vintageValue": "18",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      },
+      {
+        "year": "2019",
+        "vintageValue": "17",
+        "currentTastingValue": "",
+        "status": "RTD"
+      },
+      {
+        "year": "2020",
+        "vintageValue": "17",
+        "currentTastingValue": "*",
+        "status": "RTD"
+      }
+    ],
+    "servingTemperature": "8-10 C"
+  },
+  {
+    "wineType": { "en": "Red Bourgognes", "fr": "Bourgognes Rouges" },
+    "cotation": {
+      "2021": { "vintageValue": "16", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2017": { "vintageValue": "16", "currentTastingValue": "16" },
+      "2016": { "vintageValue": "19", "currentTastingValue": "14" },
+      "2015": { "vintageValue": "18", "currentTastingValue": "14" },
+      "2014": { "vintageValue": "17", "currentTastingValue": "18" },
+      "2013": { "vintageValue": "14", "currentTastingValue": "18" },
+      "2012": { "vintageValue": "18", "currentTastingValue": "18" },
+      "2011": { "vintageValue": "17", "currentTastingValue": "15" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2009": { "vintageValue": "19", "currentTastingValue": "19" },
+      "2008": { "vintageValue": "17", "currentTastingValue": "15" },
+      "2007": { "vintageValue": "16", "currentTastingValue": "17" }
+    },
+    "servingTemperature": "14-15 C"
+  },
+  {
+    "wineType": { "en": "White Bourgognes", "fr": "Bourgognes Blancs" },
+    "cotation": {
+      "2021": { "vintageValue": "17", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2017": { "vintageValue": "16", "currentTastingValue": "15" },
+      "2016": { "vintageValue": "18", "currentTastingValue": "15" },
+      "2015": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2014": { "vintageValue": "18", "currentTastingValue": "15" },
+      "2013": { "vintageValue": "18", "currentTastingValue": "16" },
+      "2012": { "vintageValue": "17", "currentTastingValue": "13" },
+      "2011": { "vintageValue": "18", "currentTastingValue": "17" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2009": { "vintageValue": "18", "currentTastingValue": "17" },
+      "2008": { "vintageValue": "18", "currentTastingValue": "19" },
+      "2007": { "vintageValue": "14", "currentTastingValue": "13" }
+    },
+    "servingTemperature": "11-13 C"
+  },
+  {
+    "wineType": { "en": "Beaujolais", "fr": "Beaujolais" },
+    "cotation": {
+      "2021": { "vintageValue": "16", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "12" },
+      "2017": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2016": { "vintageValue": "19", "currentTastingValue": "16" },
+      "2015": { "vintageValue": "18", "currentTastingValue": "15" },
+      "2014": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2013": { "vintageValue": "12", "currentTastingValue": "11" },
+      "2012": { "vintageValue": "15", "currentTastingValue": "12" },
+      "2011": { "vintageValue": "15", "currentTastingValue": "14" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "15" },
+      "2009": { "vintageValue": "16", "currentTastingValue": "18" },
+      "2008": { "vintageValue": "16", "currentTastingValue": "12" },
+      "2007": { "vintageValue": "16", "currentTastingValue": "12" }
+    },
+    "servingTemperature": "11-13 C"
+  },
+  {
+    "wineType": {
+      "en": "Provence, Lanquedoc & Vallée du Rhônes",
+      "fr": "Provence, Lanquedoc & Vallée du Rhônes"
+    },
+    "cotation": {
+      "2021": { "vintageValue": "15", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2017": { "vintageValue": "17", "currentTastingValue": "15" },
+      "2016": { "vintageValue": "19", "currentTastingValue": "16" },
+      "2015": { "vintageValue": "19", "currentTastingValue": "16" },
+      "2014": { "vintageValue": "17", "currentTastingValue": "14" },
+      "2013": { "vintageValue": "18", "currentTastingValue": "17" },
+      "2012": { "vintageValue": "15", "currentTastingValue": "11" },
+      "2011": { "vintageValue": "17", "currentTastingValue": "12" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "16" },
+      "2009": { "vintageValue": "18", "currentTastingValue": "19" },
+      "2008": { "vintageValue": "15", "currentTastingValue": "11" },
+      "2007": { "vintageValue": "16", "currentTastingValue": "17" }
+    },
+    "servingTemperature": "14 C"
+  },
+  {
+    "wineType": { "en": "Alsace (& sweets)", "fr": "Alsace (et liquoreux)" },
+    "cotation": {
+      "2021": { "vintageValue": "15", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "14" },
+      "2017": { "vintageValue": "17", "currentTastingValue": "16" },
+      "2016": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2015": { "vintageValue": "17", "currentTastingValue": "17" },
+      "2014": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2013": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2012": { "vintageValue": "16", "currentTastingValue": "10" },
+      "2011": { "vintageValue": "17", "currentTastingValue": "15" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2009": { "vintageValue": "16", "currentTastingValue": "16" },
+      "2008": { "vintageValue": "13", "currentTastingValue": "13" },
+      "2007": { "vintageValue": "16", "currentTastingValue": "16" }
+    },
+    "servingTemperature": "8-10 C"
+  },
+  {
+    "wineType": {
+      "en": "Wines of Loire (& sweets)",
+      "fr": "Vins de Loire (& liquoreux)"
+    },
+    "cotation": {
+      "2021": { "vintageValue": "17", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "14" },
+      "2017": { "vintageValue": "16", "currentTastingValue": "16" },
+      "2016": { "vintageValue": "19", "currentTastingValue": "16" },
+      "2015": { "vintageValue": "18", "currentTastingValue": "15" },
+      "2014": { "vintageValue": "15", "currentTastingValue": "15" },
+      "2013": { "vintageValue": "11", "currentTastingValue": "10" },
+      "2012": { "vintageValue": "14", "currentTastingValue": "10" },
+      "2011": { "vintageValue": "16", "currentTastingValue": "18" },
+      "2010": { "vintageValue": "19", "currentTastingValue": "17" },
+      "2009": { "vintageValue": "18", "currentTastingValue": "17" },
+      "2008": { "vintageValue": "13", "currentTastingValue": "12" },
+      "2007": { "vintageValue": "16", "currentTastingValue": "14" }
+    },
+    "servingTemperature": "B/W: 8-10 C, R: 11-13 C"
+  },
+  {
+    "wineType": {
+      "en": "South-West (& sweets)",
+      "fr": "Sud Ouest (& liquoreux)"
+    },
+    "cotation": {
+      "2021": { "vintageValue": "15", "currentTastingValue": "" },
+      "2020": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2019": { "vintageValue": "19", "currentTastingValue": "*" },
+      "2018": { "vintageValue": "19", "currentTastingValue": "11" },
+      "2017": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2016": { "vintageValue": "18", "currentTastingValue": "16" },
+      "2015": { "vintageValue": "18", "currentTastingValue": "14" },
+      "2014": { "vintageValue": "16", "currentTastingValue": "14" },
+      "2013": { "vintageValue": "10", "currentTastingValue": "10" },
+      "2012": { "vintageValue": "15", "currentTastingValue": "12" },
+      "2011": { "vintageValue": "15", "currentTastingValue": "11" },
+      "2010": { "vintageValue": "18", "currentTastingValue": "17" },
+      "2009": { "vintageValue": "15", "currentTastingValue": "19" },
+      "2008": { "vintageValue": "14", "currentTastingValue": "12" }
+    },
+    "servingTemperature": "14-15 C"
+  }
+]
