@@ -119,7 +119,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       "",
       0,
       [],
-      { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" }
+      { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
+      0
     );
     this.pouch
       .getDocsOfType("vin")
@@ -164,6 +165,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         contenance: [""],
         cepage: [""],
         GWSScore: [""],
+        rating: [0],
       } //,
       //{ validator: this.noDouble.bind(this) }
     );
@@ -249,7 +251,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           "",
           0,
           [],
-          { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" }
+          { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
+          0
         );
       }
     });

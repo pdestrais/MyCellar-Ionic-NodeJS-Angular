@@ -291,14 +291,13 @@
       ></ion-input>
     </ion-item>
 
-    <ion-grid>
-      <ion-row>
-        <ion-col size="6">
-          <ion-item id="vin-input14">
+    <div class="container1">
+      <div class="container2">
+        <div>
+          <ion-item>
             <ion-label position="floating">
               {{'wine.GWSScore' | translate }}
             </ion-label>
-            <!-- <ion-input [(ngModel)]="vin.GWSScore" type="number" placeholder="85.7" class="ion-text-right" [ngModelOptions]="{standalone: true}"></ion-input> -->
             <ion-input
               type="number"
               formControlName="GWSScore"
@@ -306,39 +305,52 @@
               class="ion-text-right"
             ></ion-input>
           </ion-item>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button class="padBefore" fill="outline" (click)="getGWSScore()">
+        </div>
+        <div class="divinput">
+          <ion-button fill="outline" (click)="getGWSScore()">
             <ion-icon slot="end" name="eye-outline"></ion-icon>
             {{'wine.fetch' | translate }}
           </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col
-          size="auto"
-          *ngIf="!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0)"
-        >
-          <div>
-            <ion-icon size="large" name="camera"></ion-icon>
-            <label for="uploadphoto">{{'addImage' | translate }}</label>
-          </div>
-          <input
-            #uploadphoto
-            type="file"
-            accept="image/*"
-            id="uploadphoto"
-            (change)="loadImageAndView('file')"
-          />
-        </ion-col>
-        <ion-col #photoImage *ngIf="vin.photo.name && vin.photo.name.length!=0">
-          <ion-button (click)="loadImageAndView('blob')">
-            <ion-icon slot="end" name="image"></ion-icon>
-            {{vin.photo.name}}
-          </ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        </div>
+      </div>
+      <div class="container2">
+        <div class="divlabel">
+          <ion-label position="floating">
+            {{'wine.rating' | translate }}
+          </ion-label>
+        </div>
+        <div class="divinput">
+          <ngx-star-rating
+            formControlName="rating"
+            [id]="'rating'"
+          ></ngx-star-rating>
+        </div>
+      </div>
+    </div>
+    <div
+      class="container1"
+      *ngIf="!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0)"
+    >
+      <div class="divlabel">
+        <img src="../../assets/icons/NoWineImage.svg" height="48" />
+      </div>
+      <div class="divinput">
+        <label for="uploadphoto">{{'wine.addImage' | translate }}</label>
+        <input
+          #uploadphoto
+          type="file"
+          accept="image/*"
+          id="uploadphoto"
+          (change)="loadImageAndView('file')"
+        />
+      </div>
+    </div>
+    <div class="container1" *ngIf="vin.photo.name && vin.photo.name.length!=0">
+      <ion-button (click)="loadImageAndView('blob')">
+        <ion-icon slot="end" name="image"></ion-icon>
+        {{vin.photo.name}}
+      </ion-button>
+    </div>
   </form>
   <ion-button expand="full" fill="outline" (click)="showHistory()">
     <ion-icon slot="end" name="clipboard-outline"></ion-icon>

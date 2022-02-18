@@ -20,25 +20,33 @@
       </ion-col>
     </ion-row>
     <ion-row class="ion-justify-content-center" align-items-center>
-      <ion-col *ngIf="action=='add' || action=='replace'">
-        <ion-button fill="clear" size="small" (click)="dismiss('keep')">
-          {{'Keep' | translate }}
+      <ion-col *ngIf="action == 'add' || action == 'replace'">
+        <ion-button fill="clear" (click)="dismiss('keep')">
+          {{ "Keep" | translate }}
         </ion-button>
       </ion-col>
       <ion-col>
         <ion-button color="secondary" fill="clear" (click)="dismiss('cancel')">
-          {{'Cancel' | translate }}
+          {{ "Cancel" | translate }}
         </ion-button>
       </ion-col>
-      <ion-col *ngIf="action=='modify'">
+      <ion-col *ngIf="action == 'modify'">
         <div class="ion-text-center">
-          <label for="uploadphoto" [ngClass]="'button button-outline'">{{'Replace' | translate }}</label>
-          <input #uploadphoto type="file" accept="image/*" id="uploadphoto" (change)="loadPhoto()" />
+          <label for="uploadphoto" [ngClass]="'button button-outline'">{{
+            "Replace" | translate
+          }}</label>
+          <input
+            #uploadphoto
+            type="file"
+            accept="image/*"
+            id="uploadphoto"
+            (change)="loadPhoto()"
+          />
         </div>
       </ion-col>
-      <ion-col *ngIf="action=='modify'">
+      <ion-col *ngIf="action == 'modify'">
         <ion-button color="danger" fill="clear" (click)="dismiss('delete')">
-          {{'Delete' | translate }}
+          {{ "Delete" | translate }}
         </ion-button>
       </ion-col>
     </ion-row>

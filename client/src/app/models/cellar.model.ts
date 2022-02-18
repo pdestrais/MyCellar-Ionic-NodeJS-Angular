@@ -20,7 +20,8 @@ export class VinModel {
     public apogee: string,
     public GWSScore: number,
     public cotes: Array<CoteModel>,
-    public photo: { name; width; heigth; orientation; fileType }
+    public photo: { name; width; heigth; orientation; fileType },
+    public rating: number
   ) {
     this.nom = nom;
     this.annee = annee;
@@ -41,6 +42,7 @@ export class VinModel {
     this.GWSScore = GWSScore;
     this.cotes = cotes;
     this.photo = photo;
+    this.rating = rating;
   }
 }
 

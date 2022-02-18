@@ -27,27 +27,27 @@ export class MenuService {
       {
         displayText: this.translate.instant("page.search"),
         route: [""],
-        iconSrc: "./assets/imgs/search.svg",
+        iconSrc: "./assets/icons/search.svg",
       },
       {
         displayText: this.translate.instant("page.wine"),
         route: ["/vin"],
-        iconSrc: "./assets/imgs/vin_verre.svg",
+        iconSrc: "./assets/icons/vin_verre.svg",
       },
       {
         displayText: this.translate.instant("page.region"),
         route: ["/regions"],
-        iconSrc: "./assets/imgs/region.svg",
+        iconSrc: "./assets/icons/region.svg",
       },
       {
         displayText: this.translate.instant("page.appellation"),
         route: ["/appellations"],
-        iconSrc: "./assets/imgs/appellation.svg",
+        iconSrc: "./assets/icons/appellation.svg",
       },
       {
         displayText: this.translate.instant("page.type"),
         route: ["/types"],
-        iconSrc: "./assets/imgs/wine_type.svg",
+        iconSrc: "./assets/icons/wine_type.svg",
       },
       {
         displayText: this.translate.instant("page.report"),
@@ -55,51 +55,51 @@ export class MenuService {
           {
             displayText: this.translate.instant("report.yearlyReport"),
             route: ["/rapport/bytyo/types"],
-            iconSrc: "./assets/imgs/rapport.svg",
+            iconSrc: "./assets/icons/rapport.svg",
           },
           {
             displayText: this.translate.instant("report.typeReport"),
             route: ["/rapport/bytoy/types"],
-            iconSrc: "./assets/imgs/rapport.svg",
+            iconSrc: "./assets/icons/rapport.svg",
           },
           {
             displayText: this.translate.instant(
               "report.readyForDrinkingHeader"
             ),
             route: ["/readytodrink"],
-            iconSrc: "./assets/imgs/rapport.svg",
+            iconSrc: "./assets/icons/rapport.svg",
           },
           {
             displayText: this.translate.instant("page.report") + " (PDF)",
             route: ["/rapport/pdf"],
-            iconSrc: "./assets/imgs/rapportpdf.svg",
+            iconSrc: "./assets/icons/rapportpdf.svg",
           },
         ],
       },
       {
         displayText: this.translate.instant("page.stats"),
         route: ["/stats"],
-        iconSrc: "./assets/imgs/statistics.svg",
+        iconSrc: "./assets/icons/statistics.svg",
       },
       {
         displayText: this.translate.instant("page.vintage"),
         route: ["/vintage"],
-        iconSrc: "./assets/icon/vintage.svg",
+        iconSrc: "./assets/icons/vintage.svg",
       },
       {
         displayText: this.translate.instant("page.config"),
         route: ["/preferences"],
-        iconSrc: "./assets/imgs/settings.svg",
+        iconSrc: "./assets/icons/settings.svg",
       },
       {
         displayText: this.translate.instant("page.profile"),
         route: ["/user-management"],
-        iconSrc: "./assets/imgs/user.svg",
+        iconSrc: "./assets/icons/user.svg",
       },
       {
         displayText: this.translate.instant("page.about"),
         route: ["/about"],
-        iconSrc: "./assets/imgs/about.svg",
+        iconSrc: "./assets/icons/about.svg",
       },
       {
         displayText:
@@ -109,14 +109,14 @@ export class MenuService {
  */
           this.translate.instant("page.logout") + " (" + username + ")",
         custom: "logout",
-        iconSrc: "./assets/imgs/logout.svg",
+        iconSrc: "./assets/icons/logout.svg",
       },
     ];
     if (this.currentUser && this.currentUser != null && this.currentUser.admin)
       this.options.splice(this.options.length - 2, 0, {
         displayText: this.translate.instant("page.register"),
         route: ["/register"],
-        iconSrc: "./assets/imgs/sign-in.svg",
+        iconSrc: "./assets/icons/sign-in.svg",
       });
     return this.options;
   }

@@ -61,7 +61,9 @@
     "grape": "Grape",
     "GWSScoreNotFound": "No score GWS found at url : {{url}}",
     "GWSScoreFound": "GWS Score found",
-    "fetchGWSSCore": "Fetching GWS Score"
+    "fetchGWSSCore": "Fetching GWS Score",
+    "addImage": "Add Wine Image",
+    "rating": "rating"
   },
   "appellation": {
     "appellation": "appellation",

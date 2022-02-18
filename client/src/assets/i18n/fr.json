@@ -61,7 +61,9 @@
     "grape": "Cépage",
     "GWSScoreNotFound": "Pas de score GWS trouvé à l'url : {{url}}",
     "GWSScoreFound": "Score GWS trouvé",
-    "fetchGWSSCore": "Rechercher le score GWS"
+    "fetchGWSSCore": "Rechercher le score GWS",
+    "addImage": "Ajouter une photo",
+    "rating": "Note"
   },
   "appellation": {
     "appellation": "appellation",

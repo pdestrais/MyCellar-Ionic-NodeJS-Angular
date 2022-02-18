@@ -34,14 +34,14 @@
         class="limitMargin"
         slot="end"
         size="small"
-        src="assets/icon/Rouge.svg"
+        src="assets/icons/Rouge.svg"
       ></ion-icon>
       <ion-icon
         *ngIf="wineToDrink.type.nom=='Blanc'"
         class="limitMargin"
         slot="end"
         size="small"
-        src="assets/icon/Blanc.svg"
+        src="assets/icons/Blanc.svg"
       ></ion-icon>
       <ion-badge class="limitMargin" slot="end"
         >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
@@ -53,7 +53,7 @@
     <div class="container2" id="ARTD" (click)="showWinesToDrink(1)">
       <div>
         <img
-          src="assets/icon/ARTD.png"
+          src="assets/icons/ARTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>
@@ -61,14 +61,17 @@
     </div>
     <div class="container2" id="RTD" (click)="showWinesToDrink(2)">
       <div>
-        <img src="assets/icon/RTD.png" sizes="(max-width: 800px) 100px, 20px" />
+        <img
+          src="assets/icons/RTD.png"
+          sizes="(max-width: 800px) 100px, 20px"
+        />
       </div>
       <div class="bigText">{{nbrRTD}}</div>
     </div>
     <div class="container2" id="NRTD" (click)="showWinesToDrink(3)">
       <div>
         <img
-          src="assets/icon/NRTD.png"
+          src="assets/icons/NRTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>
@@ -77,7 +80,7 @@
     <div class="container2" id="NotRTD" (click)="showWinesToDrink(4)">
       <div>
         <img
-          src="assets/icon/NotRTD.png"
+          src="assets/icons/NotRTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>

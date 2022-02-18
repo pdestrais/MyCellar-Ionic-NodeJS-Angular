@@ -28,16 +28,16 @@ export class VintageComponent implements OnInit {
     this.appellationDetails.ratings.forEach((rating) => {
       switch (rating.maturityStatus) {
         case "H":
-          rating.image = "assets/icon/NotRTD.png";
+          rating.image = "assets/icons/NotRTD.png";
           break;
         case "NAP":
-          rating.image = "assets/icon/NRTD.png";
+          rating.image = "assets/icons/NRTD.png";
           break;
         case "AP":
-          rating.image = "assets/icon/RTD.png";
+          rating.image = "assets/icons/RTD.png";
           break;
         case "PP":
-          rating.image = "assets/icon/PastPeak.svg";
+          rating.image = "assets/icons/PastPeak.svg";
           break;
       }
     });

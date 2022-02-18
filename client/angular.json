@@ -32,7 +32,11 @@
               },
               "src/manifest.webmanifest"
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "styles": [
+              "src/theme/variables.scss",
+              "src/global.scss",
+              "node_modules/@fortawesome/fontawesome-free/css/v4-font-face.css"
+            ],
             "scripts": [],
             "aot": false,
             "vendorChunk": true,
