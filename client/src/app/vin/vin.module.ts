@@ -4,10 +4,10 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Routes, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { IonicModule } from "@ionic/angular";
-import { NgxStarRatingModule } from "ngx-star-rating";
 
 import { VinPage, ModalPage } from "./vin.page";
 import { ViewerComponent } from "./viewer/viewer.component";
+import { NgxStarRatingComponent } from "../ngx-star-rating/ngx-star-rating.component";
 
 const routes: Routes = [
   {
@@ -24,10 +24,9 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes),
     TranslateModule,
-    NgxStarRatingModule,
   ],
   providers: [],
   entryComponents: [ModalPage, ViewerComponent],
-  declarations: [VinPage, ModalPage, ViewerComponent],
+  declarations: [VinPage, ModalPage, ViewerComponent, NgxStarRatingComponent],
 })
 export class VinPageModule {}

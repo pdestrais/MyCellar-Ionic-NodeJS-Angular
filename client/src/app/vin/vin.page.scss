@@ -6,10 +6,16 @@
   margin-top: 20px;
 }
 
-:host ::ng-deep form > label.star {
+/* :host ::ng-deep form > label.star {
   font-size: 20px;
 }
 
+:host ::ng-deep form > input.star:checked ~ form > label.star:before {
+  content: "\f006";
+  color: rgb(90, 255, 68);
+  transition: all 1s;
+}
+ */
 /* 
 .ion-canvas {
   margin: auto;
