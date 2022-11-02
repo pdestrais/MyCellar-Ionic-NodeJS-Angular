@@ -494,7 +494,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           {
             text: this.translate.instant("general.ok"),
             handler: () => {
-              this.pouch.db.deleteDoc(this.vin).then((response) => {
+              this.pouch.deleteDoc(this.vin).then((response) => {
                 if (response.ok) {
                   this.presentToast(
                     this.translate.instant("wine.wineDeleted"),

@@ -87,7 +87,7 @@ export class PouchdbService {
       debug("[replicateRemoteToLocal]replication started");
       // do one way, one-off sync from the server until completion
       this.db.replicate
-        .from(this.remote)
+        .from(this.remote, { retry: true })
         .on("complete", (info) => {
           // then two-way, continuous, retriable sync
           this.dbEvents$.next({ eventType: "dbReplicationCompleted" });
