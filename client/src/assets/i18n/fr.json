@@ -63,7 +63,8 @@
     "GWSScoreFound": "Score GWS trouvé",
     "fetchGWSSCore": "Rechercher le score GWS",
     "addImage": "Ajouter une photo",
-    "rating": "Note"
+    "rating": "Note",
+    "savedOrDeletedConcurrentlyOnAnotherInstance": "the wine you are editing is being modified or deleted by someone else. Please start again editing. You will be directed to the home page."
   },
   "appellation": {
     "appellation": "appellation",

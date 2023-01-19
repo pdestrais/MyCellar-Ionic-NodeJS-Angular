@@ -1,4 +1,5 @@
 import { Subject, of, merge } from "rxjs";
+import { filter, take, takeUntil, tap } from "rxjs/operators";
 import { TranslateService } from "@ngx-translate/core";
 import {
   Component,
@@ -24,6 +25,16 @@ import {
   OrigineModel,
   TypeModel,
 } from "../models/cellar.model";
+
+import { Store, ActionsSubject } from "@ngrx/store";
+
+import { Observable } from "rxjs";
+import * as VinActions from "../state/vin/vin.actions";
+import * as VinSelectors from "../state/vin/vin.selectors";
+import * as TypeSelectors from "../state/type/type.selectors";
+import * as OrigineSelectors from "../state/origine/origine.selectors";
+import * as AppellationSelectors from "../state/appellation/appellation.selectors";
+
 import { HttpClient } from "@angular/common/http";
 import dayjs from "dayjs";
 import { map, debounceTime, switchMap } from "rxjs/operators";
@@ -34,7 +45,14 @@ import pica from "pica/dist/pica.js";
 import { ViewerComponent } from "./viewer/viewer.component";
 
 import * as Debugger from "debug";
+import { AppState } from "../state/app.state";
 const debug = Debugger("app:vin");
+
+interface Option {
+  id: number;
+  name: string;
+  firstname: string;
+}
 
 @Component({
   selector: "app-vin",
@@ -45,7 +63,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public nbreAvantUpdate: number = 0;
   public newWine: boolean = true;
   public vin: VinModel;
-  public vinsMap: Map<any, object>;
+  public vinsMap: Map<string, VinModel>;
   public origines: Array<any> = [];
   public appellations: Array<any> = [];
   public types: Array<any> = [];
@@ -54,10 +72,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public vinForm: FormGroup;
   public nameYearForm: FormGroup;
   public submitted: boolean;
-  private obs: Subject<string> = new Subject();
-  private priceRegExp: RegExp = new RegExp("^[0-9]+(,[0-9]{1,2})?$");
   private originalName;
   private originalYear;
+  public status: string;
   //	private ctx: any;
   //	private canvas: any;
   /* 	private canvasHeight: number = 200;
@@ -76,6 +93,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     contentType: "jpeg",
     data: new File([], "Photo file"),
   };
+  private vinMapState$: Observable<Map<string, VinModel>>;
+  private unsubscribe$ = new Subject<void>();
+  public types$: Observable<Array<TypeModel>>;
+  public origines$: Observable<Array<TypeModel>>;
+  public appellations$: Observable<Array<TypeModel>>;
 
   /**
    * 'plug into' DOM canvas element using @ViewChild
@@ -84,6 +106,18 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("photoImage", { static: false }) photoImage: any;
   @ViewChild("uploadphoto", { static: false })
   inputUploader: ElementRef<HTMLInputElement>;
+  alert: any;
+  navTransition: any;
+
+  _origines: [
+    { id: "77"; pays: "France"; region: "Bergerac" },
+    { id: "78"; pays: "France"; region: "Bordeaux" }
+  ];
+  options: Option[] = [
+    { id: 1, name: "John", firstname: "Doe" },
+    { id: 2, name: "Jane", firstname: "Doe" },
+    { id: 3, name: "Bob", firstname: "Smith" },
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -96,40 +130,36 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private http: HttpClient,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private platform: Platform
+    private platform: Platform,
+    private store: Store,
+    private actionListener$: ActionsSubject
   ) {
-    this.vin = new VinModel(
-      "",
-      "",
-      "",
-      "",
-      0,
-      0,
-      0,
-      "",
-      "",
-      "",
-      "",
-      [],
-      "",
-      new AppellationModel("", "", ""),
-      new OrigineModel("", "", ""),
-      new TypeModel("", ""),
-      "",
-      "",
-      0,
-      [],
-      { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
-      0
-    );
-    this.pouch
-      .getDocsOfType("vin")
-      .then(
-        (vins) =>
-          (this.vinsMap = new Map(vins.map((v) => [v.nom + v.annee, v])))
-      );
+    this.vin = new VinModel({
+      _id: "",
+      _rev: "",
+      nom: "",
+      annee: "",
+      nbreBouteillesAchat: 0,
+      nbreBouteillesReste: 0,
+      prixAchat: 0,
+      dateAchat: "",
+      remarque: "",
+      localisation: "",
+      contenance: "",
+      history: [],
+      lastUpdated: "",
+      appellation: new AppellationModel({ _id: "", courte: "", longue: "" }),
+      origine: new OrigineModel({ _id: "", pays: "", region: "" }),
+      type: new TypeModel({ _id: "", nom: "" }),
+      cepage: "",
+      apogee: "",
+      GWSScore: 0,
+      cotes: [],
+      photo: { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
+      rating: 0,
+    });
 
-    this.vinForm = this.formBuilder.group(
+    /*     this.vinForm = this.formBuilder.group(
       {
         nom: ["", Validators.required],
         annee: [
@@ -166,15 +196,140 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         cepage: [""],
         GWSScore: [""],
         rating: [0],
+        //        selectedOption: [this.options[1]],
       } //,
       //{ validator: this.noDouble.bind(this) }
     );
-    this.submitted = false;
+ */ this.submitted = false;
   }
 
   public ngOnInit() {
     debug("[Vin.ngOnInit]called");
     let paramId = this.route.snapshot.params["id"];
+    this.types$ = this.store
+      .select(TypeSelectors.getAllTypesArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.origines$ = this.store.select(
+      OrigineSelectors.getAllOriginesArraySorted
+    );
+    this.appellations$ = this.store.select(
+      AppellationSelectors.getAllAppellationsArraySorted
+    );
+    this.store
+      .select<VinModel>(VinSelectors.getWine(paramId))
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((vin) => {
+        this.vin = vin;
+        this.originalName = vin.nom;
+        this.originalYear = vin.annee;
+        // Object.assign(this.vin, vin);
+        //        this.vinForm.controls["selectedOption"].setValue(this.options[0]);
+        this.vinForm = this.formBuilder.group(
+          {
+            nom: [vin.nom, Validators.required],
+            annee: [
+              vin.annee,
+              Validators.compose([
+                Validators.minLength(4),
+                Validators.maxLength(4),
+                Validators.pattern("[0-9]*"),
+                Validators.required,
+              ]),
+            ],
+            type: [vin.type, Validators.required],
+            origine: [vin.origine, Validators.required],
+            appellation: [vin.appellation, Validators.required],
+          } //,
+          //{ validator: this.noDouble.bind(this) }
+        );
+
+        this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
+        this.newWine = false;
+        debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
+        return true;
+      });
+
+    this.vinMapState$ = this.store
+      .select<Map<string, VinModel>>(VinSelectors.vinMapForDuplicates)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.vinMapState$.subscribe((map) => (this.vinsMap = map));
+
+    this.store
+      .select((state: AppState) => state.vins)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((vinState) => {
+        switch (vinState.status) {
+          case "success save":
+            // if we get an event that a wine is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application).
+            // - internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - external ?
+            //       - concurrent update on the same wine (same id but different rev) ? => show a warning that the wine the user is working on has been updated somewhere else in the mean time. we go back to the home screen.
+            //       - no concurrent update on the same wine (not the same id) ? => no confirmation or message is shown, we stay on the wine edition page.
+            if (vinState.source == "internal") {
+              setTimeout(() => {
+                this.vin._rev = vinState.wineInstance._rev;
+              }, 3000);
+              // Internal event
+              this.presentToast(
+                this.translate.instant("general.dataSaved"),
+                "success",
+                "home",
+                2000
+              );
+            } else if (
+              this.vin._id &&
+              this.vin._rev &&
+              this.vin._id == vinState.wineInstance._id &&
+              this.vin._rev != vinState.wineInstance._rev
+            ) {
+              // Event showing concurrent editing on the same wine that was saved somewhere else
+              this.presentToast(
+                this.translate.instant(
+                  "wine.savedOrDeletedConcurrentlyOnAnotherInstance"
+                ),
+                "warning",
+                "home",
+                0,
+                "Close"
+              );
+            }
+            break;
+          case "error":
+            this.presentToast(
+              this.translate.instant("general.DBError") + " " + vinState.error,
+              "error",
+              null,
+              5000
+            );
+            break;
+          case "success delete":
+            if (vinState.source == "internal")
+              // Internal event
+              this.presentToast(
+                this.translate.instant("wine.wineDeleted"),
+                "success",
+                "home",
+                2000
+              );
+            else if (
+              this.vin._id &&
+              JSON.stringify(this.vin) == JSON.stringify(vinState.wineInstance)
+            ) {
+              // Event showing concurrent editing on the same wine that was saved somewhere else
+              this.presentToast(
+                this.translate.instant(
+                  "wine.savedOrDeletedConcurrentlyOnAnotherInstance"
+                ),
+                "warning",
+                "home",
+                0,
+                "Close"
+              );
+            }
+            break;
+        }
+      });
 
     Promise.all([
       this.pouch.getDocsOfType("origine"),
@@ -193,32 +348,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       this.types.sort((a, b) => {
         return a.nom < b.nom ? -1 : 1;
       });
-      if (paramId) {
-        this.pouch.getDoc(paramId).then((vin) => {
-          this.originalName = vin.nom;
-          this.originalYear = vin.annee;
-          Object.assign(this.vin, vin);
-          this.vinForm.setValue(
-            this.reject(this.vin, [
-              "_id",
-              "_rev",
-              "remarque",
-              "history",
-              "lastUpdated",
-              "dateCreated",
-              "cotes",
-              "_attachments",
-              "photo",
-            ])
-          );
-          this.vinForm.get("appellation").patchValue(this.vin.appellation._id);
-          this.vinForm.controls["origine"].patchValue(this.vin.origine._id);
-          this.vinForm.controls["type"].patchValue(this.vin.type._id);
-          this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
-          this.newWine = false;
-          debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
-        });
-      } else {
+      if (!paramId) {
         let now = dayjs();
         // Search for type that correspond to "red" and use it's _id to initialize the vin attribute
         let preselectedType;
@@ -227,32 +357,55 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             return e.nom == "Rouge" || e.nom == "Red";
           });
         }
-        this.vin = new VinModel(
-          "",
-          "",
-          "",
-          "",
-          0,
-          0,
-          0,
-          now.format("YYYY-MM-DD"),
-          "",
-          "",
-          "",
-          [],
-          "",
-          new AppellationModel("", "", ""),
-          new OrigineModel("", "", ""),
-          new TypeModel(
-            preselectedType ? preselectedType._id : "",
-            preselectedType ? preselectedType.nom : ""
-          ),
-          "",
-          "",
-          0,
-          [],
-          { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
-          0
+        this.vin = new VinModel({
+          _id: "",
+          _rev: "",
+          nom: "",
+          annee: "",
+          nbreBouteillesAchat: 0,
+          nbreBouteillesReste: 0,
+          prixAchat: 0,
+          dateAchat: now.format("YYYY-MM-DD"),
+          remarque: "",
+          localisation: "",
+          contenance: "",
+          history: [],
+          lastUpdated: "",
+          appellation: new AppellationModel({
+            _id: "",
+            courte: "",
+            longue: "",
+          }),
+          origine: new OrigineModel({ _id: "", pays: "", region: "" }),
+          type: new TypeModel({
+            _id: preselectedType ? preselectedType._id : "",
+            nom: preselectedType ? preselectedType.nom : "",
+          }),
+          cepage: "",
+          apogee: "",
+          GWSScore: 0,
+          cotes: [],
+          photo: {
+            name: "",
+            width: 0,
+            heigth: 0,
+            orientation: 1,
+            fileType: "",
+          },
+          rating: 0,
+        });
+        this.vinForm.setValue(
+          this.reject(this.vin, [
+            "_id",
+            "_rev",
+            "remarque",
+            "history",
+            "lastUpdated",
+            "dateCreated",
+            "cotes",
+            "_attachments",
+            "photo",
+          ])
         );
       }
     });
@@ -271,8 +424,20 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  changeSelectedOption(newOption: Option) {
+    this.vinForm.controls["selectedOption"].setValue(newOption);
+  }
   public ngAfterViewInit() {
     debug("[entering ngAfterViewInit]");
+  }
+
+  compareFn(e1: any, e2: any): boolean {
+    /*     debug("[compareFn] object 1 :" + JSON.stringify(e1));
+    debug("[compareFn] object 2 :" + JSON.stringify(e2));
+    debug(
+      "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
+    );
+ */ return e1 && e2 ? e1._id === e2._id : e1 === e2;
   }
 
   public async loadImageAndView(type: string) {
@@ -377,7 +542,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public ngOnDestroy() {
     debug("[Vin.ngOnDestroy]called");
-    this.obs.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    //this.actionListener$.unsubscribe();
   }
 
   public ionViewWillEnter() {
@@ -455,7 +622,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           };
         }
       }
-      this.pouch.saveDoc(this.vin, "vin").then((response) => {
+      this.store.dispatch(VinActions.createVin({ vin: this.vin }));
+      /*      this.pouch.saveDoc(this.vin, "vin").then((response) => {
         if (response.ok) {
           debug("[Vin.saveVin]vin " + JSON.stringify(this.vin) + " saved");
           this.presentToast(
@@ -472,6 +640,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           );
         }
       });
+    */
     } else {
       debug("[Vin.saveVin]vin invalid");
       this.presentToast(
@@ -494,7 +663,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           {
             text: this.translate.instant("general.ok"),
             handler: () => {
-              this.pouch.deleteDoc(this.vin).then((response) => {
+              this.store.dispatch(VinActions.deleteVin({ vin: this.vin }));
+
+              /*               this.pouch.deleteDoc(this.vin).then((response) => {
                 if (response.ok) {
                   this.presentToast(
                     this.translate.instant("wine.wineDeleted"),
@@ -509,6 +680,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                   );
                 }
               });
+ */
             },
           },
         ],
@@ -530,14 +702,37 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  async presentToast(message: string, type: string, nextPageUrl: string) {
-    const toast = await this.toastCtrl.create({
-      color: type == "success" ? "secondary" : "danger",
-      message: message,
-      duration: 2000,
-    });
-    toast.present();
-    if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+  async presentToast(
+    message: string,
+    type: string,
+    nextPageUrl: string,
+    duration?: number,
+    closeButtonText?: string
+  ) {
+    if (duration && duration != 0) {
+      const toast = await this.toastCtrl.create({
+        color: type == "success" ? "secondary" : "danger",
+        message: message,
+        duration: duration ? duration : 2000,
+      });
+      toast.present();
+      if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+    } else {
+      const toast = await this.toastCtrl.create({
+        color: type == "success" ? "secondary" : "danger",
+        message: message,
+        buttons: [
+          {
+            text: closeButtonText,
+            role: "cancel",
+            handler: () => {
+              if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+            },
+          },
+        ],
+      });
+      toast.present();
+    }
   }
 
   addComment() {
@@ -574,41 +769,39 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public typeChange(val: any) {
     debug("type change detected");
     if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) => (this.vin.type = new TypeModel(result._id, result.nom))
-        );
+      this.pouch.getDoc(val.detail.value).then(
+        (result) =>
+          (this.vin.type = new TypeModel({
+            _id: result._id,
+            nom: result.nom,
+          }))
+      );
   }
 
   public origineChange(val: any) {
     debug("origine change detected");
     if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) =>
-            (this.vin.origine = new OrigineModel(
-              result._id,
-              result.pays,
-              result.region
-            ))
-        );
+      this.pouch.getDoc(val.detail.value).then(
+        (result) =>
+          (this.vin.origine = new OrigineModel({
+            _id: result._id,
+            pays: result.pays,
+            region: result.region,
+          }))
+      );
   }
 
   public appellationChange(val: any) {
     debug("appellation change detected");
     if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) =>
-            (this.vin.appellation = new AppellationModel(
-              result._id,
-              result.courte,
-              result.longue
-            ))
-        );
+      this.pouch.getDoc(val.detail.value).then(
+        (result) =>
+          (this.vin.appellation = new AppellationModel({
+            _id: result._id,
+            courte: result.courte,
+            longue: result.longue,
+          }))
+      );
   }
 
   public showDate(ISODateString) {

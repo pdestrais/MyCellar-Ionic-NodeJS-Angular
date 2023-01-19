@@ -16,7 +16,11 @@ const debug = Debugger("app:appellation");
   styleUrls: ["./appellation.page.scss"],
 })
 export class AppellationPage implements OnInit {
-  public appellation: AppellationModel = new AppellationModel("", "", "");
+  public appellation: AppellationModel = new AppellationModel({
+    _id: "",
+    courte: "",
+    longue: "",
+  });
   public appellationList: Array<AppellationModel> = [];
   public appellationsMap: Map<any, any>;
   public submitted: boolean;

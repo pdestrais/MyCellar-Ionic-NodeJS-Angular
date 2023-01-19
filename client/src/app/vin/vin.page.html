@@ -55,12 +55,13 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.type' | translate }} </ion-label>
       <ion-select
+        *ngIf="types ? types.length : false"
         formControlName="type"
-        (ionChange)="typeChange($event)"
-        [value]="vinForm.controls.type"
+        [compareWith]="compareFn"
+        interface="popover"
       >
-        <ion-select-option *ngFor="let type of types" [value]="type._id">
-          {{type.nom | translate }}
+        <ion-select-option *ngFor="let typeEl of types" [value]="typeEl">
+          {{typeEl.nom | translate }}
         </ion-select-option>
       </ion-select>
     </ion-item>
@@ -77,15 +78,16 @@
         {{'wine.origin' | translate }}
       </ion-label>
       <ion-select
+        *ngIf="(origines$ | async)?.length > 0"
         formControlName="origine"
-        (ionChange)="origineChange($event)"
-        [value]="vinForm.controls.origine"
+        [compareWith]="compareFn"
+        interface="popover"
       >
         <ion-select-option
-          *ngFor="let origine of origines"
-          [value]="origine._id"
+          *ngFor="let origineEl of origines$ | async"
+          [value]="origineEl"
         >
-          {{origine.pays}} - {{ origine.region }}
+          {{origineEl.pays}} - {{ origineEl.region }}
         </ion-select-option>
       </ion-select>
     </ion-item>
@@ -102,13 +104,14 @@
         {{'wine.appellation' | translate }}
       </ion-label>
       <ion-select
+        *ngIf="appellations ? appellations.length : false"
         formControlName="appellation"
-        (ionChange)="appellationChange($event)"
-        [value]="vinForm.controls.appellation"
+        [compareWith]="compareFn"
+        interface="popover"
       >
         <ion-select-option
           *ngFor="let appellation of appellations"
-          [value]="appellation._id"
+          [value]="appellation"
         >
           {{appellation.courte}} - {{ appellation.longue }}
         </ion-select-option>
@@ -121,236 +124,6 @@
         {{'wine.appellation' | translate }} {{"general.required" | translate }}
       </p>
     </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">
-        {{'wine.bottlesPurchase' | translate }}
-      </ion-label>
-      <ion-input
-        type="number"
-        placeholder="Nbre bouteilles achat"
-        formControlName="nbreBouteillesAchat"
-        class="ion-text-right"
-        [class.invalid]="!vinForm.controls.nbreBouteillesAchat.valid && (vinForm.controls.nbreBouteillesAchat.dirty || submitted)"
-        (blur)="toNumber('nbreBouteillesAchat')"
-      ></ion-input>
-    </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.nbreBouteillesAchat.valid  && (vinForm.controls.nbreBouteillesAchat.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.bottlesPurchase' | translate }} {{"general.required" | translate
-        }}
-      </p>
-    </ion-item>
-
-    <ion-grid id="mingrid">
-      <ion-row class="ion-align-items-center">
-        <ion-col size="8" id="mincol">
-          <ion-item>
-            <ion-label position="floating">
-              {{'wine.bottlesLeft' | translate }}
-            </ion-label>
-            <ion-input
-              type="number"
-              placeholder="Nbre bouteilles restantes"
-              formControlName="nbreBouteillesReste"
-              class="ion-text-right"
-              [class.invalid]="!vinForm.controls.nbreBouteillesReste.valid && (vinForm.controls.nbreBouteillesReste.dirty || submitted)"
-              (blur)="toNumber('nbreBouteillesReste')"
-            ></ion-input>
-          </ion-item>
-          <ion-item
-            *ngIf="!vinForm.controls.nbreBouteillesReste.valid  && (vinForm.controls.nbreBouteillesReste.dirty || submitted)"
-          >
-            <p class="invalid">
-              {{'wine.bottlesLeft' | translate }} {{"general.required" |
-              translate }}
-            </p>
-          </ion-item>
-        </ion-col>
-        <ion-col size="2" class="ion-margin-top">
-          <ion-button
-            size="small"
-            color="medium"
-            expand="block"
-            (click)="adjustQuantityLeft(1)"
-          >
-            <ion-icon slot="icon-only" name="arrow-up-circle-outline">
-            </ion-icon>
-          </ion-button>
-        </ion-col>
-        <ion-col size="2" class="ion-margin-top">
-          <ion-button
-            size="small"
-            color="medium"
-            expand="block"
-            (click)="adjustQuantityLeft(-1)"
-          >
-            <ion-icon slot="icon-only" name="arrow-down-circle-outline">
-            </ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-
-    <ion-item>
-      <ion-label position="floating"> {{'wine.price' | translate }} </ion-label>
-      <ion-input
-        type="text"
-        placeholder="Prix"
-        formControlName="prixAchat"
-        class="ion-text-right"
-        [class.invalid]="!vinForm.controls.prixAchat.valid && (vinForm.controls.prixAchat.dirty || submitted)"
-        (blur)="toNumber('prixAchat')"
-      ></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">
-        {{'wine.purchaseDate' | translate }}
-      </ion-label>
-      <ion-input
-        type="date"
-        placeholder="Date achat"
-        formControlName="dateAchat"
-        class="ion-text-right"
-        [class.invalid]="!vinForm.controls.dateAchat.valid && (vinForm.controls.dateAchat.dirty)"
-      ></ion-input>
-    </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.dateAchat.valid  && (vinForm.controls.dateAchat.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.bottlesPurchase' | translate }} {{"general.required" | translate
-        }}{{'wine.buyDateRequired' | translate }}
-      </p>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">
-        {{'wine.location' | translate }}
-      </ion-label>
-      <ion-input
-        type="text"
-        placeholder="D/G.y.x"
-        formControlName="localisation"
-        class="ion-text-right"
-        [class.invalid]="!vinForm.controls.localisation.valid && (vinForm.controls.localisation.dirty || submitted)"
-      >
-      </ion-input>
-    </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.localisation.valid  && (vinForm.controls.localisation.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.location' | translate }} {{"general.required" | translate }}
-      </p>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">
-        {{'wine.contains' | translate }}
-      </ion-label>
-      <ion-input
-        type="text"
-        placeholder="75 - 150 cl"
-        formControlName="contenance"
-        class="ion-text-right"
-      ></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating">
-        {{'wine.apogee' | translate }}
-      </ion-label>
-      <ion-input
-        type="text"
-        placeholder="ex: 2020-2025"
-        formControlName="apogee"
-        class="ion-text-right"
-        [class.invalid]="!vinForm.controls.apogee.valid && (vinForm.controls.apogee.dirty || submitted)"
-      >
-      </ion-input>
-    </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.apogee.valid  && (vinForm.controls.apogee.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.apogee' | translate }} {{"wine.apogeeFormat" | translate }}
-      </p>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="floating"> {{'wine.grape' | translate }} </ion-label>
-      <ion-input
-        type="text"
-        formControlName="cepage"
-        placeholder="100% Cabernet, ..."
-        class="ion-text-right"
-      ></ion-input>
-    </ion-item>
-
-    <div class="container1">
-      <div class="container2">
-        <div>
-          <ion-item>
-            <ion-label position="floating">
-              {{'wine.GWSScore' | translate }}
-            </ion-label>
-            <ion-input
-              type="number"
-              formControlName="GWSScore"
-              placeholder="85.7"
-              class="ion-text-right"
-            ></ion-input>
-          </ion-item>
-        </div>
-        <div class="divinput">
-          <ion-button fill="outline" (click)="getGWSScore()">
-            <ion-icon slot="end" name="eye-outline"></ion-icon>
-            {{'wine.fetch' | translate }}
-          </ion-button>
-        </div>
-      </div>
-      <div class="container2">
-        <div class="divlabel">
-          <ion-label position="floating">
-            {{'wine.rating' | translate }}
-          </ion-label>
-        </div>
-        <div class="divinput">
-          <ngx-star-rating
-            formControlName="rating"
-            [id]="'rating'"
-          ></ngx-star-rating>
-        </div>
-      </div>
-    </div>
-    <div
-      class="container1"
-      *ngIf="!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0)"
-    >
-      <div class="divlabel">
-        <img src="../../assets/icons/NoWineImage.svg" height="48" />
-      </div>
-      <div class="divinput">
-        <label for="uploadphoto">{{'wine.addImage' | translate }}</label>
-        <input
-          #uploadphoto
-          type="file"
-          accept="image/*"
-          id="uploadphoto"
-          (change)="loadImageAndView('file')"
-        />
-      </div>
-    </div>
-    <div class="container1" *ngIf="vin.photo.name && vin.photo.name.length!=0">
-      <ion-button (click)="loadImageAndView('blob')">
-        <ion-icon slot="end" name="image"></ion-icon>
-        {{vin.photo.name}}
-      </ion-button>
-    </div>
   </form>
   <ion-button expand="full" fill="outline" (click)="showHistory()">
     <ion-icon slot="end" name="clipboard-outline"></ion-icon>

@@ -16,7 +16,7 @@ const debug = Debugger("app:region");
   styleUrls: ["./type.page.scss"],
 })
 export class TypePage implements OnInit {
-  public type: TypeModel = new TypeModel("", "");
+  public type: TypeModel = new TypeModel({ _id: "", nom: "" });
   public typesMap: Map<any, any>;
   public typeList: Array<TypeModel> = [];
   public submitted: boolean;

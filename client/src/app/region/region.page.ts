@@ -16,7 +16,11 @@ const debug = Debugger("app:region");
   styleUrls: ["./region.page.scss"],
 })
 export class RegionPage implements OnInit {
-  public origine: OrigineModel = new OrigineModel("", "", "");
+  public origine: OrigineModel = new OrigineModel({
+    _id: "",
+    pays: "",
+    region: "",
+  });
   public origineList: Array<OrigineModel> = [];
   public submitted: boolean;
   public origineForm: FormGroup;

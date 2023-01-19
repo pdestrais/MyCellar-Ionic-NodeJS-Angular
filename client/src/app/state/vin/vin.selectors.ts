@@ -1,0 +1,95 @@
+import { createSelector } from "@ngrx/store";
+import { AppState } from "../app.state";
+import { VinState } from "./vin.reducers";
+import { VinModel } from "../../models/cellar.model";
+import dayjs from "dayjs";
+
+export const getVinState = (state: AppState) => {
+  console.log("[getVinState]state : " + state);
+  return state
+    ? state.vins
+    : {
+        vins: new Map(),
+        error: null,
+        status: "pending",
+      };
+};
+export const getAllVins = createSelector(getVinState, (state: VinState) => {
+  console.log("[getAllVins]state : " + state);
+  return state
+    ? state.hasOwnProperty("vins")
+      ? state.vins
+      : new Map()
+    : new Map();
+});
+
+export const vinMapForDuplicates = createSelector(
+  getAllVins,
+  (allVinMap: Map<string, VinModel>) => {
+    const vinMapForDuplicates = new Map<string, VinModel>();
+    allVinMap.forEach((vin) => {
+      vinMapForDuplicates.set(vin.nom + vin.annee, vin);
+    });
+    return vinMapForDuplicates;
+  }
+);
+
+export const getWinesMaturity = (category: string) =>
+  createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
+    let MaturityList: Array<VinModel> = [];
+
+    let now = dayjs();
+    allVinMap.forEach((v: any, k) => {
+      if (v.apogee && v.nbreBouteillesReste > 0) {
+        let drinkFromTo = v.apogee.split("-");
+        let apogeeTo = drinkFromTo[1];
+        let apogeeFrom = drinkFromTo[0];
+        /* apogee :                 FROM-2          FROM            TO            */
+        /*             <----NotRTD ---|--NearlyRTD---|-----RTD------|----ARTD---> */
+        switch (category) {
+          case "ARTD":
+            if (now.year() - apogeeTo >= 0) {
+              MaturityList.push(v);
+            }
+            break;
+          case "RTD":
+            if (now.year() <= apogeeTo && now.year() > apogeeFrom) {
+              MaturityList.push(v);
+            }
+            break;
+          case "NRTD":
+            if (now.year() > apogeeFrom - 2 && now.year() <= apogeeFrom) {
+              MaturityList.push(v);
+            }
+            break;
+          default:
+            MaturityList.push(v);
+        }
+      }
+    });
+    return MaturityList;
+  });
+
+export const getFilteredWines = (searchTerm: string, isInStock: boolean) =>
+  createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
+    let filteredList = Array.from(allVinMap.values());
+    return filteredList.filter((item) => {
+      if (isInStock)
+        return (
+          item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
+          item.nbreBouteillesReste > 0 &&
+          searchTerm.length > 2
+        );
+      else
+        return (
+          item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
+          searchTerm.length > 2
+        );
+    });
+  });
+
+export const getWine = (id: string) =>
+  createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
+    console.log("[getVinState]return wine from state : " + allVinMap.get(id));
+    return allVinMap.get(id);
+  });
