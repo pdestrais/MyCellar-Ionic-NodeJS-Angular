@@ -134,6 +134,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private store: Store,
     private actionListener$: ActionsSubject
   ) {
+    // Initializing vin object & form
     this.vin = new VinModel({
       _id: "",
       _rev: "",
@@ -148,9 +149,20 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       contenance: "",
       history: [],
       lastUpdated: "",
-      appellation: new AppellationModel({ _id: "", courte: "", longue: "" }),
-      origine: new OrigineModel({ _id: "", pays: "", region: "" }),
-      type: new TypeModel({ _id: "", nom: "" }),
+      appellation: new AppellationModel({
+        _id: "",
+        courte: "",
+        longue: "",
+      }),
+      origine: new OrigineModel({
+        _id: "",
+        pays: "",
+        region: "",
+      }),
+      type: new TypeModel({
+        _id: "",
+        nom: "",
+      }),
       cepage: "",
       apogee: "",
       GWSScore: 0,
@@ -159,7 +171,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       rating: 0,
     });
 
-    /*     this.vinForm = this.formBuilder.group(
+    this.vinForm = this.formBuilder.group(
       {
         nom: ["", Validators.required],
         annee: [
@@ -200,60 +212,66 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       } //,
       //{ validator: this.noDouble.bind(this) }
     );
- */ this.submitted = false;
+    this.submitted = false;
   }
 
   public ngOnInit() {
     debug("[Vin.ngOnInit]called");
     let paramId = this.route.snapshot.params["id"];
+    // loading from the state the types, origines and appellations
     this.types$ = this.store
       .select(TypeSelectors.getAllTypesArraySorted)
       .pipe(takeUntil(this.unsubscribe$));
-    this.origines$ = this.store.select(
-      OrigineSelectors.getAllOriginesArraySorted
-    );
-    this.appellations$ = this.store.select(
-      AppellationSelectors.getAllAppellationsArraySorted
-    );
+    this.types$.subscribe((typeList) => {
+      if (typeList) {
+      }
+    });
+    this.origines$ = this.store
+      .select(OrigineSelectors.getAllOriginesArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.appellations$ = this.store
+      .select(AppellationSelectors.getAllAppellationsArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    // Now loading selected wine from the state
     this.store
       .select<VinModel>(VinSelectors.getWine(paramId))
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((vin) => {
-        this.vin = vin;
-        this.originalName = vin.nom;
-        this.originalYear = vin.annee;
-        // Object.assign(this.vin, vin);
-        //        this.vinForm.controls["selectedOption"].setValue(this.options[0]);
-        this.vinForm = this.formBuilder.group(
-          {
-            nom: [vin.nom, Validators.required],
-            annee: [
-              vin.annee,
-              Validators.compose([
-                Validators.minLength(4),
-                Validators.maxLength(4),
-                Validators.pattern("[0-9]*"),
-                Validators.required,
-              ]),
-            ],
-            type: [vin.type, Validators.required],
-            origine: [vin.origine, Validators.required],
-            appellation: [vin.appellation, Validators.required],
-          } //,
-          //{ validator: this.noDouble.bind(this) }
+        if (vin) {
+          // We have selected a wine
+          this.vin = { ...vin };
+          this.originalName = vin.nom;
+          this.originalYear = vin.annee;
+          this.vin.rating = !this.vin.rating ? 0 : this.vin.rating;
+          this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
+          this.newWine = false;
+          debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
+        } else {
+          // No wine was selected, when will record a new win
+          let now = dayjs();
+        }
+        this.vinForm.setValue(
+          this.reject(this.vin, [
+            "_id",
+            "_rev",
+            "remarque",
+            "history",
+            "lastUpdated",
+            "dateCreated",
+            "cotes",
+            "_attachments",
+            "photo",
+          ])
         );
-
-        this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
-        this.newWine = false;
-        debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
-        return true;
       });
 
+    // Load a map containing all wine with the key being nom+year. This map is used to check for wine duplicates
     this.vinMapState$ = this.store
       .select<Map<string, VinModel>>(VinSelectors.vinMapForDuplicates)
       .pipe(takeUntil(this.unsubscribe$));
     this.vinMapState$.subscribe((map) => (this.vinsMap = map));
 
+    // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
     this.store
       .select((state: AppState) => state.vins)
       .pipe(takeUntil(this.unsubscribe$))
@@ -331,85 +349,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-    Promise.all([
-      this.pouch.getDocsOfType("origine"),
-      this.pouch.getDocsOfType("appellation"),
-      this.pouch.getDocsOfType("type"),
-    ]).then((results) => {
-      this.origines = results[0];
-      this.origines.sort((a, b) => {
-        return a.pays + a.region < b.pays + b.region ? -1 : 1;
-      });
-      this.appellations = results[1];
-      this.appellations.sort((a, b) => {
-        return a.courte + a.longue < b.courte + b.longue ? -1 : 1;
-      });
-      this.types = results[2];
-      this.types.sort((a, b) => {
-        return a.nom < b.nom ? -1 : 1;
-      });
-      if (!paramId) {
-        let now = dayjs();
-        // Search for type that correspond to "red" and use it's _id to initialize the vin attribute
-        let preselectedType;
-        if (this.types && this.types.length > 0) {
-          preselectedType = this.types.find((e) => {
-            return e.nom == "Rouge" || e.nom == "Red";
-          });
-        }
-        this.vin = new VinModel({
-          _id: "",
-          _rev: "",
-          nom: "",
-          annee: "",
-          nbreBouteillesAchat: 0,
-          nbreBouteillesReste: 0,
-          prixAchat: 0,
-          dateAchat: now.format("YYYY-MM-DD"),
-          remarque: "",
-          localisation: "",
-          contenance: "",
-          history: [],
-          lastUpdated: "",
-          appellation: new AppellationModel({
-            _id: "",
-            courte: "",
-            longue: "",
-          }),
-          origine: new OrigineModel({ _id: "", pays: "", region: "" }),
-          type: new TypeModel({
-            _id: preselectedType ? preselectedType._id : "",
-            nom: preselectedType ? preselectedType.nom : "",
-          }),
-          cepage: "",
-          apogee: "",
-          GWSScore: 0,
-          cotes: [],
-          photo: {
-            name: "",
-            width: 0,
-            heigth: 0,
-            orientation: 1,
-            fileType: "",
-          },
-          rating: 0,
-        });
-        this.vinForm.setValue(
-          this.reject(this.vin, [
-            "_id",
-            "_rev",
-            "remarque",
-            "history",
-            "lastUpdated",
-            "dateCreated",
-            "cotes",
-            "_attachments",
-            "photo",
-          ])
-        );
-      }
-    });
-
+    // For each change of value in nom or annee fields, check if no wine with the same name/year combination exist
     merge(
       this.vinForm.get("nom").valueChanges,
       this.vinForm.get("annee").valueChanges
@@ -424,20 +364,22 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  changeSelectedOption(newOption: Option) {
+  /*   changeSelectedOption(newOption: Option) {
     this.vinForm.controls["selectedOption"].setValue(newOption);
   }
+ */
   public ngAfterViewInit() {
     debug("[entering ngAfterViewInit]");
   }
 
+  // Used to comare Objects in html selects
   compareFn(e1: any, e2: any): boolean {
-    /*     debug("[compareFn] object 1 :" + JSON.stringify(e1));
+    debug("[compareFn] object 1 :" + JSON.stringify(e1));
     debug("[compareFn] object 2 :" + JSON.stringify(e2));
     debug(
       "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
     );
- */ return e1 && e2 ? e1._id === e2._id : e1 === e2;
+    return e1 && e2 ? e1._id === e2._id : e1 === e2;
   }
 
   public async loadImageAndView(type: string) {
@@ -542,9 +484,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public ngOnDestroy() {
     debug("[Vin.ngOnDestroy]called");
+    // Unscubribe all observers
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    //this.actionListener$.unsubscribe();
   }
 
   public ionViewWillEnter() {
@@ -623,24 +565,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         }
       }
       this.store.dispatch(VinActions.createVin({ vin: this.vin }));
-      /*      this.pouch.saveDoc(this.vin, "vin").then((response) => {
-        if (response.ok) {
-          debug("[Vin.saveVin]vin " + JSON.stringify(this.vin) + " saved");
-          this.presentToast(
-            this.translate.instant("general.dataSaved"),
-            "success",
-            "/home"
-          );
-          //this.navCtrl.push(SearchPage)
-        } else {
-          this.presentToast(
-            this.translate.instant("general.DBError"),
-            "error",
-            "/home"
-          );
-        }
-      });
-    */
     } else {
       debug("[Vin.saveVin]vin invalid");
       this.presentToast(
@@ -664,23 +588,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             text: this.translate.instant("general.ok"),
             handler: () => {
               this.store.dispatch(VinActions.deleteVin({ vin: this.vin }));
-
-              /*               this.pouch.deleteDoc(this.vin).then((response) => {
-                if (response.ok) {
-                  this.presentToast(
-                    this.translate.instant("wine.wineDeleted"),
-                    "success",
-                    "/home"
-                  );
-                } else {
-                  this.presentToast(
-                    this.translate.instant("wine.wineNotDeleted"),
-                    "error",
-                    undefined
-                  );
-                }
-              });
- */
             },
           },
         ],
@@ -764,44 +671,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       .then((alert) => {
         alert.present();
       });
-  }
-
-  public typeChange(val: any) {
-    debug("type change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch.getDoc(val.detail.value).then(
-        (result) =>
-          (this.vin.type = new TypeModel({
-            _id: result._id,
-            nom: result.nom,
-          }))
-      );
-  }
-
-  public origineChange(val: any) {
-    debug("origine change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch.getDoc(val.detail.value).then(
-        (result) =>
-          (this.vin.origine = new OrigineModel({
-            _id: result._id,
-            pays: result.pays,
-            region: result.region,
-          }))
-      );
-  }
-
-  public appellationChange(val: any) {
-    debug("appellation change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch.getDoc(val.detail.value).then(
-        (result) =>
-          (this.vin.appellation = new AppellationModel({
-            _id: result._id,
-            courte: result.courte,
-            longue: result.longue,
-          }))
-      );
   }
 
   public showDate(ISODateString) {
@@ -898,6 +767,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       .replace(/î/g, "i");
   }
 
+  // function called for each value change of wine name or year
   private noDouble(group: FormGroup) {
     debug("nodouble called");
     if (!group.controls.nom || !group.controls.annee) return null;

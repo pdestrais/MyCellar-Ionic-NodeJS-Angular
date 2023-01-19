@@ -331,7 +331,7 @@ export class PouchdbService {
         endkey: type + "|\ufff0",
       })
       .then((result) => {
-        console.log("[POuchDBService] result :" + JSON.stringify(result));
+        debug("[POuchDBService] result :" + JSON.stringify(result));
         if (result && result.rows) return result.rows.map((res) => res.doc);
         else return [];
       })
