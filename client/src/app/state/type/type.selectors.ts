@@ -5,7 +5,6 @@ import { TypeModel } from "../../models/cellar.model";
 import dayjs from "dayjs";
 
 export const getTypeState = (state: AppState) => {
-  console.log("[getTypeState]state : " + state);
   return state
     ? state.types
     : {
@@ -18,7 +17,6 @@ export const getTypeState = (state: AppState) => {
 export const getAllTypesArraySorted = createSelector(
   getTypeState,
   (state: TypeState) => {
-    console.log("[getAllTypes]state : " + state);
     return state
       ? state.hasOwnProperty("types")
         ? Array.from(state.types.values()).sort((a, b) => {
@@ -31,8 +29,5 @@ export const getAllTypesArraySorted = createSelector(
 
 export const getTypeById = (id: string) =>
   createSelector(getTypeState, (typeState: TypeState) => {
-    console.log(
-      "[getVinState]return wine from state : " + typeState.types.get(id)
-    );
     return typeState.types.get(id);
   });

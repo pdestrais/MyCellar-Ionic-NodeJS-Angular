@@ -10,6 +10,15 @@ import { VinModel } from "../../models/cellar.model";
 
 import { AppState } from "../app.state";
 
+import Debug from "debug";
+
+const debug = Debug("app:state:vineffect");
+
+export interface IResult {
+  ok?: boolean;
+  id: string;
+  rev: string;
+}
 @Injectable()
 export class VinEffects {
   //  private lastSavedWine: VinModel = null;
@@ -46,9 +55,9 @@ export class VinEffects {
           return from(
             this.pouchService.saveDoc(Object.assign({}, action.vin), "vin")
           ).pipe(
-            map((vin: VinModel) => {
+            map((result: IResult) => {
               return VinAction.createVinSuccess({
-                vin: { ...action.vin, _id: vin.id },
+                vin: { ...action.vin, _id: result.id, _rev: result.rev },
                 source: "internal",
               });
             }),
@@ -83,7 +92,7 @@ export class VinEffects {
         exhaustMap((action) =>
           from(this.pouchService.deleteDoc(action.vin)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((deleteResult) =>
+            map((deleteResult: IResult) =>
               VinAction.deleteVinSuccess({
                 result: deleteResult,
                 source: "internal",
@@ -102,14 +111,29 @@ export class VinEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
-        tap((change) => console.log("[Effect]" + change)),
+        tap((change) =>
+          debug(
+            "[handleChanges Effect]ts: " +
+              window.performance.now() +
+              "\n - change : " +
+              JSON.stringify(change)
+          )
+        ),
         map((change) => {
           if (!change.deleted) {
-            //this.lastSavedWine = null;
+            /*             setTimeout(() => {
+              console.log(
+              "[handleChanges Effect]delayed ts: " +
+                window.performance.now() +
+                "change : " +
+                JSON.stringify(change)
+            ); */
             return VinAction.createVinSuccess({
               vin: change.doc,
               source: "external",
             });
+            /*             }, 100);
+             */
           } else
             return VinAction.deleteVinSuccess({
               result: change,
@@ -117,7 +141,6 @@ export class VinEffects {
             });
         })
       ),
-    // Most effects dispatch another action, but this one is just a "fire and forget" effect
     { dispatch: true }
   );
 }

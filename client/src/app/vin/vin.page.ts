@@ -1,5 +1,12 @@
 import { Subject, of, merge } from "rxjs";
-import { filter, take, takeUntil, tap } from "rxjs/operators";
+import {
+  debounce,
+  distinct,
+  filter,
+  take,
+  takeUntil,
+  tap,
+} from "rxjs/operators";
 import { TranslateService } from "@ngx-translate/core";
 import {
   Component,
@@ -222,10 +229,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     this.types$ = this.store
       .select(TypeSelectors.getAllTypesArraySorted)
       .pipe(takeUntil(this.unsubscribe$));
-    this.types$.subscribe((typeList) => {
-      if (typeList) {
-      }
-    });
     this.origines$ = this.store
       .select(OrigineSelectors.getAllOriginesArraySorted)
       .pipe(takeUntil(this.unsubscribe$));
@@ -236,9 +239,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     this.store
       .select<VinModel>(VinSelectors.getWine(paramId))
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((vin) => {
+      .subscribe((vin: VinModel) => {
         if (vin) {
           // We have selected a wine
+          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+          this.store.dispatch(
+            VinActions.editVin({ id: vin._id, rev: vin._rev })
+          );
           this.vin = { ...vin };
           this.originalName = vin.nom;
           this.originalYear = vin.annee;
@@ -248,7 +255,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
         } else {
           // No wine was selected, when will record a new win
-          let now = dayjs();
+          this.store.dispatch(VinActions.editVin({ id: "", rev: "" }));
         }
         this.vinForm.setValue(
           this.reject(this.vin, [
@@ -274,20 +281,40 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
     this.store
       .select((state: AppState) => state.vins)
-      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        tap((vinState) =>
+          debug(
+            "[ngOnInit]handle vinState Changes - ts " +
+              window.performance.now() +
+              "\nvinState : " +
+              JSON.stringify(vinState) +
+              "\neventLog : " +
+              JSON.stringify(vinState.eventLog)
+          )
+        )
+      )
       .subscribe((vinState) => {
         switch (vinState.status) {
-          case "success save":
+          case "saved":
+            debug(
+              "[ngOnInit] handling change to 'saved' status - ts " +
+                window.performance.now() +
+                "\nvinState : " +
+                JSON.stringify(vinState) +
+                "\neventLog : " +
+                JSON.stringify(vinState.eventLog)
+            );
+
             // if we get an event that a wine is saved. We need to check it's id and
-            // if the event source is internal (saved within this instance of the application).
-            // - internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-            // - external ?
-            //       - concurrent update on the same wine (same id but different rev) ? => show a warning that the wine the user is working on has been updated somewhere else in the mean time. we go back to the home screen.
-            //       - no concurrent update on the same wine (not the same id) ? => no confirmation or message is shown, we stay on the wine edition page.
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
             if (vinState.source == "internal") {
-              setTimeout(() => {
-                this.vin._rev = vinState.wineInstance._rev;
-              }, 3000);
+              debug("[ngInit](I) Standard wine saved");
               // Internal event
               this.presentToast(
                 this.translate.instant("general.dataSaved"),
@@ -295,22 +322,47 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 "home",
                 2000
               );
-            } else if (
-              this.vin._id &&
-              this.vin._rev &&
-              this.vin._id == vinState.wineInstance._id &&
-              this.vin._rev != vinState.wineInstance._rev
-            ) {
-              // Event showing concurrent editing on the same wine that was saved somewhere else
-              this.presentToast(
-                this.translate.instant(
-                  "wine.savedOrDeletedConcurrentlyOnAnotherInstance"
-                ),
-                "warning",
-                "home",
-                0,
-                "Close"
+              this.store.dispatch(VinActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              let filteredEventLog = vinState.eventLog.filter(
+                (value) =>
+                  value.id == vinState.currentWine.id &&
+                  value.rev == vinState.currentWine.rev &&
+                  value.action == "create"
               );
+              debug(
+                "[ngInit](II) FilteredEventLog : " +
+                  JSON.stringify(filteredEventLog)
+              );
+              if (filteredEventLog.length == 2) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(VinActions.setStatusToLoaded());
+              } else if (
+                vinState.eventLog[vinState.eventLog.length - 1].id ==
+                  vinState.currentWine.id &&
+                vinState.eventLog[vinState.eventLog.length - 1].rev ==
+                  vinState.currentWine.rev &&
+                vinState.eventLog[vinState.eventLog.length - 1].action ==
+                  "create" &&
+                this.vinForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.savedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Update of another wine");
+              }
             }
             break;
           case "error":
@@ -321,8 +373,17 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
               5000
             );
             break;
-          case "success delete":
-            if (vinState.source == "internal")
+          case "deleted":
+            // if we get an event that a wine is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
+            if (vinState.source == "internal") {
+              debug("[ngInit](I) Standard wine deleted");
               // Internal event
               this.presentToast(
                 this.translate.instant("wine.wineDeleted"),
@@ -330,20 +391,42 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 "home",
                 2000
               );
-            else if (
-              this.vin._id &&
-              JSON.stringify(this.vin) == JSON.stringify(vinState.wineInstance)
-            ) {
-              // Event showing concurrent editing on the same wine that was saved somewhere else
-              this.presentToast(
-                this.translate.instant(
-                  "wine.savedOrDeletedConcurrentlyOnAnotherInstance"
-                ),
-                "warning",
-                "home",
-                0,
-                "Close"
-              );
+              this.store.dispatch(VinActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              // this should never happen for a delete
+              if (
+                vinState.eventLog.filter(
+                  (value) =>
+                    value.id == vinState.currentWine.id &&
+                    value.rev >= vinState.currentWine.rev &&
+                    value.action == "delete"
+                ).length == 2
+              ) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(VinActions.setStatusToLoaded());
+              } else if (
+                vinState.eventLog[vinState.eventLog.length - 1].id ==
+                  vinState.currentWine.id &&
+                vinState.eventLog[vinState.eventLog.length - 1].action ==
+                  "delete"
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.deletedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "home",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Delete of another wine");
+              }
             }
             break;
         }
@@ -374,11 +457,12 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   // Used to comare Objects in html selects
   compareFn(e1: any, e2: any): boolean {
-    debug("[compareFn] object 1 :" + JSON.stringify(e1));
+    /*     debug("[compareFn] object 1 :" + JSON.stringify(e1));
     debug("[compareFn] object 2 :" + JSON.stringify(e2));
     debug(
       "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
     );
+ */
     return e1 && e2 ? e1._id === e2._id : e1 === e2;
   }
 
@@ -503,18 +587,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     if (this.vinForm.valid) {
       // validation succeeded
       debug("[Vin.saveVin]vin valid");
-      let id = this.vin._id;
-      Object.assign(this.vin, this.vinForm.value);
-      //this.vin = this.vinForm.value;
-      this.vin._id = id;
+      // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
+      let mutableWine = JSON.parse(JSON.stringify(this.vin));
+      // now combine the loaded wine data with the new form data
+      this.vin = { ...mutableWine, ...this.vinForm.value };
       this.vin.lastUpdated = new Date().toISOString();
-      this.vin.appellation = this.appellations.find(
-        (appellation) => appellation._id == this.vin.appellation
-      );
-      this.vin.origine = this.origines.find(
-        (origine) => origine._id == this.vin.origine
-      );
-      this.vin.type = this.types.find((type) => type._id == this.vin.type);
       if (this.newWine) {
         this.vin.history.push({
           type: "creation",
@@ -618,7 +695,12 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   ) {
     if (duration && duration != 0) {
       const toast = await this.toastCtrl.create({
-        color: type == "success" ? "secondary" : "danger",
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
         message: message,
         duration: duration ? duration : 2000,
       });
@@ -626,7 +708,12 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
     } else {
       const toast = await this.toastCtrl.create({
-        color: type == "success" ? "secondary" : "danger",
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
         message: message,
         buttons: [
           {

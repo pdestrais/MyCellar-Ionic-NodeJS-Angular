@@ -5,7 +5,6 @@ import { VinModel } from "../../models/cellar.model";
 import dayjs from "dayjs";
 
 export const getVinState = (state: AppState) => {
-  console.log("[getVinState]state : " + state);
   return state
     ? state.vins
     : {
@@ -15,7 +14,6 @@ export const getVinState = (state: AppState) => {
       };
 };
 export const getAllVins = createSelector(getVinState, (state: VinState) => {
-  console.log("[getAllVins]state : " + state);
   return state
     ? state.hasOwnProperty("vins")
       ? state.vins
@@ -67,29 +65,36 @@ export const getWinesMaturity = (category: string) =>
         }
       }
     });
-    return MaturityList;
+    return MaturityList.sort((a, b) =>
+      a.nom + a.annee < b.nom + b.annee ? -1 : 1
+    );
   });
 
 export const getFilteredWines = (searchTerm: string, isInStock: boolean) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     let filteredList = Array.from(allVinMap.values());
-    return filteredList.filter((item) => {
-      if (isInStock)
-        return (
-          item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
-          item.nbreBouteillesReste > 0 &&
-          searchTerm.length > 2
-        );
-      else
-        return (
-          item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
-          searchTerm.length > 2
-        );
-    });
+    return filteredList
+      .filter((item) => {
+        if (isInStock)
+          return (
+            item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
+            item.nbreBouteillesReste > 0 &&
+            searchTerm.length > 2
+          );
+        else
+          return (
+            item.nom.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
+            searchTerm.length > 2
+          );
+      })
+      .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
   });
 
 export const getWine = (id: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
-    console.log("[getVinState]return wine from state : " + allVinMap.get(id));
+    console.log(
+      "[VinSelector]getWine returned wine from state : " +
+        JSON.stringify(allVinMap.get(id))
+    );
     return allVinMap.get(id);
   });

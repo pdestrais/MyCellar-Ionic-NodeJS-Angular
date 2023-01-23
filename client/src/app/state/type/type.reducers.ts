@@ -13,7 +13,6 @@ export interface TypeState {
     | "success save"
     | "success delete"
     | "success";
-  wineInstance: TypeModel;
   source: string;
 }
 
@@ -21,7 +20,6 @@ export const initialState: TypeState = {
   types: new Map(),
   error: null,
   status: null,
-  wineInstance: null,
   source: "",
 };
 
@@ -59,7 +57,6 @@ export const typeReducer = createReducer(
       error: "null",
       types: newMap,
       source: source,
-      wineInstance: _type,
     };
   }),
   // handle wine save failure
@@ -83,7 +80,6 @@ export const typeReducer = createReducer(
       status: "success delete",
       error: "null",
       types: newMap,
-      wineInstance: new TypeModel({ _id: result.id, _rev: result.rev }),
       source: source,
     };
   }),

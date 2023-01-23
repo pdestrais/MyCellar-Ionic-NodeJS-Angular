@@ -13,6 +13,12 @@ export const loadVinsFailure = createAction(
   props<{ error: string }>()
 );
 
+// Edit vin Action
+export const editVin = createAction(
+  "[Vin Page] Edit Vin",
+  props<{ id: string; rev: string }>()
+);
+
 // Create actions
 export const createVin = createAction(
   "[Vin Page] Create Vin",
@@ -44,3 +50,7 @@ export const deleteVinFailure = createAction(
   "[Vin API] Vin Delete Failure",
   props<{ error: string }>()
 );
+
+export const setStatusToNoop = createAction("[Vin API] Vin Set Status");
+
+export const setStatusToLoaded = createAction("[Vin API] Vin Set Status");

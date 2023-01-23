@@ -67,7 +67,8 @@
     "fetchGWSSCore": "Fetching GWS Score",
     "addImage": "Add Wine Image",
     "rating": "rating",
-    "savedOrDeletedConcurrentlyOnAnotherInstance": "the wine you are editing is being modified or deleted by someone else. Please start again editing. You will be directed to the home page."
+    "savedConcurrentlyOnAnotherInstance": "the wine you are editing has been modified by someone else. The values have been updated to reflect the last changes.",
+    "deletedConcurrentlyOnAnotherInstance": "the wine you are editing has been deleted by someone else. Your edition is aborted. You will be directed to the home page."
   },
   "appellation": {
     "appellation": "appellation",

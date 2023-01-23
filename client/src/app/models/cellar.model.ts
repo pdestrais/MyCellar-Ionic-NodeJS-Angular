@@ -27,6 +27,7 @@ export class VinModel implements IVin {
   public _id: string;
   public id?: string;
   public _rev?: string;
+  public rev?: string;
   public nom: string;
   public annee: string;
   public nbreBouteillesAchat: number;

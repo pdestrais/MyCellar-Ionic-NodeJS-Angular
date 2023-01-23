@@ -61,7 +61,6 @@ export const appellationReducer = createReducer(
         error: "null",
         appellations: newMap,
         source: source,
-        wineInstance: appellation,
       };
     }
   ),
@@ -88,10 +87,6 @@ export const appellationReducer = createReducer(
         status: "success delete",
         error: "null",
         appellations: newMap,
-        wineInstance: new AppellationModel({
-          _id: result.id,
-          _rev: result.rev,
-        }),
         source: source,
       };
     }

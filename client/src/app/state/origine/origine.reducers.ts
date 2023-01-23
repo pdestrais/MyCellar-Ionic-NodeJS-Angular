@@ -57,7 +57,6 @@ export const origineReducer = createReducer(
       error: "null",
       origines: newMap,
       source: source,
-      wineInstance: origine,
     };
   }),
   // handle wine save failure
@@ -81,7 +80,6 @@ export const origineReducer = createReducer(
       status: "success delete",
       error: "null",
       origines: newMap,
-      wineInstance: new OrigineModel({ _id: result.id, _rev: result.rev }),
       source: source,
     };
   }),

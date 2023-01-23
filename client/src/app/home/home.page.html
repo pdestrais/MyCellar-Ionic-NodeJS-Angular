@@ -30,14 +30,14 @@
     >
       {{wineToDrink.nom}} [{{wineToDrink.annee}}]
       <ion-icon
-        *ngIf="wineToDrink.type.nom=='Rouge'"
+        *ngIf="wineToDrink.type && wineToDrink.type.nom=='Rouge'"
         class="limitMargin"
         slot="end"
         size="small"
         src="assets/icons/Rouge.svg"
       ></ion-icon>
       <ion-icon
-        *ngIf="wineToDrink.type.nom=='Blanc'"
+        *ngIf="wineToDrink.type && wineToDrink.type.nom=='Blanc'"
         class="limitMargin"
         slot="end"
         size="small"

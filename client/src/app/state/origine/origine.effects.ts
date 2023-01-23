@@ -23,10 +23,11 @@ export class OrigineEffects {
   // Run this code when a loadOrigines action is dispatched
   loadOrigines$ = createEffect(() =>
     this.actions$.pipe(
-      tap((action) => console.log("[loadOrigine$]action : " + action)),
+      tap((action) => {
+        /* console.log("[loadOrigine$]action : " + action) */
+      }),
       ofType(OrigineAction.loadOrigines),
       switchMap(() => {
-        console.log("[OrigineEffect]loadOrigines action");
         // Call the getOrigines method, convert it to an observable
         return from(this.pouchService.getDocsOfType("origine")).pipe(
           // Take the returned value and return a new success action containing the Origines

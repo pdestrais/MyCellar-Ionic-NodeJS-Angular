@@ -5,7 +5,6 @@ import { AppellationModel } from "../../models/cellar.model";
 import dayjs from "dayjs";
 
 export const getAppellationState = (state: AppState) => {
-  console.log("[getAppellationState]state : " + state);
   return state
     ? state.appellations
     : {
@@ -18,7 +17,6 @@ export const getAppellationState = (state: AppState) => {
 export const getAllAppellationsArraySorted = createSelector(
   getAppellationState,
   (state: AppellationState) => {
-    console.log("[getAllTypes]state : " + state);
     return state
       ? state.hasOwnProperty("appellations")
         ? Array.from(state.appellations.values()).sort((a, b) => {
@@ -32,8 +30,8 @@ export const getAllAppellationsArraySorted = createSelector(
 export const getTypeById = (id: string) =>
   createSelector(getAppellationState, (appellationState: AppellationState) => {
     console.log(
-      "[getVinState]return wine from state : " +
-        appellationState.appellations.get(id)
+      "[AppellationSelector]getTypeById returned type from state : " +
+        JSON.stringify(appellationState.appellations.get(id))
     );
     return appellationState.appellations.get(id);
   });

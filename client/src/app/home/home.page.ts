@@ -91,6 +91,9 @@ export class HomePage implements OnInit {
     this.store.dispatch(TypeActions.loadTypes());
     this.store.dispatch(OrigineActions.loadOrigines());
     this.store.dispatch(AppellationActions.loadAppellations());
+    this.store.pipe(select(VinSelectors.getVinState)).subscribe((vinState) => {
+      return { ...vinState, status: "noop", source: "" };
+    });
     this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
       this.wines = Array.from(wineList.values());
       this.loading = false;
