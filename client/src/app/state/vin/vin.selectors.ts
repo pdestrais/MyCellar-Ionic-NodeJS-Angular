@@ -98,6 +98,14 @@ export const getWinesByAppellation = (appellationId: string) =>
       .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
   });
 
+export const getWinesByOrigine = (origineId: string) =>
+  createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
+    let filteredList = Array.from(allVinMap.values());
+    return filteredList
+      .filter((item) => item.origine._id == origineId)
+      .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+  });
+
 export const getWine = (id: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     console.log(

@@ -2,7 +2,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { PouchdbService } from "../services/pouchdb.service";
 import { AppellationModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular";
 import { ActivatedRoute } from "@angular/router";
@@ -12,7 +11,6 @@ import { Store } from "@ngrx/store";
 import * as AppellationSelectors from "../state/appellation/appellation.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import * as AppellationActions from "../state/appellation/appellation.actions";
-
 import { Observable, Subject } from "rxjs";
 import { takeUntil, tap } from "rxjs/operators";
 import { AppState } from "../state/app.state";
@@ -39,13 +37,11 @@ export class AppellationPage implements OnInit {
   public appellationsMap: Map<any, any>;
   public submitted: boolean;
   public appellationForm: FormGroup;
-  public newAppellation: boolean = false;
   public list: boolean = true;
 
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private pouch: PouchdbService,
     private formBuilder: FormBuilder,
     private translate: TranslateService,
     private alertController: AlertController,
@@ -114,8 +110,8 @@ export class AppellationPage implements OnInit {
     this.store
       .select((state: AppState) => state.appellations)
       .pipe(
-        takeUntil(this.unsubscribe$),
-        tap((appellationState) =>
+        takeUntil(this.unsubscribe$)
+        /*         tap((appellationState) =>
           debug(
             "[ngOnInit]handle appellationState Changes - ts " +
               window.performance.now() +
@@ -123,6 +119,7 @@ export class AppellationPage implements OnInit {
               JSON.stringify(appellationState, replacer)
           )
         )
+ */
       )
       .subscribe((appellationState) => {
         switch (appellationState.status) {

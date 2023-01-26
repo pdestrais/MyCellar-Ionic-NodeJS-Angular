@@ -13,6 +13,12 @@ export const loadOriginesFailure = createAction(
   props<{ error: string }>()
 );
 
+// Edit origine Action
+export const editOrigine = createAction(
+  "[Origine Page] Edit Origine",
+  props<{ id: string; rev: string }>()
+);
+
 // Create actions
 export const createOrigine = createAction(
   "[Origine Page] Create Origine",
@@ -43,4 +49,8 @@ export const deleteOrigineSuccess = createAction(
 export const deleteOrigineFailure = createAction(
   "[Origine API] Origine Delete Failure",
   props<{ error: string }>()
+);
+
+export const setStatusToLoaded = createAction(
+  "[Origine API] Origine Set Status To Loaded"
 );

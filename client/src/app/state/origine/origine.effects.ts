@@ -5,15 +5,21 @@ import { PouchdbService } from "../../services/pouchdb.service";
 import { of, from, pipe } from "rxjs";
 import { switchMap, map, catchError, exhaustMap, tap } from "rxjs/operators";
 import { Store } from "@ngrx/store";
-//import { selectAllOrigines } from "./Origine.selectors";
 import { OrigineModel } from "../../models/cellar.model";
 
 import { AppState } from "../app.state";
 
+import Debug from "debug";
+
+const debug = Debug("app:state:origineeffect");
+
+export interface IResult {
+  ok?: boolean;
+  id: string;
+  rev: string;
+}
 @Injectable()
 export class OrigineEffects {
-  //  private lastSavedWine: OrigineModel = null;
-
   constructor(
     private actions$: Actions,
     private store: Store<AppState>,
@@ -23,23 +29,22 @@ export class OrigineEffects {
   // Run this code when a loadOrigines action is dispatched
   loadOrigines$ = createEffect(() =>
     this.actions$.pipe(
-      tap((action) => {
-        /* console.log("[loadOrigine$]action : " + action) */
-      }),
       ofType(OrigineAction.loadOrigines),
-      switchMap(() => {
+      switchMap(() =>
         // Call the getOrigines method, convert it to an observable
-        return from(this.pouchService.getDocsOfType("origine")).pipe(
+        from(this.pouchService.getDocsOfType("origine")).pipe(
           // Take the returned value and return a new success action containing the Origines
           map((origines: OrigineModel[]) =>
-            OrigineAction.loadOriginesSuccess({ origines: origines })
+            OrigineAction.loadOriginesSuccess({
+              origines: origines,
+            })
           ),
           // Or... if it errors return a new failure action containing the error
           catchError((error) =>
             of(OrigineAction.loadOriginesFailure({ error }))
           )
-        );
-      })
+        )
+      )
     )
   );
 
@@ -56,9 +61,13 @@ export class OrigineEffects {
               "origine"
             )
           ).pipe(
-            map((origine: OrigineModel) => {
+            map((result: IResult) => {
               return OrigineAction.createOrigineSuccess({
-                origine: { ...action.origine, _id: origine.id },
+                origine: {
+                  ...action.origine,
+                  _id: result.id,
+                  _rev: result.rev,
+                },
                 source: "internal",
               });
             }),
@@ -95,7 +104,7 @@ export class OrigineEffects {
         exhaustMap((action) =>
           from(this.pouchService.deleteDoc(action.origine)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((deleteResult) =>
+            map((deleteResult: IResult) =>
               OrigineAction.deleteOrigineSuccess({
                 result: deleteResult,
                 source: "internal",
@@ -116,10 +125,16 @@ export class OrigineEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
-        tap((change) => console.log("[Effect]" + change)),
+        tap((change) =>
+          debug(
+            "[handleChanges Effect]ts: " +
+              window.performance.now() +
+              "\n - change : " +
+              JSON.stringify(change)
+          )
+        ),
         map((change) => {
           if (!change.deleted) {
-            //this.lastSavedWine = null;
             return OrigineAction.createOrigineSuccess({
               origine: change.doc,
               source: "external",
@@ -131,7 +146,6 @@ export class OrigineEffects {
             });
         })
       ),
-    // Most effects dispatch another action, but this one is just a "fire and forget" effect
     { dispatch: true }
   );
 }
