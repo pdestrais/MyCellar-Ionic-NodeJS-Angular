@@ -82,20 +82,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   private originalName;
   private originalYear;
   public status: string;
-  //	private ctx: any;
-  //	private canvas: any;
-  /* 	private canvasHeight: number = 200;
-	private canvasWidth: number = 150;
-	private mq420: MediaQueryList = window.matchMedia('(max-width: 420px)');
-	private mq500: MediaQueryList = window.matchMedia('(min-width:421px) and (max-width: 500px )');
-	private mq800: MediaQueryList = window.matchMedia('(min-width:501px) and (max-width: 800px )');
-	private mq2000: MediaQueryList = window.matchMedia('(min-width:920px)');
- */
-  ///	private url: any;
-  //	private imgRatio: number = 4 / 3;
-  //	private imgMinWidth: number = 150;
-  //	private imgMaxWidth: number = 550;
-  //	private offScreenCanvas: HTMLCanvasElement = document.createElement('canvas');
   private selectedPhoto: { contentType: string; data: File } = {
     contentType: "jpeg",
     data: new File([], "Photo file"),
@@ -116,16 +102,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   alert: any;
   navTransition: any;
 
-  _origines: [
-    { id: "77"; pays: "France"; region: "Bergerac" },
-    { id: "78"; pays: "France"; region: "Bordeaux" }
-  ];
-  options: Option[] = [
-    { id: 1, name: "John", firstname: "Doe" },
-    { id: 2, name: "Jane", firstname: "Doe" },
-    { id: 3, name: "Bob", firstname: "Smith" },
-  ];
-
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
@@ -138,8 +114,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private store: Store,
-    private actionListener$: ActionsSubject
+    private store: Store
   ) {
     // Initializing vin object & form
     this.vin = new VinModel({
@@ -215,7 +190,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         cepage: [""],
         GWSScore: [""],
         rating: [0],
-        //        selectedOption: [this.options[1]],
       } //,
       //{ validator: this.noDouble.bind(this) }
     );
@@ -447,10 +421,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  /*   changeSelectedOption(newOption: Option) {
-    this.vinForm.controls["selectedOption"].setValue(newOption);
-  }
- */
   public ngAfterViewInit() {
     debug("[entering ngAfterViewInit]");
   }

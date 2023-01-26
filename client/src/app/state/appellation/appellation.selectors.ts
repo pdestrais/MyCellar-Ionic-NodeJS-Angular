@@ -2,7 +2,11 @@ import { createSelector } from "@ngrx/store";
 import { AppState } from "../app.state";
 import { AppellationState } from "./appellation.reducers";
 import { AppellationModel } from "../../models/cellar.model";
+import Debug from "debug";
 import dayjs from "dayjs";
+import { replacer } from "../../util/util";
+
+const debug = Debug("app:state:appellationselector");
 
 export const getAppellationState = (state: AppState) => {
   return state
@@ -13,10 +17,25 @@ export const getAppellationState = (state: AppState) => {
         status: "pending",
       };
 };
+export const getAllAppellations = createSelector(
+  getAppellationState,
+  (state: AppellationState) => {
+    return state
+      ? state.hasOwnProperty("appellations")
+        ? state.appellations
+        : new Map()
+      : new Map();
+  }
+);
 
 export const getAllAppellationsArraySorted = createSelector(
   getAppellationState,
   (state: AppellationState) => {
+    debug("[getAllAppellations]state : " + JSON.stringify(state, replacer));
+    debug(
+      "[getAllAppellations]appellation list : " +
+        JSON.stringify(Array.from(state.appellations.entries()))
+    );
     return state
       ? state.hasOwnProperty("appellations")
         ? Array.from(state.appellations.values()).sort((a, b) => {
@@ -27,11 +46,28 @@ export const getAllAppellationsArraySorted = createSelector(
   }
 );
 
-export const getTypeById = (id: string) =>
-  createSelector(getAppellationState, (appellationState: AppellationState) => {
-    console.log(
-      "[AppellationSelector]getTypeById returned type from state : " +
-        JSON.stringify(appellationState.appellations.get(id))
-    );
-    return appellationState.appellations.get(id);
-  });
+export const appellationMapForDuplicates = createSelector(
+  getAllAppellations,
+  (allAppellationMap: Map<string, AppellationModel>) => {
+    const appellationMapForDuplicates = new Map<string, AppellationModel>();
+    allAppellationMap.forEach((appellation) => {
+      appellationMapForDuplicates.set(
+        appellation.courte + appellation.longue,
+        appellation
+      );
+    });
+    return appellationMapForDuplicates;
+  }
+);
+
+export const getAppellation = (id: string) =>
+  createSelector(
+    getAllAppellations,
+    (allAppellationMap: Map<string, AppellationModel>) => {
+      debug(
+        "[AppellationSelector]getAppellation returned appellation from state : " +
+          JSON.stringify(allAppellationMap.get(id))
+      );
+      return allAppellationMap.get(id);
+    }
+  );

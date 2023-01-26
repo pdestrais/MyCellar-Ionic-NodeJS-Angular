@@ -88,6 +88,7 @@ export class HomePage implements OnInit {
     debug("[ngOnInit] entering method");
     this.loading = true;
     this.store.dispatch(VinActions.loadVins());
+    // not need in home page but I'm loading the type, origine and appellation information in the state so that it's ready to use in other modules
     this.store.dispatch(TypeActions.loadTypes());
     this.store.dispatch(OrigineActions.loadOrigines());
     this.store.dispatch(AppellationActions.loadAppellations());
@@ -184,8 +185,6 @@ export class HomePage implements OnInit {
       VinSelectors.getFilteredWines(this.searchTerm, this.isInStock)
     );
   }
-
-  filterWinesTAS() {}
 
   setFilteredItems() {
     this.filteredWines$ = this.store.select(

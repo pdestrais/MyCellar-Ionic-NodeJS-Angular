@@ -5,7 +5,6 @@ import { PouchdbService } from "../../services/pouchdb.service";
 import { of, from, pipe } from "rxjs";
 import { switchMap, map, catchError, exhaustMap, tap } from "rxjs/operators";
 import { Store } from "@ngrx/store";
-//import { selectAllVins } from "./Vin.selectors";
 import { VinModel } from "../../models/cellar.model";
 
 import { AppState } from "../app.state";
@@ -21,8 +20,6 @@ export interface IResult {
 }
 @Injectable()
 export class VinEffects {
-  //  private lastSavedWine: VinModel = null;
-
   constructor(
     private actions$: Actions,
     private store: Store<AppState>,
@@ -121,19 +118,10 @@ export class VinEffects {
         ),
         map((change) => {
           if (!change.deleted) {
-            /*             setTimeout(() => {
-              console.log(
-              "[handleChanges Effect]delayed ts: " +
-                window.performance.now() +
-                "change : " +
-                JSON.stringify(change)
-            ); */
             return VinAction.createVinSuccess({
               vin: change.doc,
               source: "external",
             });
-            /*             }, 100);
-             */
           } else
             return VinAction.deleteVinSuccess({
               result: change,

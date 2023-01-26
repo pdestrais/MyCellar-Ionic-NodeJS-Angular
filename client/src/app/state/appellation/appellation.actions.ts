@@ -15,6 +15,12 @@ export const loadAppellationsFailure = createAction(
   props<{ error: string }>()
 );
 
+// Edit appellation Action
+export const editAppellation = createAction(
+  "[Appellation Page] Edit Appellation",
+  props<{ id: string; rev: string }>()
+);
+
 // Create actions
 export const createAppellation = createAction(
   "[Appellation Page] Create Appellation",
@@ -45,4 +51,8 @@ export const deleteAppellationSuccess = createAction(
 export const deleteAppellationFailure = createAction(
   "[Appellation API] Appellation Delete Failure",
   props<{ error: string }>()
+);
+
+export const setStatusToLoaded = createAction(
+  "[Appellation API] Appellation Set Status To Loaded"
 );

@@ -51,6 +51,6 @@ export const deleteVinFailure = createAction(
   props<{ error: string }>()
 );
 
-export const setStatusToNoop = createAction("[Vin API] Vin Set Status");
-
-export const setStatusToLoaded = createAction("[Vin API] Vin Set Status");
+export const setStatusToLoaded = createAction(
+  "[Vin API] Vin Set Status To Loaded"
+);

@@ -6,7 +6,14 @@ import {
   AppellationState,
   appellationReducer,
 } from "./appellation/appellation.reducers";
+import { Dayjs } from "dayjs";
 
+export interface IEventLog {
+  id: string;
+  rev: string;
+  action: string;
+  timestamp: Dayjs;
+}
 export interface AppState {
   vins: VinState;
   types: TypeState;

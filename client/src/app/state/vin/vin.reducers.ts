@@ -3,15 +3,10 @@ import * as VinAction from "./vin.actions";
 import { VinModel } from "../../models/cellar.model";
 import dayjs, { Dayjs } from "dayjs";
 import Debug from "debug";
+import { IEventLog } from "../app.state";
 
 const debug = Debug("app:state:winereducer");
 
-export interface IEventLog {
-  id: string;
-  rev: string;
-  action: string;
-  timestamp: Dayjs;
-}
 export interface VinState {
   // vins is a Map with vin._id as as key and vin as value
   vins: Map<string, VinModel>;
@@ -46,12 +41,18 @@ export const vinReducer = createReducer(
     return { ...state, status: "loading" };
   }),
   // Handle successfully loaded wines
-  on(VinAction.loadVinsSuccess, (state, { vins }) => ({
-    ...state,
-    vins: new Map(vins.map((obj: VinModel) => [obj._id, obj])),
-    error: null,
-    status: "loaded",
-  })),
+  on(VinAction.loadVinsSuccess, (state, { vins }) => {
+    debug("[loadVinsSuccess]");
+    return {
+      ...state,
+      vins:
+        vins && Array.isArray(vins)
+          ? new Map(vins.map((obj: VinModel) => [obj._id, obj]))
+          : new Map(),
+      error: null,
+      status: "loaded",
+    };
+  }),
   // Handle wines load failure
   on(VinAction.loadVinsFailure, (state, { error }) => ({
     ...state,
@@ -165,10 +166,6 @@ export const vinReducer = createReducer(
     ...state,
     error: error,
     status: "error",
-  })),
-  on(VinAction.setStatusToNoop, (state) => ({
-    ...state,
-    status: "noop",
   })),
   on(VinAction.setStatusToLoaded, (state) => ({
     ...state,

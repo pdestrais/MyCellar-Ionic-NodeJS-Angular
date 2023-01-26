@@ -64,6 +64,7 @@ export class TypeModel implements IType {
   public _id: string;
   public id?: string;
   public _rev?: string;
+  public rev?: string;
   public nom: string;
   constructor(data: Partial<IVin>) {
     Object.assign(this, data);
@@ -95,6 +96,7 @@ export class AppellationModel {
   public _id: string;
   public id?: string;
   public _rev?: string;
+  public rev?: string;
   public courte: string;
   public longue: string;
   constructor(data: Partial<IAppellation>) {
@@ -114,6 +116,7 @@ export class OrigineModel {
   public _id: string;
   public id?: string;
   public _rev?: string;
+  public rev?: string;
   public pays: string;
   public region: string;
   public groupVal?: string;

@@ -1,6 +1,11 @@
 import { createReducer, on } from "@ngrx/store";
 import * as AppellationAction from "./appellation.actions";
 import { AppellationModel } from "../../models/cellar.model";
+import dayjs, { Dayjs } from "dayjs";
+import Debug from "debug";
+import { IEventLog } from "../app.state";
+
+const debug = Debug("app:state:appellationreducer");
 
 export interface AppellationState {
   // appellations is a Map with appellation._id as as key and appellation as value
@@ -10,10 +15,13 @@ export interface AppellationState {
     | "pending"
     | "loading"
     | "error"
-    | "success save"
-    | "success delete"
-    | "success";
+    | "saved"
+    | "deleted"
+    | "loaded"
+    | "noop";
+  eventLog: IEventLog[];
   source: string;
+  currentAppellation: { id: string; rev: string };
 }
 
 export const initialState: AppellationState = {
@@ -21,80 +29,152 @@ export const initialState: AppellationState = {
   error: null,
   status: null,
   source: "",
+  eventLog: [],
+  currentAppellation: undefined,
 };
 
 export const appellationReducer = createReducer(
   // Supply the initial state
   initialState,
-  // Trigger loading the wines
+  // Trigger loading the appellations
   on(AppellationAction.loadAppellations, (state) => {
     return { ...state, status: "loading" };
   }),
-  // Handle successfully loaded wines
-  on(AppellationAction.loadAppellationsSuccess, (state, { appellations }) => ({
-    ...state,
-    appellations: new Map(
-      appellations.map((obj: AppellationModel) => [obj._id, obj])
-    ),
-    error: null,
-    status: "success",
-  })),
-  // Handle wines load failure
+  // Handle successfully loaded appellations
+  on(AppellationAction.loadAppellationsSuccess, (state, { appellations }) => {
+    debug("[loadAppellationsSuccess]");
+    return {
+      ...state,
+      appellations:
+        appellations && Array.isArray(appellations)
+          ? new Map(appellations.map((obj: AppellationModel) => [obj._id, obj]))
+          : new Map(),
+      error: null,
+      status: "loaded",
+    };
+  }),
+  // Handle appellations load failure
   on(AppellationAction.loadAppellationsFailure, (state, { error }) => ({
     ...state,
     error: error,
     status: "error",
   })),
-  // Set pending while wine is added
+  // Set pending while appellation is added
+  on(AppellationAction.editAppellation, (state, { id, rev }) => {
+    return { ...state, currentAppellation: { id: id, rev: rev } };
+  }),
+  // Set pending while appellation is added
   on(AppellationAction.createAppellation, (state, { appellation }) => {
     return { ...state, status: "pending" };
   }),
-  // Add the new wine to the wines array
+  // Add the new appellation to the appellations array
   on(
     AppellationAction.createAppellationSuccess,
     (state, { appellation, source }) => {
-      var newMap = new Map(state.appellations);
-      newMap.set(appellation._id, appellation);
-      return {
-        ...state,
-        status: "success save",
-        error: "null",
-        appellations: newMap,
-        source: source,
-      };
+      debug(
+        "[createAppellationSuccess] ts: " +
+          window.performance.now() +
+          "\n  source: " +
+          source +
+          "\n  appellation: " +
+          JSON.stringify(appellation)
+      );
+      var newAppellationMap = new Map(state.appellations);
+      var newEventArray = Array.from(state.eventLog);
+      newAppellationMap.set(appellation._id, appellation);
+      newEventArray.push({
+        id: appellation._id ? appellation._id : appellation.id,
+        rev: appellation._rev ? appellation._rev : appellation.rev,
+        action: "create",
+        timestamp: dayjs(),
+      });
+      // if the appellation the action is refereing to is not in the eventLog, this is the first appellation creation event and it should affect the state
+      // if not, this is a duplicate (for example resulting from a change originating from the remote DB after an update on the local db) and the state is not affected
+      if (source == "external") {
+        debug(
+          "[createAppellationSuccess] ts: " +
+            window.performance.now() +
+            "\n  external source"
+        );
+        return {
+          ...state,
+          status: "saved",
+          error: "null",
+          appellations: newAppellationMap,
+          source: source,
+          eventLog: newEventArray,
+        };
+      } else {
+        debug(
+          "[createAppellationSuccess] ts: " +
+            window.performance.now() +
+            "\n  internal source"
+        );
+        return {
+          ...state,
+          status: "saved",
+          error: "null",
+          appellations: newAppellationMap,
+          source: source,
+          eventLog: newEventArray,
+          currentAppellation: { id: appellation._id, rev: appellation._rev },
+        };
+      }
     }
   ),
-  // handle wine save failure
+  // handle appellation save failure
   on(AppellationAction.createAppellationFailure, (state, { error }) => ({
     ...state,
     error: error,
     status: "error",
   })),
-  // Set pending while wine is deleted
+  // Set pending while appellation is deleted
   on(AppellationAction.deleteAppellation, (state, { appellation }) => ({
     ...state,
     status: "pending",
   })),
-  // add created wine to wines state
+  // add created appellation to appellations state
   on(
     AppellationAction.deleteAppellationSuccess,
     (state, { result, source }) => {
-      var newMap = new Map(state.appellations);
-      newMap.delete(result.id);
-      //newMap[result.id] = undefined;
+      debug(
+        "[AppellationReducer]deleteAppellationSuccess ts: " +
+          window.performance.now() +
+          "\n  source: " +
+          source +
+          "\n  result: " +
+          JSON.stringify(result)
+      );
+      // if the appellation the action is refereing to is not in the eventLog, this is the first appellation creation event and it should affect the state
+      // if not, this is a duplicate (for example resulting from a change originating from the remote DB after an update on the local db) and the state is not affected
+      var newAppellationMap = new Map(state.appellations);
+      var newEventArray = Array.from(state.eventLog);
+      newAppellationMap.delete(result.id);
+      newEventArray.push({
+        id: result.id ? result.id : result.doc._id,
+        rev: result.rev ? result.id : result.doc._rev,
+        action: "delete",
+        timestamp: dayjs(),
+      });
+
       return {
         ...state,
-        status: "success delete",
+        status: "deleted",
         error: "null",
-        appellations: newMap,
+        appellations: newAppellationMap,
         source: source,
+        eventLog: newEventArray,
       };
     }
   ),
-  // handle wine save failure
+  // handle appellation save failure
   on(AppellationAction.createAppellationFailure, (state, { error }) => ({
     ...state,
     error: error,
     status: "error",
+  })),
+  on(AppellationAction.setStatusToLoaded, (state) => ({
+    ...state,
+    status: "loaded",
   }))
 );

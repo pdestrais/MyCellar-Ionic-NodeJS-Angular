@@ -5,15 +5,21 @@ import { PouchdbService } from "../../services/pouchdb.service";
 import { of, from, pipe } from "rxjs";
 import { switchMap, map, catchError, exhaustMap, tap } from "rxjs/operators";
 import { Store } from "@ngrx/store";
-//import { selectAllAppellations } from "./Appellation.selectors";
 import { AppellationModel } from "../../models/cellar.model";
 
 import { AppState } from "../app.state";
 
+import Debug from "debug";
+
+const debug = Debug("app:state:appellationeffect");
+
+export interface IResult {
+  ok?: boolean;
+  id: string;
+  rev: string;
+}
 @Injectable()
 export class AppellationEffects {
-  //  private lastSavedWine: AppellationModel = null;
-
   constructor(
     private actions$: Actions,
     private store: Store<AppState>,
@@ -55,9 +61,13 @@ export class AppellationEffects {
               "appellation"
             )
           ).pipe(
-            map((appellation: AppellationModel) => {
+            map((result: IResult) => {
               return AppellationAction.createAppellationSuccess({
-                appellation: { ...action.appellation, _id: appellation.id },
+                appellation: {
+                  ...action.appellation,
+                  _id: result.id,
+                  _rev: result.rev,
+                },
                 source: "internal",
               });
             }),
@@ -94,7 +104,7 @@ export class AppellationEffects {
         exhaustMap((action) =>
           from(this.pouchService.deleteDoc(action.appellation)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((deleteResult) =>
+            map((deleteResult: IResult) =>
               AppellationAction.deleteAppellationSuccess({
                 result: deleteResult,
                 source: "internal",
@@ -115,10 +125,16 @@ export class AppellationEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
-        tap((change) => console.log("[Effect]" + change)),
+        tap((change) =>
+          debug(
+            "[handleChanges Effect]ts: " +
+              window.performance.now() +
+              "\n - change : " +
+              JSON.stringify(change)
+          )
+        ),
         map((change) => {
           if (!change.deleted) {
-            //this.lastSavedWine = null;
             return AppellationAction.createAppellationSuccess({
               appellation: change.doc,
               source: "external",
@@ -130,7 +146,6 @@ export class AppellationEffects {
             });
         })
       ),
-    // Most effects dispatch another action, but this one is just a "fire and forget" effect
     { dispatch: true }
   );
 }
