@@ -31,10 +31,9 @@ export const getAllAppellations = createSelector(
 export const getAllAppellationsArraySorted = createSelector(
   getAppellationState,
   (state: AppellationState) => {
-    debug("[getAllAppellations]state : " + JSON.stringify(state, replacer));
     debug(
-      "[getAllAppellations]appellation list : " +
-        JSON.stringify(Array.from(state.appellations.entries()))
+      "[getAllAppellationsArraySorted]state : " +
+        JSON.stringify(state, replacer)
     );
     return state
       ? state.hasOwnProperty("appellations")

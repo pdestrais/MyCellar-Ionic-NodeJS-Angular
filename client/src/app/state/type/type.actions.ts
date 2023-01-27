@@ -13,6 +13,12 @@ export const loadTypesFailure = createAction(
   props<{ error: string }>()
 );
 
+// Edit type Action
+export const editType = createAction(
+  "[Type Page] Edit Type",
+  props<{ id: string; rev: string }>()
+);
+
 // Create actions
 export const createType = createAction(
   "[Type Page] Create Type",
@@ -43,4 +49,8 @@ export const deleteTypeSuccess = createAction(
 export const deleteTypeFailure = createAction(
   "[Type API] Type Delete Failure",
   props<{ error: string }>()
+);
+
+export const setStatusToLoaded = createAction(
+  "[Type API] Type Set Status To Loaded"
 );

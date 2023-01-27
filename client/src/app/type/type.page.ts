@@ -2,13 +2,23 @@ import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { PouchdbService } from "../services/pouchdb.service";
 import { TypeModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular";
 import { ActivatedRoute } from "@angular/router";
 
 import * as Debugger from "debug";
-const debug = Debugger("app:region");
+import { Store } from "@ngrx/store";
+import * as TypeSelectors from "../state/type/type.selectors";
+import * as VinSelectors from "../state/vin/vin.selectors";
+import * as AppellationSelectors from "../state/appellation/appellation.selectors";
+import * as TypeActions from "../state/type/type.actions";
+import { Observable, Subject } from "rxjs";
+import { takeUntil, tap } from "rxjs/operators";
+import { AppState } from "../state/app.state";
+
+import { replacer } from "../util/util";
+
+const debug = Debugger("app:type");
 
 @Component({
   selector: "app-type",
@@ -16,69 +26,255 @@ const debug = Debugger("app:region");
   styleUrls: ["./type.page.scss"],
 })
 export class TypePage implements OnInit {
-  public type: TypeModel = new TypeModel({ _id: "", nom: "" });
-  public typesMap: Map<any, any>;
+  public type: TypeModel = new TypeModel({
+    _id: "",
+    nom: "",
+  });
+  public wineTypes$: Observable<TypeModel[]>;
+  private unsubscribe$ = new Subject<void>();
+
   public typeList: Array<TypeModel> = [];
+  public typesMap: Map<any, any>;
   public submitted: boolean;
   public typeForm: FormGroup;
-  public newType: boolean = false;
   public list: boolean = true;
 
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private pouch: PouchdbService,
     private formBuilder: FormBuilder,
     private translate: TranslateService,
     private alertController: AlertController,
-    private toastCtrl: ToastController
-  ) {
-    this.typeForm = formBuilder.group(
+    private toastCtrl: ToastController,
+    private store: Store
+  ) {}
+
+  public ngOnInit() {
+    debug("[ngOnInit]called");
+    // form initialization
+    this.typeForm = this.formBuilder.group(
       {
         nom: ["", Validators.required],
       },
       { validator: this.noDouble.bind(this) }
     );
     this.submitted = false;
+    this.route.snapshot.data.action == "list"
+      ? (this.list = true)
+      : (this.list = false);
+    // We need to load the type list even if we create or modify an type because in this case we need the type list to check for doubles
+
+    debug("[ngOnInit]calling getAllTypesArraySorted selector to set wineType$");
+    this.wineTypes$ = this.store
+      .select(TypeSelectors.getAllTypesArraySorted)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        tap((typeState) =>
+          debug(
+            "[ngOnInit]called getAllTypesArraySorted selector - ts " +
+              window.performance.now() +
+              "\ntypeState : " +
+              JSON.stringify(typeState, replacer)
+          )
+        )
+      );
+
+    // loading types map from state (used for double check)
+    this.store
+      .select(TypeSelectors.typeMapForDuplicates)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((typesMap) => (this.typesMap = typesMap));
+    // Now loading selected type from the state
+    // if id param is there, the type will be loaded, if not, we want to create a new type and the form values will remain as initialized
+    this.store
+      .select<TypeModel>(
+        TypeSelectors.getType(this.route.snapshot.paramMap.get("id"))
+      )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((type: TypeModel) => {
+        if (type) {
+          this.list = false;
+          this.type = type;
+          // We have selected an type
+          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+          this.store.dispatch(
+            TypeActions.editType({
+              id: type._id,
+              rev: type._rev,
+            })
+          );
+          this.typeForm.get("nom").setValue(type.nom);
+          debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
+        } else {
+          // No wine was selected, when will register a new type
+          this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
+        }
+      });
+
+    // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+    this.store
+      .select((state: AppState) => state.types)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+        /*         tap((typeState) =>
+          debug(
+            "[ngOnInit]handle typeState Changes - ts " +
+              window.performance.now() +
+              "\ntypeState : " +
+              JSON.stringify(typeState, replacer)
+          )
+        )
+ */
+      )
+      .subscribe((typeState) => {
+        switch (typeState.status) {
+          case "saved":
+            debug(
+              "[ngOnInit] handling change to 'saved' status - ts " +
+                window.performance.now() +
+                "\ntypeState : " +
+                JSON.stringify(typeState, replacer)
+            );
+
+            // if we get an event that a wine is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            if (typeState.source == "internal") {
+              debug("[ngInit](I) Standard wine saved");
+              // Internal event
+              this.presentToast(
+                this.translate.instant("general.dataSaved"),
+                "success",
+                "home",
+                2000
+              );
+              this.store.dispatch(TypeActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              let filteredEventLog = typeState.eventLog.filter(
+                (value) =>
+                  value.id == typeState.currentType.id &&
+                  value.rev == typeState.currentType.rev &&
+                  value.action == "create"
+              );
+              debug(
+                "[ngInit](II) FilteredEventLog : " +
+                  JSON.stringify(filteredEventLog)
+              );
+              if (filteredEventLog.length == 2) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(TypeActions.setStatusToLoaded());
+              } else if (
+                typeState.eventLog[typeState.eventLog.length - 1].id ==
+                  typeState.currentType.id &&
+                typeState.eventLog[typeState.eventLog.length - 1].rev ==
+                  typeState.currentType.rev &&
+                typeState.eventLog[typeState.eventLog.length - 1].action ==
+                  "create" &&
+                this.typeForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.savedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Update of another wine");
+              }
+            }
+            break;
+          case "error":
+            this.presentToast(
+              this.translate.instant("general.DBError") + " " + typeState.error,
+              "error",
+              null,
+              5000
+            );
+            break;
+          case "deleted":
+            // if we get an event that an type is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (type is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
+            if (typeState.source == "internal") {
+              debug("[ngInit](I) Standard wine deleted");
+              // Internal event
+              this.presentToast(
+                this.translate.instant("wine.wineDeleted"),
+                "success",
+                "home",
+                2000
+              );
+              this.store.dispatch(TypeActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              // this should never happen for a delete
+              if (
+                typeState.eventLog.filter(
+                  (value) =>
+                    value.id == typeState.currentType.id &&
+                    value.rev >= typeState.currentType.rev &&
+                    value.action == "delete"
+                ).length == 2
+              ) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(TypeActions.setStatusToLoaded());
+              } else if (
+                typeState.eventLog[typeState.eventLog.length - 1].id ==
+                  typeState.currentType.id &&
+                typeState.eventLog[typeState.eventLog.length - 1].action ==
+                  "delete"
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.deletedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "home",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Delete of another wine");
+              }
+            }
+            break;
+        }
+      });
   }
 
-  public ngOnInit() {
-    debug("[ngOnInit]called");
-    // We need to load the type list even if we create or modify an type because in this case we need the type list to check for doubles
-    this.pouch.getDocsOfType("type").then((types) => {
-      this.typesMap = new Map(types.map((el) => [el.nom, el]));
-      this.typeList = types.sort((a, b) => {
-        return a.pays + a.region < b.pays + b.region ? -1 : 1;
-      });
-    });
-    // If we come on this page on the first time, the data object related to the 'types' route should be set to 'list', so that we get the see the list of types
-    if (this.route.snapshot.data.action == "list") {
-      this.list = true;
-    } else {
-      // if we come on this page with the action parameter set to 'edit', this means that we either want to add a new type (id parameter is not set)
-      // or edit an existing one (id parameter is set)
-      this.list = false;
-      if (this.route.snapshot.paramMap.get("id")) {
-        this.pouch
-          .getDoc(this.route.snapshot.paramMap.get("id"))
-          .then((type) => {
-            this.type = type;
-            this.typeForm.get("nom").setValue(this.type.nom);
-            debug(
-              "[Type - ngOnInit]Type loaded : " + JSON.stringify(this.type)
-            );
-          });
-      } else this.newType = true;
-    }
+  public ngOnDestroy() {
+    debug("[Type.ngOnDestroy]called");
+    // Unscubribe all observers
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private noDouble(group: FormGroup) {
-    debug("[Type.noDouble]nodouble called");
-    if (!group.controls.nom) return null;
-    if (!group.controls.nom.dirty) return null;
-    let testKey = group.value.nom;
-    if (this.typesMap && this.typesMap.has(testKey)) {
-      debug("[Type.noDouble]double detected");
+    debug("[noDouble] called");
+    if (!group.controls.nom || !group.controls.nom.dirty) return null;
+    if (this.typesMap && this.typesMap.has(group.value.nom)) {
+      debug("[noDouble]double detected");
       return { double: true };
     } else return null;
   }
@@ -94,22 +290,15 @@ export class TypePage implements OnInit {
     if (this.typeForm.valid) {
       // validation succeeded
       debug("[TypeVin]Type valid");
-      this.pouch.saveDoc(this.typeForm.value, "type").then((response) => {
-        if (response.ok) {
-          debug("[saveType]Type " + JSON.stringify(this.type) + "saved");
-          this.presentToast(
-            this.translate.instant("general.dataSaved"),
-            "success",
-            "/home"
-          );
-        } else {
-          this.presentToast(
-            this.translate.instant("general.DBError"),
-            "error",
-            "/home"
-          );
-        }
-      });
+      // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
+      let mutableType = JSON.parse(JSON.stringify(this.type));
+      // now combine the loaded wine data with the new form data
+      this.type = {
+        ...mutableType,
+        ...this.typeForm.value,
+      };
+
+      this.store.dispatch(TypeActions.createType({ _type: this.type }));
     } else {
       debug("[Vin - saveVin]vin invalid");
       this.presentToast(
@@ -121,74 +310,88 @@ export class TypePage implements OnInit {
   }
 
   public deleteType() {
+    // Before deleting an type, we need to check if this type is not used for any of the wines.
+    // If it is used, it can't be deleted.
     let used = false;
-    if (this.type._id) {
-      this.pouch.getDocsOfType("vin").then((vins) => {
-        vins.forEach((vin) => {
-          if (vin.type._id == this.type._id) used = true;
+    this.store
+      .select(VinSelectors.getWinesByType(this.type._id))
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((wineListForType) =>
+        wineListForType.length > 0 ? (used = true) : (used = false)
+      );
+    if (!used) {
+      this.alertController
+        .create({
+          header: this.translate.instant("general.confirm"),
+          message: this.translate.instant("general.sure"),
+          buttons: [
+            {
+              text: this.translate.instant("general.cancel"),
+            },
+            {
+              text: this.translate.instant("general.ok"),
+              handler: () => {
+                this.store.dispatch(
+                  TypeActions.deleteType({
+                    _type: this.type,
+                  })
+                );
+              },
+            },
+          ],
+        })
+        .then((alert) => {
+          alert.present();
         });
-        if (!used) {
-          this.alertController
-            .create({
-              header: this.translate.instant("general.confirm"),
-              message: this.translate.instant("general.sure"),
-              buttons: [
-                {
-                  text: this.translate.instant("general.cancel"),
-                },
-                {
-                  text: this.translate.instant("general.ok"),
-                  handler: () => {
-                    this.pouch.deleteDoc(this.type).then((response) => {
-                      if (response.ok) {
-                        this.presentToast(
-                          this.translate.instant("type.typeDeleted"),
-                          "success",
-                          "/home"
-                        );
-                      } else {
-                        this.presentToast(
-                          this.translate.instant("type.typeNotDeleted"),
-                          "error",
-                          undefined
-                        );
-                      }
-                    });
-                  },
-                },
-              ],
-            })
-            .then((alert) => {
-              alert.present();
-            });
-        } else {
-          this.presentToast(
-            this.translate.instant("type.cantDeleteBecauseUsed"),
-            "error",
-            null
-          );
-        }
+    } else {
+      this.presentToast(
+        this.translate.instant("type.cantDeleteBecauseUsed"),
+        "error",
+        null
+      );
+    }
+  }
+
+  async presentToast(
+    message: string,
+    type: string,
+    nextPageUrl: string,
+    duration?: number,
+    closeButtonText?: string
+  ) {
+    if (duration && duration != 0) {
+      const toast = await this.toastCtrl.create({
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
+        message: message,
+        duration: duration ? duration : 2000,
       });
+      toast.present();
+      if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+    } else {
+      const toast = await this.toastCtrl.create({
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
+        message: message,
+        buttons: [
+          {
+            text: closeButtonText,
+            role: "cancel",
+            handler: () => {
+              if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+            },
+          },
+        ],
+      });
+      toast.present();
     }
   }
-
-  async presentToast(message: string, type: string, nextPageUrl: string) {
-    const toast = await this.toastCtrl.create({
-      color: type == "success" ? "secondary" : "danger",
-      message: message,
-      duration: 2000,
-    });
-    toast.present();
-    if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
-  }
-
-  /* NOT USED ANYMORE after using Angular Forms*/
-  /* private cleanValidatorModelObject(obj) {
-    let result = {};
-    for (var key in obj) {
-      if (key.charAt(0) != "_" || (key == "_id" && obj[key]))
-        result[key] = obj[key];
-    }
-    return result;
-  } */
 }

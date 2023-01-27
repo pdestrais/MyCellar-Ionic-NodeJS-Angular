@@ -9,9 +9,12 @@
 
 <ion-content class="ion-padding">
   <div *ngIf="list">
-    <div *ngIf="typeList.length>0">
+    <div *ngIf="wineTypes$ | async">
       <ion-list>
-        <ion-item *ngFor="let type of typeList" (click)="editType(type)">
+        <ion-item
+          *ngFor="let type of wineTypes$ | async"
+          (click)="editType(type)"
+        >
           {{ type.nom }}
           <!-- <ion-button slot="end" fill="outline">Modify -->
           <ion-icon

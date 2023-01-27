@@ -5,15 +5,21 @@ import { PouchdbService } from "../../services/pouchdb.service";
 import { of, from, pipe } from "rxjs";
 import { switchMap, map, catchError, exhaustMap, tap } from "rxjs/operators";
 import { Store } from "@ngrx/store";
-//import { selectAllTypes } from "./Type.selectors";
 import { TypeModel } from "../../models/cellar.model";
 
 import { AppState } from "../app.state";
 
+import Debug from "debug";
+
+const debug = Debug("app:state:typeeffect");
+
+export interface IResult {
+  ok?: boolean;
+  id: string;
+  rev: string;
+}
 @Injectable()
 export class TypeEffects {
-  //  private lastSavedWine: TypeModel = null;
-
   constructor(
     private actions$: Actions,
     private store: Store<AppState>,
@@ -29,7 +35,9 @@ export class TypeEffects {
         from(this.pouchService.getDocsOfType("type")).pipe(
           // Take the returned value and return a new success action containing the Types
           map((types: TypeModel[]) =>
-            TypeAction.loadTypesSuccess({ types: types })
+            TypeAction.loadTypesSuccess({
+              types: types,
+            })
           ),
           // Or... if it errors return a new failure action containing the error
           catchError((error) => of(TypeAction.loadTypesFailure({ error })))
@@ -46,11 +54,15 @@ export class TypeEffects {
         switchMap((action) => {
           //        this.lastSavedWine = action.type;
           return from(
-            this.pouchService.saveDoc(Object.assign({}, action.type), "type")
+            this.pouchService.saveDoc(Object.assign({}, action._type), "type")
           ).pipe(
-            map((type: TypeModel) => {
+            map((result: IResult) => {
               return TypeAction.createTypeSuccess({
-                _type: { ...action._type, _id: type.id },
+                _type: {
+                  ...action._type,
+                  _id: result.id,
+                  _rev: result.rev,
+                },
                 source: "internal",
               });
             }),
@@ -83,9 +95,9 @@ export class TypeEffects {
       this.actions$.pipe(
         ofType(TypeAction.deleteType),
         exhaustMap((action) =>
-          from(this.pouchService.deleteDoc(action.type)).pipe(
+          from(this.pouchService.deleteDoc(action._type)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((deleteResult) =>
+            map((deleteResult: IResult) =>
               TypeAction.deleteTypeSuccess({
                 result: deleteResult,
                 source: "internal",
@@ -104,10 +116,16 @@ export class TypeEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
-        tap((change) => console.log("[Effect]" + change)),
+        tap((change) =>
+          debug(
+            "[handleChanges Effect]ts: " +
+              window.performance.now() +
+              "\n - change : " +
+              JSON.stringify(change)
+          )
+        ),
         map((change) => {
           if (!change.deleted) {
-            //this.lastSavedWine = null;
             return TypeAction.createTypeSuccess({
               _type: change.doc,
               source: "external",
@@ -119,7 +137,6 @@ export class TypeEffects {
             });
         })
       ),
-    // Most effects dispatch another action, but this one is just a "fire and forget" effect
     { dispatch: true }
   );
 }
