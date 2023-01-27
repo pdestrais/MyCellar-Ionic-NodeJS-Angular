@@ -2,7 +2,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { OrigineModel } from "../models/cellar.model";
+import { OrigineModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular";
 import { ActivatedRoute } from "@angular/router";
 
@@ -32,12 +32,14 @@ export class RegionPage implements OnInit {
   });
   public origines$: Observable<OrigineModel[]>;
   private unsubscribe$ = new Subject<void>();
+  public winesForOrigine$: Observable<VinModel[]>;
 
   public origineList: Array<OrigineModel> = [];
   public originesMap: Map<any, any>;
   public submitted: boolean;
   public origineForm: FormGroup;
   public list: boolean = true;
+  public showWine: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -99,6 +101,10 @@ export class RegionPage implements OnInit {
           this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
         }
       });
+
+    this.winesForOrigine$ = this.store
+      .select(VinSelectors.getWinesByOrigine(this.origine._id))
+      .pipe(takeUntil(this.unsubscribe$));
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
     this.store
@@ -315,12 +321,9 @@ export class RegionPage implements OnInit {
     // Before deleting an origine, we need to check if this origine is not used for any of the wines.
     // If it is used, it can't be deleted.
     let used = false;
-    this.store
-      .select(VinSelectors.getWinesByOrigine(this.origine._id))
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((wineListForOrigine) =>
-        wineListForOrigine.length > 0 ? (used = true) : (used = false)
-      );
+    this.winesForOrigine$.subscribe((wineListForOrigine) =>
+      wineListForOrigine.length > 0 ? (used = true) : (used = false)
+    );
     if (!used) {
       this.alertController
         .create({

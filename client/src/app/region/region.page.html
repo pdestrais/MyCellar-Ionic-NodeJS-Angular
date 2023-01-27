@@ -93,5 +93,38 @@
         {{'general.cancel' | translate }}
       </ion-button>
     </form>
+    <ion-button
+      *ngIf="!showWines"
+      color="secondary"
+      fill="outline"
+      (click)="showWines = !showWines"
+    >
+      {{'origin.showWinesForOrigin' | translate }}
+    </ion-button>
+    <ion-button
+      *ngIf="showWines"
+      color="secondary"
+      fill="outline"
+      (click)="showWines = !showWines"
+    >
+      {{'origin.hideWinesForOrigin' | translate }}
+    </ion-button>
+    <div [ngClass]="'border'" *ngIf="showWines && winesForOrigine$ | async">
+      <ion-list>
+        <ion-item
+          *ngFor="let wine of winesForOrigine$ | async"
+          [routerLink]="['/vin', wine._id]"
+        >
+          {{ wine.nom }} - {{wine.annee}} - {{wine.type.nom}}
+          <!-- <ion-button slot="end" fill="outline">Modify -->
+          <ion-icon
+            slot="end"
+            color="dark"
+            name="caret-forward-outline"
+          ></ion-icon>
+          <!-- </ion-button> -->
+        </ion-item>
+      </ion-list>
+    </div>
   </div>
 </ion-content>

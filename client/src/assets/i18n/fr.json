@@ -79,7 +79,9 @@
     "appellationDeleted": "L'appellation est effacée",
     "appellationNotDeleted": "L'appellation n'est pas effacée",
     "double": "Une appellation avec la même nom court et long existe déjà",
-    "cantDeleteBecauseUsed": "Cette appellation ne peut être effacée car un vin utilisant cette appellation existe dans la base de données"
+    "cantDeleteBecauseUsed": "Cette appellation ne peut être effacée car un vin utilisant cette appellation existe dans la base de données",
+    "showWinesForAppellation": "Montrer les vins pour l'appellation",
+    "hideWinesForAppellation": "Cacher les vins pour l'appellation"
   },
   "origin": {
     "region": "région",
@@ -89,7 +91,9 @@
     "originDeleted": "L'origine est effacée",
     "originNotDeleted": "L'origine n'est pas effacée",
     "origineDouble": "Cette origine existe déjà dans la base de données",
-    "cantDeleteBecauseUsed": "Cette origine ne peut être effacée car un vin utilisant cette origine existe dans la base de données"
+    "cantDeleteBecauseUsed": "Cette origine ne peut être effacée car un vin utilisant cette origine existe dans la base de données",
+    "showWinesForOrigin": "Montrer les vins pour l'origine",
+    "hideWinesForOrigin": "Cacher les vins pour l'origine"
   },
   "report": {
     "reports": "rapports",

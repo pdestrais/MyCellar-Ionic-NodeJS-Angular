@@ -65,20 +65,53 @@
       <p *ngIf="appellationForm.hasError('double')" [class.invalid]="true">
         {{ 'appellation.double' | translate }}
       </p>
+      <ion-button
+        [disabled]="!appellationForm.valid"
+        color="primary"
+        block
+        (click)="saveAppellation(appellation)"
+      >
+        {{'general.save' | translate }}
+      </ion-button>
+      <ion-button color="danger" block (click)="deleteAppellation(appellation)">
+        {{'general.suppress' | translate }}
+      </ion-button>
+      <ion-button color="light" block [routerLink]="['/appellations']">
+        {{'general.cancel' | translate }}
+      </ion-button>
     </form>
     <ion-button
-      [disabled]="!appellationForm.valid"
-      color="primary"
-      block
-      (click)="saveAppellation(appellation)"
+      *ngIf="!showWines"
+      color="secondary"
+      fill="outline"
+      (click)="showWines = !showWines"
     >
-      {{'general.save' | translate }}
+      {{'appellation.showWinesForAppellation' | translate }}
     </ion-button>
-    <ion-button color="danger" block (click)="deleteAppellation(appellation)">
-      {{'general.suppress' | translate }}
+    <ion-button
+      *ngIf="showWines"
+      color="secondary"
+      fill="outline"
+      (click)="showWines = !showWines"
+    >
+      {{'appellation.hideWinesForAppellation' | translate }}
     </ion-button>
-    <ion-button color="light" block [routerLink]="['/appellations']">
-      {{'general.cancel' | translate }}
-    </ion-button>
+    <div [ngClass]="'border'" *ngIf="showWines && winesForAppellation$ | async">
+      <ion-list>
+        <ion-item
+          *ngFor="let wine of winesForAppellation$ | async"
+          [routerLink]="['/vin', wine._id]"
+        >
+          {{ wine.nom }} - {{wine.annee}} - {{wine.type.nom}}
+          <!-- <ion-button slot="end" fill="outline">Modify -->
+          <ion-icon
+            slot="end"
+            color="dark"
+            name="caret-forward-outline"
+          ></ion-icon>
+          <!-- </ion-button> -->
+        </ion-item>
+      </ion-list>
+    </div>
   </div>
 </ion-content>
