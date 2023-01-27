@@ -224,6 +224,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           this.originalName = vin.nom;
           this.originalYear = vin.annee;
           this.vin.rating = !this.vin.rating ? 0 : this.vin.rating;
+          this.vin.apogee = !this.vin.apogee ? "" : this.vin.apogee;
+          this.vin.cepage = !this.vin.cepage ? "" : this.vin.cepage;
+          this.vin.GWSScore = !this.vin.GWSScore ? 0 : this.vin.GWSScore;
           this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
           this.newWine = false;
           debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));

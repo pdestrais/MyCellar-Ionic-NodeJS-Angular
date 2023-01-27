@@ -2,7 +2,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
 import { NavController, AlertController } from "@ionic/angular";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { AppellationModel } from "../models/cellar.model";
+import { AppellationModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular";
 import { ActivatedRoute } from "@angular/router";
 
@@ -32,12 +32,14 @@ export class AppellationPage implements OnInit {
   });
   public appellations$: Observable<AppellationModel[]>;
   private unsubscribe$ = new Subject<void>();
+  public winesForAppellation$: Observable<VinModel[]>;
 
   public appellationList: Array<AppellationModel> = [];
   public appellationsMap: Map<any, any>;
   public submitted: boolean;
   public appellationForm: FormGroup;
   public list: boolean = true;
+  public showWines: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -105,6 +107,10 @@ export class AppellationPage implements OnInit {
           );
         }
       });
+
+    this.winesForAppellation$ = this.store
+      .select(VinSelectors.getWinesByAppellation(this.appellation._id))
+      .pipe(takeUntil(this.unsubscribe$));
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
     this.store
@@ -325,12 +331,9 @@ export class AppellationPage implements OnInit {
     // Before deleting an appellation, we need to check if this appellation is not used for any of the wines.
     // If it is used, it can't be deleted.
     let used = false;
-    this.store
-      .select(VinSelectors.getWinesByAppellation(this.appellation._id))
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((wineListForAppellation) =>
-        wineListForAppellation.length > 0 ? (used = true) : (used = false)
-      );
+    this.winesForAppellation$.subscribe((wineListForAppellation) =>
+      wineListForAppellation.length > 0 ? (used = true) : (used = false)
+    );
     if (!used) {
       this.alertController
         .create({

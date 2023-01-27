@@ -79,7 +79,9 @@
     "appellationDeleted": "The appellation is deleted",
     "appellationNotDeleted": "The appellation is not deleted",
     "double": "An appellation with the same short and long name already exists",
-    "cantDeleteBecauseUsed": "This appellation can't be deleted because one wine with this appellation still exist in the cellar database"
+    "cantDeleteBecauseUsed": "This appellation can't be deleted because one wine with this appellation still exist in the cellar database",
+    "showWinesForAppellation": "Show wines for appellation",
+    "hideWinesForAppellation": "Hide wines for appellation"
   },
   "origin": {
     "region": "region",
@@ -89,7 +91,9 @@
     "originDeleted": "The origin is deleted",
     "originNotDeleted": "The origin is not deleted",
     "origineDouble": "This origin already exists in the database",
-    "cantDeleteBecauseUsed": "This origin can't be deleted because one wine with this origin still exist in the cellar database"
+    "cantDeleteBecauseUsed": "This origin can't be deleted because one wine with this origin still exist in the cellar database",
+    "showWinesForOrigin": "Show wines for origin",
+    "hideWinesForOrigin": "Hide wines for origin"
   },
   "report": {
     "reports": "reports",
