@@ -56,11 +56,15 @@
       <ion-label position="floating"> {{'wine.type' | translate }} </ion-label>
       <ion-select
         formControlName="type"
-        (ionChange)="typeChange($event)"
-        [value]="vinForm.controls.type"
+        [compareWith]="compareFn"
+        interface="popover"
+        placeholder="{{'wine.selectType' | translate }}"
       >
-        <ion-select-option *ngFor="let type of types" [value]="type._id">
-          {{type.nom | translate }}
+        <ion-select-option
+          *ngFor="let typeEl of types$ | async"
+          [value]="typeEl"
+        >
+          {{typeEl.nom | translate }}
         </ion-select-option>
       </ion-select>
     </ion-item>
@@ -78,14 +82,15 @@
       </ion-label>
       <ion-select
         formControlName="origine"
-        (ionChange)="origineChange($event)"
-        [value]="vinForm.controls.origine"
+        [compareWith]="compareFn"
+        interface="popover"
+        placeholder="{{'wine.selectOrigin' | translate }}"
       >
         <ion-select-option
-          *ngFor="let origine of origines"
-          [value]="origine._id"
+          *ngFor="let origineEl of origines$ | async"
+          [value]="origineEl"
         >
-          {{origine.pays}} - {{ origine.region }}
+          {{origineEl.pays}} - {{ origineEl.region }}
         </ion-select-option>
       </ion-select>
     </ion-item>
@@ -103,12 +108,13 @@
       </ion-label>
       <ion-select
         formControlName="appellation"
-        (ionChange)="appellationChange($event)"
-        [value]="vinForm.controls.appellation"
+        [compareWith]="compareFn"
+        interface="popover"
+        placeholder="{{'wine.selectAppellation' | translate }}"
       >
         <ion-select-option
-          *ngFor="let appellation of appellations"
-          [value]="appellation._id"
+          *ngFor="let appellation of appellations$ | async"
+          [value]="appellation"
         >
           {{appellation.courte}} - {{ appellation.longue }}
         </ion-select-option>
@@ -329,7 +335,7 @@
     </div>
     <div
       class="container1"
-      *ngIf="!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0)"
+      *ngIf="vin.photo && (!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0))"
     >
       <div class="divlabel">
         <img src="../../assets/icons/NoWineImage.svg" height="48" />
@@ -345,7 +351,10 @@
         />
       </div>
     </div>
-    <div class="container1" *ngIf="vin.photo.name && vin.photo.name.length!=0">
+    <div
+      class="container1"
+      *ngIf="vin.photo && (vin.photo.name && vin.photo.name.length!=0)"
+    >
       <ion-button (click)="loadImageAndView('blob')">
         <ion-icon slot="end" name="image"></ion-icon>
         {{vin.photo.name}}

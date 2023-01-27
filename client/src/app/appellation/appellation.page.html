@@ -9,10 +9,10 @@
 
 <ion-content class="ion-padding">
   <div *ngIf="list">
-    <div *ngIf="appellationList.length>0">
+    <div *ngIf="appellations$ | async">
       <ion-list>
         <ion-item
-          *ngFor="let appellation of appellationList"
+          *ngFor="let appellation of appellations$ | async"
           (click)="editAppellation(appellation)"
         >
           {{ appellation.courte }} - {{appellation.longue}}

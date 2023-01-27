@@ -1,7 +1,7 @@
 import { VinModel } from "./../models/cellar.model";
 import { Injectable } from "@angular/core";
 import * as PouchDB from "pouchdb/dist/pouchdb";
-import { Subject, from, Observable } from "rxjs";
+import { Subject, from, Observable, throwError } from "rxjs";
 import { filter, map } from "rxjs/operators";
 
 import * as Debugger from "debug";
@@ -25,6 +25,14 @@ type dbEventsType = {
   error?;
 };
 
+type changeType = {
+  id: string;
+  rev?: string;
+  doc: any;
+  changes: Array<any>;
+  deleted?: boolean;
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -33,6 +41,7 @@ export class PouchdbService {
   remote: string = "http://127.0.0.1:5984/cellar";
   //dbEvents$: Subject<any> = new Subject();
   dbEvents$: Subject<dbEventsType> = new Subject();
+  dbChanges$: Subject<changeType> = new Subject();
   syncOptions = {
     live: true,
     retry: true,
@@ -46,6 +55,7 @@ export class PouchdbService {
     debug("[DataService constructor]calling syncLocalWithRemote");
     this.syncLocalwithRemote();
     this.execHooks();
+    this.getChanges$();
   }
 
   syncLocalwithRemote() {
@@ -105,17 +115,16 @@ export class PouchdbService {
     return this.dbEvents$;
   }
 
-  getChanges$(): Observable<any> {
-    return Observable.create((observer) => {
-      // Listen for changes on the database.
-      this.db
-        .changes({ live: true, since: "now", include_docs: true })
-        .on("change", (change) => {
-          // Convert string to date, doesn't happen automatically.
-          change.doc.Date = new Date();
-          observer.next(change);
-        });
-    });
+  getChanges$() /* : Subject<changeType> */ {
+    this.db
+      .changes({ live: true, since: "now", include_docs: true })
+      .on("change", (change) => {
+        // Convert string to date, doesn't happen automatically.
+        //change.doc.Date = new Date();
+        debug("[PouchService]got change - " + change);
+        this.dbChanges$.next(change);
+      });
+    return this.dbChanges$;
   }
 
   execHooks() {
@@ -292,16 +301,15 @@ export class PouchdbService {
   }
 
   public deleteDoc(doc) {
-    return this.db
-      .remove(doc._id, doc._rev)
-      .then((result) => {
-        this.dbEvents$.next({ doc: doc, eventType: "docDelete" });
-        return result;
-      })
-      .catch((error) => {
+    return this.db.remove(doc._id, doc._rev).then((result) => {
+      this.dbEvents$.next({ doc: doc, eventType: "docDelete" });
+      return result;
+    });
+    /*       .catch((error) => {
         console.error(error);
-        return error;
+        throwError(error);
       });
+ */
   }
 
   public fetch(startKey?: string, endKey?: string) {
@@ -323,6 +331,7 @@ export class PouchdbService {
         endkey: type + "|\ufff0",
       })
       .then((result) => {
+        debug("[POuchDBService] result :" + JSON.stringify(result));
         if (result && result.rows) return result.rows.map((res) => res.doc);
         else return [];
       })
@@ -368,7 +377,7 @@ export class PouchdbService {
    * @author Slavik Meltser (slavik@meltser.info).
    * @link http://slavik.meltser.info/?p=142
    */
-  private guid() {
+  public guid() {
     function _p8(s) {
       let p = (Math.random().toString(16) + "000000000").substr(2, 8);
       //        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;

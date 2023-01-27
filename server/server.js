@@ -187,6 +187,346 @@ app.get("/api/user/:username", (request, response) => {
     .catch((error) => handleError("user", error, response));
 });
 
+app.get("/api/ping", function (request, response, next) {
+  console.log("[updateUserData]api ping called");
+  resp = {
+    status: "backend API server available",
+    environment: {
+      dbHost: process.env.dbHost,
+      dbHostServiceUsername: process.env.dbHostServiceUsername,
+      secret: process.env.secret,
+      mailUserId: process.env.mailUserId,
+    },
+    backendVersion: environment.version,
+  };
+  response.json(resp);
+});
+
+// endpoint to the administrator to approval the request for a new signup to the application
+// It will send registration confirmation on email address
+app.get(
+  "/api/approveUserSignupRequest/:id",
+  function (request, response, next) {
+    console.log(
+      "[approveUserSignupRequest]api called with parameter : ",
+      JSON.stringify(request.params)
+    );
+
+    const serverUrl = request.protocol + "://" + request.get("host");
+
+    // fetch request from user-mngmt table correponding to received id
+    var reqID = request.params.id;
+    if (!reqID)
+      return response.status(401).send({
+        code: "NoRegistrationIDParameter",
+        type: "business",
+        subtype: "missing request parameter",
+        resource: "/api/approveUserSignupRequest",
+        message: "missing registrationID parameter",
+      });
+
+    axios({
+      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      method: "get",
+      auth: {
+        username: process.env.dbHostServiceUsername,
+        password: process.env.dbHostServicePassword,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (res.data) {
+          if (res.data.type == "registration") {
+            // if request is for new registration
+            // send mail to user to confirm his registration
+
+            var sendMailReq = {
+              url:
+                process.env.environment == "dev"
+                  ? process.env.apiserver + "/api/sendEMail"
+                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+              method: "POST",
+              data: {
+                to: res.data.email,
+                subject: "Confirm your registration request",
+                message: {
+                  title: "Email confirmation",
+                  text1: "Thank you for signin up to get a myCellar account !!",
+                  text2:
+                    "Before having you on board, please confirm you email address.",
+                  url:
+                    process.env.environment == "dev"
+                      ? process.env.apiserver +
+                        "/api/processUserRequestConfirmation/" +
+                        res.data._id
+                      : (process.env.apiserver || serverUrl) +
+                        "/api/processUserRequestConfirmation/" +
+                        res.data._id,
+                },
+                template: "confirmEmailTmpl.html",
+              },
+            };
+            axios(sendMailReq)
+              .then((sendMailReqResponse) => {
+                return response.status(200).send({
+                  code: "OK",
+                  message:
+                    "User " + res.data.username + " request approval done",
+                  translateKey: "approveRegistrationRequestDONE",
+                });
+              })
+              .catch((error) =>
+                handleError("approveUserSignupRequest", error, response)
+              );
+          } else {
+            return response.status(401).send({
+              code: "NoRegistrationRequestFound",
+              type: "business",
+              subtype: "No data found",
+              resource: "/api/approveUserSignupRequest",
+              message: "No registration request found",
+            });
+          }
+        }
+      })
+      .catch((error) =>
+        handleError("approveUserSignupRequest", error, response)
+      );
+  }
+);
+
+// endpoint to finalize the request for a new signup to the application
+// It will
+//    1. generate a new password
+//    2. create an entry into the user table (with user data and newly generate password - state is registrationConfirmed)
+//    3. create Wine Database corresponding to the chosen username
+//    4. send mail to user with newly generated password
+// request path contains the user request id :
+// TODO change name into something more generic like : processRequestConfirmation
+app.get(
+  "/api/processUserRequestConfirmation/:id",
+  function (request, response, next) {
+    console.log(
+      "[processUserRequestConfirmation]api called with parameter : ",
+      JSON.stringify(request.params)
+    );
+
+    const serverUrl = request.protocol + "://" + request.get("host");
+
+    // Generate password
+    var newPwd = Math.random().toString(36).slice(-8);
+
+    // fetch request from user-mngmt table correponding to received id
+    var reqID = request.params.id;
+    if (!reqID)
+      return response.status(401).send({
+        code: "NoRegistrationIDParameter",
+        type: "business",
+        subtype: "missing request parameter",
+        resource: "/api/processUserRequestConfirmation",
+        message: "missing registrationID parameter",
+      });
+
+    axios({
+      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      method: "get",
+      auth: {
+        username: process.env.dbHostServiceUsername,
+        password: process.env.dbHostServicePassword,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (res.data) {
+          if (res.data.type == "registration") {
+            // if request is for new registration
+
+            var upsertUserDataReq = {
+              url:
+                process.env.environment == "dev"
+                  ? process.env.apiserver + "/api/upsertUserData"
+                  : (process.env.apiserver || serverUrl) +
+                    "/api/upsertUserData",
+              method: "post",
+              data: {
+                username: res.data.username,
+                action: "create",
+                password: newPwd,
+                lastname: res.data.lastname || "",
+                firstname: res.data.firstname || "",
+                address: res.data.address || "",
+                email: res.data.email || "",
+                phone: res.data.phone || "",
+                state: "registrationConfirmed",
+                app: "mycellar",
+              },
+            };
+
+            axios(upsertUserDataReq)
+              .then((upsertRes) => {
+                // create user table
+                var createUserTableReq = {
+                  url:
+                    "https://" +
+                    process.env.dbHostServiceUsername +
+                    ":" +
+                    process.env.dbHostServicePassword +
+                    "@" +
+                    process.env.dbHost +
+                    "/cellar$" +
+                    res.data.username,
+                  method: "put",
+                  auth: {
+                    username: process.env.dbHostServiceUsername,
+                    password: process.env.dbHostServicePassword,
+                  },
+                };
+                // send mail
+                var sendMailReq = {
+                  url:
+                    process.env.environment == "dev"
+                      ? process.env.apiserver + "/api/sendEMail"
+                      : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+                  method: "POST",
+                  data: {
+                    to: res.data.email,
+                    subject: "Registration confirmed",
+                    message: {
+                      title: "Registration confirmed",
+                      text1: "Your registration is now confirmed.",
+                      text2: "You can start using the myCellar application.",
+                      text3: "Please log on using the following credentials : ",
+                      username: res.data.username,
+                      pwd: newPwd,
+                      url: process.env.apiserver || serverUrl,
+                      text4:
+                        "You will be asked to immediately change your password after the first login.",
+                    },
+                    template: "confirmRegistrationTmpl.html",
+                  },
+                };
+
+                axios
+                  .all([axios(createUserTableReq), axios(sendMailReq)])
+                  .then(
+                    axios.spread((firstResponse, secondResponse) => {
+                      console.log(
+                        JSON.stringify(firstResponse.data),
+                        JSON.stringify(secondResponse.data)
+                      );
+                      let htmlToReturn = jsrender.renderFile(
+                        "./server/templates/confirmRegistrationTmpl.html",
+                        sendMailReq.data.message
+                      );
+                      console.log(
+                        "[processUserRequestConfirmation]api returns : " +
+                          htmlToReturn
+                      );
+                      return response.status(200).send(htmlToReturn);
+                    })
+                  )
+                  .catch((error) =>
+                    handleError(
+                      "processUserRequestConfirmation (combined)",
+                      error,
+                      response
+                    )
+                  );
+              })
+              .catch((error) =>
+                handleError(
+                  "processUserRequestConfirmation (combined)",
+                  error,
+                  response
+                )
+              );
+          } else {
+            // request is for password reset
+            // Upsert user with newly generated password
+            var upsertUserDataReq = {
+              url:
+                process.env.environment == "dev"
+                  ? process.env.apiserver + "/api/upsertUserData"
+                  : (process.env.apiserver || serverUrl) +
+                    "/api/upsertUserData",
+              method: "post",
+              data: {
+                username: res.data.username,
+                action: "update",
+                password: newPwd,
+                state: "resetPasswordConfirmed",
+              },
+            };
+            // send mail
+            var sendMailReq = {
+              url:
+                process.env.environment == "dev"
+                  ? process.env.apiserver + "/api/sendEMail"
+                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+              method: "POST",
+              data: {
+                to: res.data.email,
+                subject: "Password reset confirmed",
+                message: {
+                  title: "Password reset confirmed",
+                  text1: "Your password has now been reset.",
+                  text2: "You can log back in the myCellar application again.",
+                  text3: "Please use now the following credentials : ",
+                  username: res.data.username,
+                  pwd: newPwd,
+                  url: process.env.apiserver || serverUrl,
+                  text4:
+                    "You will be asked to immediately change your password after the next login.",
+                },
+                template: "confirmRegistrationTmpl.html",
+              },
+            };
+            axios
+              .all([axios(upsertUserDataReq), axios(sendMailReq)])
+              .then(
+                axios.spread((firstResponse, secondResponse) => {
+                  console.log(
+                    JSON.stringify(firstResponse.data),
+                    JSON.stringify(secondResponse.data)
+                  );
+                  return response
+                    .status(200)
+                    .send(
+                      jsrender.renderFile(
+                        "./server/templates/confirmRegistrationTmpl.html",
+                        sendMailReq.data.message
+                      )
+                    );
+                })
+              )
+              .catch((error) =>
+                handleError(
+                  "processUserRequestConfirmation (combined)",
+                  error,
+                  response
+                )
+              );
+          }
+        } else {
+          return response.status(401).send({
+            code: "NoRegistrationRequestFound",
+            type: "business",
+            subtype: "No data found",
+            resource: "/api/processUserRequestConfirmation",
+            message: "No registration request found",
+          });
+        }
+      })
+      .catch((error) =>
+        handleError("processUserRequestConfirmation", error, response)
+      );
+  }
+);
+
 /* Private endpoint to create user requests (registration or password reset) in user management table. 
     Request body :
     - type(mandatory): either 'Registration' or 'passwordReset'
@@ -757,331 +1097,6 @@ app.post("/api/processSignupRequest", function (request, response, next) {
     );
 });
 
-// endpoint to the administrator to approval the request for a new signup to the application
-// It will send registration confirmation on email address
-app.get(
-  "/api/approveUserSignupRequest/:id",
-  function (request, response, next) {
-    console.log(
-      "[approveUserSignupRequest]api called with parameter : ",
-      JSON.stringify(request.params)
-    );
-
-    const serverUrl = request.protocol + "://" + request.get("host");
-
-    // fetch request from user-mngmt table correponding to received id
-    var reqID = request.params.id;
-    if (!reqID)
-      return response.status(401).send({
-        code: "NoRegistrationIDParameter",
-        type: "business",
-        subtype: "missing request parameter",
-        resource: "/api/approveUserSignupRequest",
-        message: "missing registrationID parameter",
-      });
-
-    axios({
-      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
-      method: "get",
-      auth: {
-        username: process.env.dbHostServiceUsername,
-        password: process.env.dbHostServicePassword,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.data) {
-          if (res.data.type == "registration") {
-            // if request is for new registration
-            // send mail to user to confirm his registration
-
-            var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
-              method: "POST",
-              data: {
-                to: res.data.email,
-                subject: "Confirm your registration request",
-                message: {
-                  title: "Email confirmation",
-                  text1: "Thank you for signin up to get a myCellar account !!",
-                  text2:
-                    "Before having you on board, please confirm you email address.",
-                  url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver +
-                        "/api/processUserRequestConfirmation/" +
-                        res.data._id
-                      : (process.env.apiserver || serverUrl) +
-                        "/api/processUserRequestConfirmation/" +
-                        res.data._id,
-                },
-                template: "confirmEmailTmpl.html",
-              },
-            };
-            axios(sendMailReq)
-              .then((sendMailReqResponse) => {
-                return response.status(200).send({
-                  code: "OK",
-                  message:
-                    "User " + res.data.username + " request approval done",
-                  translateKey: "approveRegistrationRequestDONE",
-                });
-              })
-              .catch((error) =>
-                handleError("approveUserSignupRequest", error, response)
-              );
-          } else {
-            return response.status(401).send({
-              code: "NoRegistrationRequestFound",
-              type: "business",
-              subtype: "No data found",
-              resource: "/api/approveUserSignupRequest",
-              message: "No registration request found",
-            });
-          }
-        }
-      })
-      .catch((error) =>
-        handleError("approveUserSignupRequest", error, response)
-      );
-  }
-);
-
-// endpoint to finalize the request for a new signup to the application
-// It will
-//    1. generate a new password
-//    2. create an entry into the user table (with user data and newly generate password - state is registrationConfirmed)
-//    3. create Wine Database corresponding to the chosen username
-//    4. send mail to user with newly generated password
-// request path contains the user request id :
-// TODO change name into something more generic like : processRequestConfirmation
-app.get(
-  "/api/processUserRequestConfirmation/:id",
-  function (request, response, next) {
-    console.log(
-      "[processUserRequestConfirmation]api called with parameter : ",
-      JSON.stringify(request.params)
-    );
-
-    const serverUrl = request.protocol + "://" + request.get("host");
-
-    // Generate password
-    var newPwd = Math.random().toString(36).slice(-8);
-
-    // fetch request from user-mngmt table correponding to received id
-    var reqID = request.params.id;
-    if (!reqID)
-      return response.status(401).send({
-        code: "NoRegistrationIDParameter",
-        type: "business",
-        subtype: "missing request parameter",
-        resource: "/api/processUserRequestConfirmation",
-        message: "missing registrationID parameter",
-      });
-
-    axios({
-      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
-      method: "get",
-      auth: {
-        username: process.env.dbHostServiceUsername,
-        password: process.env.dbHostServicePassword,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.data) {
-          if (res.data.type == "registration") {
-            // if request is for new registration
-
-            var upsertUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) +
-                    "/api/upsertUserData",
-              method: "post",
-              data: {
-                username: res.data.username,
-                action: "create",
-                password: newPwd,
-                lastname: res.data.lastname || "",
-                firstname: res.data.firstname || "",
-                address: res.data.address || "",
-                email: res.data.email || "",
-                phone: res.data.phone || "",
-                state: "registrationConfirmed",
-                app: "mycellar",
-              },
-            };
-
-            axios(upsertUserDataReq)
-              .then((upsertRes) => {
-                // create user table
-                var createUserTableReq = {
-                  url:
-                    "https://" +
-                    process.env.dbHostServiceUsername +
-                    ":" +
-                    process.env.dbHostServicePassword +
-                    "@" +
-                    process.env.dbHost +
-                    "/cellar$" +
-                    res.data.username,
-                  method: "put",
-                  auth: {
-                    username: process.env.dbHostServiceUsername,
-                    password: process.env.dbHostServicePassword,
-                  },
-                };
-                // send mail
-                var sendMailReq = {
-                  url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver + "/api/sendEMail"
-                      : (process.env.apiserver || serverUrl) + "/api/sendEMail",
-                  method: "POST",
-                  data: {
-                    to: res.data.email,
-                    subject: "Registration confirmed",
-                    message: {
-                      title: "Registration confirmed",
-                      text1: "Your registration is now confirmed.",
-                      text2: "You can start using the myCellar application.",
-                      text3: "Please log on using the following credentials : ",
-                      username: res.data.username,
-                      pwd: newPwd,
-                      url: process.env.apiserver || serverUrl,
-                      text4:
-                        "You will be asked to immediately change your password after the first login.",
-                    },
-                    template: "confirmRegistrationTmpl.html",
-                  },
-                };
-
-                axios
-                  .all([axios(createUserTableReq), axios(sendMailReq)])
-                  .then(
-                    axios.spread((firstResponse, secondResponse) => {
-                      console.log(
-                        JSON.stringify(firstResponse.data),
-                        JSON.stringify(secondResponse.data)
-                      );
-                      let htmlToReturn = jsrender.renderFile(
-                        "./server/templates/confirmRegistrationTmpl.html",
-                        sendMailReq.data.message
-                      );
-                      console.log(
-                        "[processUserRequestConfirmation]api returns : " +
-                          htmlToReturn
-                      );
-                      return response.status(200).send(htmlToReturn);
-                    })
-                  )
-                  .catch((error) =>
-                    handleError(
-                      "processUserRequestConfirmation (combined)",
-                      error,
-                      response
-                    )
-                  );
-              })
-              .catch((error) =>
-                handleError(
-                  "processUserRequestConfirmation (combined)",
-                  error,
-                  response
-                )
-              );
-          } else {
-            // request is for password reset
-            // Upsert user with newly generated password
-            var upsertUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) +
-                    "/api/upsertUserData",
-              method: "post",
-              data: {
-                username: res.data.username,
-                action: "update",
-                password: newPwd,
-                state: "resetPasswordConfirmed",
-              },
-            };
-            // send mail
-            var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
-              method: "POST",
-              data: {
-                to: res.data.email,
-                subject: "Password reset confirmed",
-                message: {
-                  title: "Password reset confirmed",
-                  text1: "Your password has now been reset.",
-                  text2: "You can log back in the myCellar application again.",
-                  text3: "Please use now the following credentials : ",
-                  username: res.data.username,
-                  pwd: newPwd,
-                  url: process.env.apiserver || serverUrl,
-                  text4:
-                    "You will be asked to immediately change your password after the next login.",
-                },
-                template: "confirmRegistrationTmpl.html",
-              },
-            };
-            axios
-              .all([axios(upsertUserDataReq), axios(sendMailReq)])
-              .then(
-                axios.spread((firstResponse, secondResponse) => {
-                  console.log(
-                    JSON.stringify(firstResponse.data),
-                    JSON.stringify(secondResponse.data)
-                  );
-                  return response
-                    .status(200)
-                    .send(
-                      jsrender.renderFile(
-                        "./server/templates/confirmRegistrationTmpl.html",
-                        sendMailReq.data.message
-                      )
-                    );
-                })
-              )
-              .catch((error) =>
-                handleError(
-                  "processUserRequestConfirmation (combined)",
-                  error,
-                  response
-                )
-              );
-          }
-        } else {
-          return response.status(401).send({
-            code: "NoRegistrationRequestFound",
-            type: "business",
-            subtype: "No data found",
-            resource: "/api/processUserRequestConfirmation",
-            message: "No registration request found",
-          });
-        }
-      })
-      .catch((error) =>
-        handleError("processUserRequestConfirmation", error, response)
-      );
-  }
-);
-
 // login method
 // request body :
 // - username
@@ -1605,20 +1620,6 @@ app.post("/api/updateUserData", function (request, response, next) {
       });
     })
     .catch((error) => handleError("updateUserData", error, response));
-});
-
-app.get("/api/ping", function (request, response, next) {
-  resp = {
-    status: "backend API server available",
-    environment: {
-      dbHost: process.env.dbHost,
-      dbHostServiceUsername: process.env.dbHostServiceUsername,
-      secret: process.env.secret,
-      mailUserId: process.env.mailUserId,
-    },
-    backendVersion: environment.version,
-  };
-  response.json(resp);
 });
 
 //serve static file (index.html, images, css)

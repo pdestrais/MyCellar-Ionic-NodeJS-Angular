@@ -1,4 +1,12 @@
 import { Subject, of, merge } from "rxjs";
+import {
+  debounce,
+  distinct,
+  filter,
+  take,
+  takeUntil,
+  tap,
+} from "rxjs/operators";
 import { TranslateService } from "@ngx-translate/core";
 import {
   Component,
@@ -24,6 +32,16 @@ import {
   OrigineModel,
   TypeModel,
 } from "../models/cellar.model";
+
+import { Store, ActionsSubject } from "@ngrx/store";
+
+import { Observable } from "rxjs";
+import * as VinActions from "../state/vin/vin.actions";
+import * as VinSelectors from "../state/vin/vin.selectors";
+import * as TypeSelectors from "../state/type/type.selectors";
+import * as OrigineSelectors from "../state/origine/origine.selectors";
+import * as AppellationSelectors from "../state/appellation/appellation.selectors";
+
 import { HttpClient } from "@angular/common/http";
 import dayjs from "dayjs";
 import { map, debounceTime, switchMap } from "rxjs/operators";
@@ -34,7 +52,14 @@ import pica from "pica/dist/pica.js";
 import { ViewerComponent } from "./viewer/viewer.component";
 
 import * as Debugger from "debug";
+import { AppState } from "../state/app.state";
 const debug = Debugger("app:vin");
+
+interface Option {
+  id: number;
+  name: string;
+  firstname: string;
+}
 
 @Component({
   selector: "app-vin",
@@ -45,7 +70,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public nbreAvantUpdate: number = 0;
   public newWine: boolean = true;
   public vin: VinModel;
-  public vinsMap: Map<any, object>;
+  public vinsMap: Map<string, VinModel>;
   public origines: Array<any> = [];
   public appellations: Array<any> = [];
   public types: Array<any> = [];
@@ -54,28 +79,18 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public vinForm: FormGroup;
   public nameYearForm: FormGroup;
   public submitted: boolean;
-  private obs: Subject<string> = new Subject();
-  private priceRegExp: RegExp = new RegExp("^[0-9]+(,[0-9]{1,2})?$");
   private originalName;
   private originalYear;
-  //	private ctx: any;
-  //	private canvas: any;
-  /* 	private canvasHeight: number = 200;
-	private canvasWidth: number = 150;
-	private mq420: MediaQueryList = window.matchMedia('(max-width: 420px)');
-	private mq500: MediaQueryList = window.matchMedia('(min-width:421px) and (max-width: 500px )');
-	private mq800: MediaQueryList = window.matchMedia('(min-width:501px) and (max-width: 800px )');
-	private mq2000: MediaQueryList = window.matchMedia('(min-width:920px)');
- */
-  ///	private url: any;
-  //	private imgRatio: number = 4 / 3;
-  //	private imgMinWidth: number = 150;
-  //	private imgMaxWidth: number = 550;
-  //	private offScreenCanvas: HTMLCanvasElement = document.createElement('canvas');
+  public status: string;
   private selectedPhoto: { contentType: string; data: File } = {
     contentType: "jpeg",
     data: new File([], "Photo file"),
   };
+  private vinMapState$: Observable<Map<string, VinModel>>;
+  private unsubscribe$ = new Subject<void>();
+  public types$: Observable<Array<TypeModel>>;
+  public origines$: Observable<Array<TypeModel>>;
+  public appellations$: Observable<Array<TypeModel>>;
 
   /**
    * 'plug into' DOM canvas element using @ViewChild
@@ -84,6 +99,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("photoImage", { static: false }) photoImage: any;
   @ViewChild("uploadphoto", { static: false })
   inputUploader: ElementRef<HTMLInputElement>;
+  alert: any;
+  navTransition: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -96,38 +113,45 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private http: HttpClient,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private platform: Platform
+    private platform: Platform,
+    private store: Store
   ) {
-    this.vin = new VinModel(
-      "",
-      "",
-      "",
-      "",
-      0,
-      0,
-      0,
-      "",
-      "",
-      "",
-      "",
-      [],
-      "",
-      new AppellationModel("", "", ""),
-      new OrigineModel("", "", ""),
-      new TypeModel("", ""),
-      "",
-      "",
-      0,
-      [],
-      { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
-      0
-    );
-    this.pouch
-      .getDocsOfType("vin")
-      .then(
-        (vins) =>
-          (this.vinsMap = new Map(vins.map((v) => [v.nom + v.annee, v])))
-      );
+    // Initializing vin object & form
+    this.vin = new VinModel({
+      _id: "",
+      _rev: "",
+      nom: "",
+      annee: "",
+      nbreBouteillesAchat: 0,
+      nbreBouteillesReste: 0,
+      prixAchat: 0,
+      dateAchat: "",
+      remarque: "",
+      localisation: "",
+      contenance: "",
+      history: [],
+      lastUpdated: "",
+      appellation: new AppellationModel({
+        _id: "",
+        courte: "",
+        longue: "",
+      }),
+      origine: new OrigineModel({
+        _id: "",
+        pays: "",
+        region: "",
+      }),
+      type: new TypeModel({
+        _id: "",
+        nom: "",
+      }),
+      cepage: "",
+      apogee: "",
+      GWSScore: 0,
+      cotes: [],
+      photo: { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
+      rating: 0,
+    });
 
     this.vinForm = this.formBuilder.group(
       {
@@ -175,88 +199,214 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public ngOnInit() {
     debug("[Vin.ngOnInit]called");
     let paramId = this.route.snapshot.params["id"];
-
-    Promise.all([
-      this.pouch.getDocsOfType("origine"),
-      this.pouch.getDocsOfType("appellation"),
-      this.pouch.getDocsOfType("type"),
-    ]).then((results) => {
-      this.origines = results[0];
-      this.origines.sort((a, b) => {
-        return a.pays + a.region < b.pays + b.region ? -1 : 1;
-      });
-      this.appellations = results[1];
-      this.appellations.sort((a, b) => {
-        return a.courte + a.longue < b.courte + b.longue ? -1 : 1;
-      });
-      this.types = results[2];
-      this.types.sort((a, b) => {
-        return a.nom < b.nom ? -1 : 1;
-      });
-      if (paramId) {
-        this.pouch.getDoc(paramId).then((vin) => {
+    // loading from the state the types, origines and appellations
+    this.types$ = this.store
+      .select(TypeSelectors.getAllTypesArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.origines$ = this.store
+      .select(OrigineSelectors.getAllOriginesArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.appellations$ = this.store
+      .select(AppellationSelectors.getAllAppellationsArraySorted)
+      .pipe(takeUntil(this.unsubscribe$));
+    // Now loading selected wine from the state
+    this.store
+      .select<VinModel>(VinSelectors.getWine(paramId))
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((vin: VinModel) => {
+        if (vin) {
+          // We have selected a wine
+          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+          this.store.dispatch(
+            VinActions.editVin({ id: vin._id, rev: vin._rev })
+          );
+          this.vin = { ...vin };
           this.originalName = vin.nom;
           this.originalYear = vin.annee;
-          Object.assign(this.vin, vin);
-          this.vinForm.setValue(
-            this.reject(this.vin, [
-              "_id",
-              "_rev",
-              "remarque",
-              "history",
-              "lastUpdated",
-              "dateCreated",
-              "cotes",
-              "_attachments",
-              "photo",
-            ])
-          );
-          this.vinForm.get("appellation").patchValue(this.vin.appellation._id);
-          this.vinForm.controls["origine"].patchValue(this.vin.origine._id);
-          this.vinForm.controls["type"].patchValue(this.vin.type._id);
+          this.vin.rating = !this.vin.rating ? 0 : this.vin.rating;
           this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
           this.newWine = false;
           debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
-        });
-      } else {
-        let now = dayjs();
-        // Search for type that correspond to "red" and use it's _id to initialize the vin attribute
-        let preselectedType;
-        if (this.types && this.types.length > 0) {
-          preselectedType = this.types.find((e) => {
-            return e.nom == "Rouge" || e.nom == "Red";
-          });
+        } else {
+          // No wine was selected, when will record a new win
+          this.store.dispatch(VinActions.editVin({ id: "", rev: "" }));
         }
-        this.vin = new VinModel(
-          "",
-          "",
-          "",
-          "",
-          0,
-          0,
-          0,
-          now.format("YYYY-MM-DD"),
-          "",
-          "",
-          "",
-          [],
-          "",
-          new AppellationModel("", "", ""),
-          new OrigineModel("", "", ""),
-          new TypeModel(
-            preselectedType ? preselectedType._id : "",
-            preselectedType ? preselectedType.nom : ""
-          ),
-          "",
-          "",
-          0,
-          [],
-          { name: "", width: 0, heigth: 0, orientation: 1, fileType: "" },
-          0
+        this.vinForm.setValue(
+          this.reject(this.vin, [
+            "_id",
+            "_rev",
+            "remarque",
+            "history",
+            "lastUpdated",
+            "dateCreated",
+            "cotes",
+            "_attachments",
+            "photo",
+          ])
         );
-      }
-    });
+      });
 
+    // Load a map containing all wine with the key being nom+year. This map is used to check for wine duplicates
+    this.vinMapState$ = this.store
+      .select<Map<string, VinModel>>(VinSelectors.vinMapForDuplicates)
+      .pipe(takeUntil(this.unsubscribe$));
+    this.vinMapState$.subscribe((map) => (this.vinsMap = map));
+
+    // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+    this.store
+      .select((state: AppState) => state.vins)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        tap((vinState) =>
+          debug(
+            "[ngOnInit]handle vinState Changes - ts " +
+              window.performance.now() +
+              "\nvinState : " +
+              JSON.stringify(vinState) +
+              "\neventLog : " +
+              JSON.stringify(vinState.eventLog)
+          )
+        )
+      )
+      .subscribe((vinState) => {
+        switch (vinState.status) {
+          case "saved":
+            debug(
+              "[ngOnInit] handling change to 'saved' status - ts " +
+                window.performance.now() +
+                "\nvinState : " +
+                JSON.stringify(vinState) +
+                "\neventLog : " +
+                JSON.stringify(vinState.eventLog)
+            );
+
+            // if we get an event that a wine is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            if (vinState.source == "internal") {
+              debug("[ngInit](I) Standard wine saved");
+              // Internal event
+              this.presentToast(
+                this.translate.instant("general.dataSaved"),
+                "success",
+                "home",
+                2000
+              );
+              this.store.dispatch(VinActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              let filteredEventLog = vinState.eventLog.filter(
+                (value) =>
+                  value.id == vinState.currentWine.id &&
+                  value.rev == vinState.currentWine.rev &&
+                  value.action == "create"
+              );
+              debug(
+                "[ngInit](II) FilteredEventLog : " +
+                  JSON.stringify(filteredEventLog)
+              );
+              if (filteredEventLog.length == 2) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(VinActions.setStatusToLoaded());
+              } else if (
+                vinState.eventLog[vinState.eventLog.length - 1].id ==
+                  vinState.currentWine.id &&
+                vinState.eventLog[vinState.eventLog.length - 1].rev ==
+                  vinState.currentWine.rev &&
+                vinState.eventLog[vinState.eventLog.length - 1].action ==
+                  "create" &&
+                this.vinForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.savedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Update of another wine");
+              }
+            }
+            break;
+          case "error":
+            this.presentToast(
+              this.translate.instant("general.DBError") + " " + vinState.error,
+              "error",
+              null,
+              5000
+            );
+            break;
+          case "deleted":
+            // if we get an event that a wine is saved. We need to check it's id and
+            // if the event source is internal (saved within this instance of the application) or external.
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (II) external ?
+            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
+            if (vinState.source == "internal") {
+              debug("[ngInit](I) Standard wine deleted");
+              // Internal event
+              this.presentToast(
+                this.translate.instant("wine.wineDeleted"),
+                "success",
+                "home",
+                2000
+              );
+              this.store.dispatch(VinActions.setStatusToLoaded());
+            } else {
+              // let's try to find a duplicate event in the eventLog
+              // this should never happen for a delete
+              if (
+                vinState.eventLog.filter(
+                  (value) =>
+                    value.id == vinState.currentWine.id &&
+                    value.rev >= vinState.currentWine.rev &&
+                    value.action == "delete"
+                ).length == 2
+              ) {
+                debug(
+                  "[ngInit](II.A) Duplicate state change for the same wine"
+                );
+                this.store.dispatch(VinActions.setStatusToLoaded());
+              } else if (
+                vinState.eventLog[vinState.eventLog.length - 1].id ==
+                  vinState.currentWine.id &&
+                vinState.eventLog[vinState.eventLog.length - 1].action ==
+                  "delete"
+              ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+                debug("[ngInit](II.C) Concurrent editing on the same wine");
+                this.presentToast(
+                  this.translate.instant(
+                    "wine.deletedConcurrentlyOnAnotherInstance"
+                  ),
+                  "warning",
+                  "home",
+                  0,
+                  "Close"
+                );
+              } else {
+                debug("[ngInit](II.B) Delete of another wine");
+              }
+            }
+            break;
+        }
+      });
+
+    // For each change of value in nom or annee fields, check if no wine with the same name/year combination exist
     merge(
       this.vinForm.get("nom").valueChanges,
       this.vinForm.get("annee").valueChanges
@@ -273,6 +423,17 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public ngAfterViewInit() {
     debug("[entering ngAfterViewInit]");
+  }
+
+  // Used to comare Objects in html selects
+  compareFn(e1: any, e2: any): boolean {
+    /*     debug("[compareFn] object 1 :" + JSON.stringify(e1));
+    debug("[compareFn] object 2 :" + JSON.stringify(e2));
+    debug(
+      "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
+    );
+ */
+    return e1 && e2 ? e1._id === e2._id : e1 === e2;
   }
 
   public async loadImageAndView(type: string) {
@@ -377,7 +538,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public ngOnDestroy() {
     debug("[Vin.ngOnDestroy]called");
-    this.obs.unsubscribe();
+    // Unscubribe all observers
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   public ionViewWillEnter() {
@@ -394,18 +557,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     if (this.vinForm.valid) {
       // validation succeeded
       debug("[Vin.saveVin]vin valid");
-      let id = this.vin._id;
-      Object.assign(this.vin, this.vinForm.value);
-      //this.vin = this.vinForm.value;
-      this.vin._id = id;
+      // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
+      let mutableWine = JSON.parse(JSON.stringify(this.vin));
+      // now combine the loaded wine data with the new form data
+      this.vin = { ...mutableWine, ...this.vinForm.value };
       this.vin.lastUpdated = new Date().toISOString();
-      this.vin.appellation = this.appellations.find(
-        (appellation) => appellation._id == this.vin.appellation
-      );
-      this.vin.origine = this.origines.find(
-        (origine) => origine._id == this.vin.origine
-      );
-      this.vin.type = this.types.find((type) => type._id == this.vin.type);
       if (this.newWine) {
         this.vin.history.push({
           type: "creation",
@@ -455,23 +611,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           };
         }
       }
-      this.pouch.saveDoc(this.vin, "vin").then((response) => {
-        if (response.ok) {
-          debug("[Vin.saveVin]vin " + JSON.stringify(this.vin) + " saved");
-          this.presentToast(
-            this.translate.instant("general.dataSaved"),
-            "success",
-            "/home"
-          );
-          //this.navCtrl.push(SearchPage)
-        } else {
-          this.presentToast(
-            this.translate.instant("general.DBError"),
-            "error",
-            "/home"
-          );
-        }
-      });
+      this.store.dispatch(VinActions.createVin({ vin: this.vin }));
     } else {
       debug("[Vin.saveVin]vin invalid");
       this.presentToast(
@@ -494,21 +634,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           {
             text: this.translate.instant("general.ok"),
             handler: () => {
-              this.pouch.deleteDoc(this.vin).then((response) => {
-                if (response.ok) {
-                  this.presentToast(
-                    this.translate.instant("wine.wineDeleted"),
-                    "success",
-                    "/home"
-                  );
-                } else {
-                  this.presentToast(
-                    this.translate.instant("wine.wineNotDeleted"),
-                    "error",
-                    undefined
-                  );
-                }
-              });
+              this.store.dispatch(VinActions.deleteVin({ vin: this.vin }));
             },
           },
         ],
@@ -530,14 +656,47 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  async presentToast(message: string, type: string, nextPageUrl: string) {
-    const toast = await this.toastCtrl.create({
-      color: type == "success" ? "secondary" : "danger",
-      message: message,
-      duration: 2000,
-    });
-    toast.present();
-    if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+  async presentToast(
+    message: string,
+    type: string,
+    nextPageUrl: string,
+    duration?: number,
+    closeButtonText?: string
+  ) {
+    if (duration && duration != 0) {
+      const toast = await this.toastCtrl.create({
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
+        message: message,
+        duration: duration ? duration : 2000,
+      });
+      toast.present();
+      if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+    } else {
+      const toast = await this.toastCtrl.create({
+        color:
+          type == "success"
+            ? "secondary"
+            : type == "warning"
+            ? "warning"
+            : "danger",
+        message: message,
+        buttons: [
+          {
+            text: closeButtonText,
+            role: "cancel",
+            handler: () => {
+              if (nextPageUrl) this.navCtrl.navigateRoot(nextPageUrl);
+            },
+          },
+        ],
+      });
+      toast.present();
+    }
   }
 
   addComment() {
@@ -569,46 +728,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       .then((alert) => {
         alert.present();
       });
-  }
-
-  public typeChange(val: any) {
-    debug("type change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) => (this.vin.type = new TypeModel(result._id, result.nom))
-        );
-  }
-
-  public origineChange(val: any) {
-    debug("origine change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) =>
-            (this.vin.origine = new OrigineModel(
-              result._id,
-              result.pays,
-              result.region
-            ))
-        );
-  }
-
-  public appellationChange(val: any) {
-    debug("appellation change detected");
-    if (typeof val.detail.value == "string")
-      this.pouch
-        .getDoc(val.detail.value)
-        .then(
-          (result) =>
-            (this.vin.appellation = new AppellationModel(
-              result._id,
-              result.courte,
-              result.longue
-            ))
-        );
   }
 
   public showDate(ISODateString) {
@@ -705,6 +824,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       .replace(/î/g, "i");
   }
 
+  // function called for each value change of wine name or year
   private noDouble(group: FormGroup) {
     debug("nodouble called");
     if (!group.controls.nom || !group.controls.annee) return null;

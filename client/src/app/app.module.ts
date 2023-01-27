@@ -14,6 +14,14 @@ import { AppRoutingModule } from "./app-routing.module";
 import { MultiLevelSideMenuComponent } from "./multi-level-side-menu/multi-level-side-menu.component";
 import { ServiceWorkerModule } from "@angular/service-worker";
 import { environment } from "../environments/environment";
+import { StoreModule } from "@ngrx/store";
+import { EffectsModule } from "@ngrx/effects";
+import { VinEffects } from "./state/vin/vin.effects";
+import { vinReducer } from "./state/vin/vin.reducers";
+import { OrigineEffects } from "./state/origine/origine.effects";
+import { TypeEffects } from "./state/type/type.effects";
+import { AppellationEffects } from "./state/appellation/appellation.effects";
+import { reducers } from "./state/app.state";
 
 @NgModule({
   declarations: [AppComponent, MultiLevelSideMenuComponent],
@@ -37,6 +45,13 @@ import { environment } from "../environments/environment";
       // or after 30 seconds (whichever comes first).
       registrationStrategy: "registerWhenStable:30000",
     }),
+    StoreModule.forRoot(reducers, {}),
+    EffectsModule.forRoot([
+      VinEffects,
+      OrigineEffects,
+      TypeEffects,
+      AppellationEffects,
+    ]),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],

@@ -15,6 +15,12 @@ import * as Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
 import { environment } from "../../../environments/environment";
 
+import { Store, select } from "@ngrx/store";
+import * as VinActions from "../../state/vin/vin.actions";
+import * as TypeActions from "../../state/type/type.actions";
+import * as OrigineActions from "../../state/origine/origine.actions";
+import * as AppellationActions from "../../state/appellation/appellation.actions";
+
 const debug = Debugger("app:login");
 
 @Component({
@@ -39,7 +45,8 @@ export class LoginComponent implements OnInit {
     private alertController: AlertController,
     private translate: TranslateService,
     private loadingCtrl: LoadingController,
-    private dataService: PouchdbService
+    private dataService: PouchdbService,
+    private store: Store
   ) {
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
@@ -126,6 +133,12 @@ export class LoginComponent implements OnInit {
                   "success",
                   null
                 );
+
+                this.store.dispatch(VinActions.loadVins());
+                // not need in home page but I'm loading the type, origine and appellation information in the state so that it's ready to use in other modules
+                this.store.dispatch(TypeActions.loadTypes());
+                this.store.dispatch(OrigineActions.loadOrigines());
+                this.store.dispatch(AppellationActions.loadAppellations());
                 this.router.navigate([this.returnUrl]);
                 subscription.unsubscribe();
               }
