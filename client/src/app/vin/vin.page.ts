@@ -42,7 +42,7 @@ import * as TypeSelectors from "../state/type/type.selectors";
 import * as OrigineSelectors from "../state/origine/origine.selectors";
 import * as AppellationSelectors from "../state/appellation/appellation.selectors";
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import dayjs from "dayjs";
 import { map, debounceTime, switchMap } from "rxjs/operators";
 import { ToastController } from "@ionic/angular";
@@ -53,6 +53,9 @@ import { ViewerComponent } from "./viewer/viewer.component";
 
 import * as Debugger from "debug";
 import { AppState } from "../state/app.state";
+
+import { environment } from "../../environments/environment";
+
 const debug = Debugger("app:vin");
 
 interface Option {
@@ -441,37 +444,70 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public async loadImageAndView(type: string) {
     let fileOrBlob: any;
+    // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
+    let mutableWine = JSON.parse(JSON.stringify(this.vin));
+    // No image existed, user wants to upload a new image
     if (type == "file") {
       let el = this.inputUploader.nativeElement;
       if (el) {
         fileOrBlob = el.files[0];
         this.selectedPhoto.data = fileOrBlob;
         debug("[loadImageAndView]platform : " + this.platform.platforms());
+
         if (this.platform.is("ios") || this.platform.is("ipad")) {
           let now = dayjs();
-          this.vin.photo.name = now.format("YYYY-MM-DD_hh-mm-ss") + "_img.jpeg";
-        } else this.vin.photo.name = fileOrBlob.name;
+          mutableWine.photo.name =
+            now.format("YYYY-MM-DD_hh-mm-ss") + "_img.jpeg";
+        } else mutableWine.photo.name = fileOrBlob.name;
       }
+      this.showWineImageModal(mutableWine, fileOrBlob, "add");
     }
     if (type == "blob" && this.selectedPhoto.data.size == 0) {
       try {
-        fileOrBlob = await this.pouch.db.getAttachment(
+        /*         fileOrBlob = await this.pouch.db.getAttachment(
           this.vin._id,
           "photoFile"
+        );
+ this.showWineImageModal(mutableWine, fileOrBlob, "modify");
+*/
+        let url: string = "";
+        if (environment.production)
+          url = window.location.origin + "/api/getPhoto/";
+        else url = environment.APIEndpoint + "/api/getPhoto/"; // for dev purposeslet prefix = window.location.origin + "/api/";
+        url = url + this.vin._id;
+        debug("[Vin.saveVin]url :" + url);
+
+        this.http.get(url).subscribe(
+          (response: any) => {
+            fileOrBlob = response.data;
+            console.log("http get response ");
+            this.showWineImageModal(mutableWine, fileOrBlob, "modify");
+          },
+          (error) => {
+            console.log("http get error : ");
+          }
         );
       } catch (err) {
         debug("[loadImageAndView]no attachemnt to load - error :", err);
       }
     } else if (type == "blob" && this.selectedPhoto.data.size != 0) {
       fileOrBlob = this.selectedPhoto.data;
+      this.showWineImageModal(mutableWine, fileOrBlob, "modify");
     }
+  }
 
+  private showWineImageModal(
+    mutableWine: any,
+    fileOrBlob: any,
+    action: string
+  ) {
+    // The viewer component is used for 3 cases : 1. to view the image of the just uploaded file, to view the image that already exist for the wine
     this.modalCtrl
       .create({
         component: ViewerComponent,
         componentProps: {
           fileOrBlob: fileOrBlob,
-          action: type == "file" ? "add" : "modify",
+          action: action, //type == "file" ? "add" : "modify",
         },
         cssClass: "auto-height",
       })
@@ -484,7 +520,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         );
         switch (data.choice) {
           case "delete":
-            this.vin.photo = {
+            mutableWine.photo = {
               name: "",
               width: 0,
               heigth: 0,
@@ -501,6 +537,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 "photoFile",
                 this.vin._rev
               );
+              // now combine the loaded wine data with the photo data
+              this.vin = { ...mutableWine };
               debug("[loadImageAndView]delete attachment success");
             } catch (err) {
               debug(
@@ -515,7 +553,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 contentType: "jpeg",
                 data: new File([], "Photo file"),
               };
-              this.vin.photo = {
+              mutableWine.photo = {
                 name: "",
                 width: 0,
                 heigth: 0,
@@ -525,16 +563,23 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             } else if (data.from == "replace") {
               // Nothing to do
             }
+            // now combine the loaded wine data with the photo data
+            this.vin = { ...mutableWine };
             break;
           case "replace":
             this.selectedPhoto = data.file;
-            this.vin.photo.name = data.file.name;
-            this.vin.photo.fileType = data.file.type;
+            mutableWine.photo.name = data.file.name;
+            mutableWine.photo.fileType = data.file.type;
+            // now combine the loaded wine data with the photo data
+            this.vin = { ...mutableWine };
+            break;
           case "keep":
             this.selectedPhoto.data = data.compressedBlob;
             this.selectedPhoto.contentType = data.selectedFile.type;
-            this.vin.photo.name = data.selectedFile.name;
-            this.vin.photo.fileType = data.selectedFile.type;
+            mutableWine.photo.name = data.selectedFile.name;
+            mutableWine.photo.fileType = data.selectedFile.type;
+            // now combine the loaded wine data with the photo data
+            this.vin = { ...mutableWine };
         }
       });
   }
@@ -605,6 +650,30 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
               data: this.selectedPhoto.data,
             },
           };
+
+          let url: string = "";
+          if (environment.production)
+            url = window.location.origin + "/api/savePhoto";
+          else url = environment.APIEndpoint + "/api/savePhoto"; // for dev purposeslet prefix = window.location.origin + "/api/";
+          //let url = prefix + "savePhoto/";
+          debug("[Vin.saveVin]url :" + url);
+
+          const formData = new FormData();
+          formData.append("image", this.selectedPhoto.data);
+          formData.append("name", this.vin._id);
+
+          const headers = new HttpHeaders({
+            //c            "Content-Type": "multipart/form-data",
+          });
+
+          this.http.post(url, formData).subscribe(
+            (response: any) => {
+              console.log("http post response ");
+            },
+            (error) => {
+              console.log("http get error : ");
+            }
+          );
         } else {
           this.vin["_attachments"] = {
             photoFile: {

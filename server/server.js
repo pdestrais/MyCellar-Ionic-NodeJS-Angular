@@ -1,4 +1,20 @@
+const CONFIG = require("./config.json");
+const { getS3, getS3Hmac } = require("./s3/s3Client");
+const { findBucketEndpoint, getEndpoints } = require("./s3/endpoints");
+const {
+  putObject,
+  putImage,
+  putObjects,
+  getObject,
+  headObject,
+  deleteObject,
+} = require("./s3/object");
+const { listBuckets, listObjects } = require("./s3/bucket");
+
 var express = require("express");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 var compression = require("compression");
 var app = express();
 var cors = require("cors");
@@ -15,6 +31,11 @@ var nodemailer = require("nodemailer");
 var environment = require("../package.json");
 const json = require("body-parser/lib/types/json");
 const fs = require("fs");
+
+const defaultEndpoint = "s3.us.cloud-object-storage.appdomain.cloud";
+
+console.info("\n ======== Config: ========= ");
+console.info("\n ", CONFIG);
 
 const length = 128;
 const digest = "sha256";
@@ -63,6 +84,8 @@ app.use(
 
 // parse application/json
 app.use(bodyParser.json());
+
+//app.use(bodyParser.raw({ type: "multipart/form-data" }));
 
 // Enable CORS
 app.use(cors());
@@ -1620,6 +1643,182 @@ app.post("/api/updateUserData", function (request, response, next) {
       });
     })
     .catch((error) => handleError("updateUserData", error, response));
+});
+
+// savePhoto method
+// request body :
+// - name : file name in COS
+// - image :Binary content (Blob)
+// returns either :
+// - Error
+// - {message "save photo successfull", translateKey}
+app.post(
+  "/api/savePhoto",
+  upload.single("image"),
+  async (request, response, next) => {
+    console.log("[savePhoto]api called");
+
+    if (!request.body.name) {
+      return response.status(400).send({
+        code: "NoName",
+        type: "technical",
+        subtype: "missing request parameters",
+        resource: "/api/savePhoto",
+        message: "No name",
+      });
+    }
+
+    if (!request.file) {
+      return response.status(400).send({
+        code: "NoBlob",
+        type: "technical",
+        subtype: "missing request parameters",
+        resource: "/api/savePhoto",
+        message: "No image",
+      });
+    }
+
+    let image = request.file;
+    let name = request.body.name;
+
+    try {
+      /* Extract the serviceCredential and bucketName from the config.js file
+       * The service credential can be created in the COS UI's Service Credential Pane
+       */
+      const { serviceCredential } = CONFIG;
+      const { bucketName } = CONFIG;
+
+      /* Create the S3 Client using the IBM-COS-SDK - https://www.npmjs.com/package/ibm-cos-sdk
+       * We will use a default endpoint to initially find the bucket endpoint
+       *
+       * COS Operations can be done using an IAM APIKey or HMAC Credentials.
+       * We will create the S3 client differently based on what we use.
+       */
+      let s3;
+      if (!CONFIG.useHmac) {
+        s3 = await getS3(defaultEndpoint, serviceCredential);
+      } else {
+        s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
+      }
+      console.log("got s3 client");
+
+      /* Fetch the Extended bucket Info for the selected bucket.
+       * This call will give us the bucket's Location
+       */
+      const data = await listBuckets(s3, bucketName);
+      const bucket = data.Buckets[0];
+      console.log("got bucket");
+
+      /* Fetch all the available endpoints in Cloud Object Storage
+       * We need to find the correct endpoint to use based on our bucjket's location
+       */
+      const endpoints = await getEndpoints(serviceCredential.endpoints);
+      console.log("got endpoints");
+
+      /* Find the correct endpoint and set it to the S3 Client
+       * We can skip these steps and directly assign the correct endpoint if we know it
+       */
+      s3.endpoint = findBucketEndpoint(bucket, endpoints);
+
+      /* Upload Objects into the selected bucket
+       */
+      await putImage(s3, bucketName, name, image);
+      //await putObjects(s3, bucketName, request.body.name, request.body.blob);
+
+      console.info("\nphoto saved succesfully in IBM COS");
+      return response.status(200).send({
+        code: "OK",
+        message: "save photo successfull",
+        translateKey: "savePhotoOK",
+      });
+    } catch (err) {
+      console.error("Found an error in S3 operations");
+      console.error("statusCode: ", err.statusCode);
+      console.error("message: ", err.message);
+      console.error("stack: ", err.stack);
+      handleError("savePhoto", err, response);
+    }
+  }
+);
+
+// savePhoto method
+// request body :
+// - name : file name in COS
+// - image :Binary content (Blob)
+// returns either :
+// - Error
+// - {message "save photo successfull", translateKey}
+app.get("/api/getPhoto/:id", async (request, response, next) => {
+  console.log("[getPhoto]api called for name : " + request.params.id);
+
+  if (!request.params.id) {
+    return response.status(400).send({
+      code: "NoId",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/getPhoto",
+      message: "No id",
+    });
+  }
+
+  try {
+    /* Extract the serviceCredential and bucketName from the config.js file
+     * The service credential can be created in the COS UI's Service Credential Pane
+     */
+    const { serviceCredential } = CONFIG;
+    const { bucketName } = CONFIG;
+
+    /* Create the S3 Client using the IBM-COS-SDK - https://www.npmjs.com/package/ibm-cos-sdk
+     * We will use a default endpoint to initially find the bucket endpoint
+     *
+     * COS Operations can be done using an IAM APIKey or HMAC Credentials.
+     * We will create the S3 client differently based on what we use.
+     */
+    let s3;
+    if (!CONFIG.useHmac) {
+      s3 = await getS3(defaultEndpoint, serviceCredential);
+    } else {
+      s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
+    }
+    console.log("got s3 client");
+
+    /* Fetch the Extended bucket Info for the selected bucket.
+     * This call will give us the bucket's Location
+     */
+    const data = await listBuckets(s3, bucketName);
+    const bucket = data.Buckets[0];
+    console.log("got bucket");
+
+    /* Fetch all the available endpoints in Cloud Object Storage
+     * We need to find the correct endpoint to use based on our bucjket's location
+     */
+    const endpoints = await getEndpoints(serviceCredential.endpoints);
+    console.log("got endpoints");
+
+    /* Find the correct endpoint and set it to the S3 Client
+     * We can skip these steps and directly assign the correct endpoint if we know it
+     */
+    s3.endpoint = findBucketEndpoint(bucket, endpoints);
+
+    /* Upload Objects into the selected bucket
+     */
+    let returnedData = await getObject(s3, bucketName, request.params.id);
+    //await putObjects(s3, bucketName, request.body.name, request.body.blob);
+
+    console.info("\nphoto loaded succesfully from IBM COS");
+    return response.status(200).send({
+      data: returnedData,
+      code: "OK",
+      message: "get photo successfull",
+      translateKey: "getPhotoOK",
+    });
+  } catch (err) {
+    console.error("Found an error in S3 operations");
+    console.error("statusCode: ", err.statusCode);
+    console.error("message: ", err.message);
+    console.error("stack: ", err.stack);
+    handleError("savePhoto", err, response);
+  }
 });
 
 //serve static file (index.html, images, css)

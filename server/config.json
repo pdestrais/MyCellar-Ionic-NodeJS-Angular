@@ -1,0 +1,13 @@
+{
+  "useHmac": false,
+  "bucketName": "testimagesbucket1",
+  "serviceCredential": {
+    "apikey": "SrvMF0sec-SNHq1JWyG9q9uIu77kuYRaSvcv0C5iUuy4",
+    "endpoints": "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints",
+    "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba:resource-key:107204a9-7176-4fd7-82e3-607a5ad43571",
+    "iam_apikey_name": "COS-Service credentials",
+    "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Writer",
+    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/3e8a8cfb211e2685ddb8db1f8acacca2::serviceid:ServiceId-99137626-0b58-467e-9275-8863ada724a4",
+    "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba::"
+  }
+}
