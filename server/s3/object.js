@@ -3,6 +3,7 @@ const putObject = async (s3, bucketName, name, body, metadata) => {
     Bucket: bucketName,
     Key: name,
     Body: body,
+    ContentType: metadata.fileType,
     Metadata: metadata,
   };
 
@@ -23,7 +24,7 @@ const putImage = async (s3, bucketName, name, body) => {
  * A simple putObject to upload a simple object to COS.
  * COS also allows Multipart upload to facilitate upload of larger objects.
  */
-const putObjects = async (s3, bucketName) => {
+/* const putObjects = async (s3, bucketName) => {
   const params1 = {
     Bucket: bucketName,
     Key: "testObject1.txt",
@@ -39,7 +40,7 @@ const putObjects = async (s3, bucketName) => {
   //console.info(" Response: \n", JSON.stringify(data, null, 2));
   return true;
 };
-
+ */
 /*
  * Download an Object from COS
  */
@@ -48,10 +49,16 @@ const getObject = async (s3, bucketName, objectName) => {
     Bucket: bucketName,
     Key: objectName,
   };
-  console.info(" getObject \n", getObjectParam);
+  console.info(
+    new Date().toISOString() + " - getObject \n",
+    JSON.stringify(getObjectParam)
+  );
 
   const data = await s3.getObject(getObjectParam).promise();
-  console.info(" Response: \n", JSON.stringify(data, null, 2));
+  console.info(
+    new Date().toISOString() + " - getObject got response: \n",
+    JSON.stringify(data.Metadata, null, 2)
+  );
   return data;
 };
 

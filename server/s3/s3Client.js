@@ -19,8 +19,8 @@ const getS3 = async (endpoint, serviceCredential) => {
     throw new Error("IAM ApiKey required to create S3 Client");
   }
 
-  console.info(" S3 Options Used: \n", s3Options);
-  console.debug("\n\n ================== \n\n");
+  //console.info(" S3 Options Used: \n", s3Options);
+  //console.debug("\n\n ================== \n\n");
   return new IBMCOS.S3(s3Options);
 };
 
@@ -46,8 +46,8 @@ const getS3Hmac = async (endpoint, serviceCredential) => {
     throw new Error("HMAC credentials required to create S3 Client using HMAC");
   }
 
-  console.info(" S3 Options Used: \n", s3Options);
-  console.debug("\n\n ================== \n\n");
+  //console.info(" S3 Options Used: \n", s3Options);
+  //console.debug("\n\n ================== \n\n");
   return new IBMCOS.S3(s3Options);
 };
 

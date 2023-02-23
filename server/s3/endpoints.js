@@ -6,7 +6,7 @@ const axios = require("axios");
  * The endpoints url provides a JSON consisting of all Endpoints for the user.
  */
 const getEndpoints = async (endpointsUrl) => {
-  console.info("======= Getting Endpoints =========");
+  //console.info("======= Getting Endpoints =========");
 
   const options = {
     url: endpointsUrl,

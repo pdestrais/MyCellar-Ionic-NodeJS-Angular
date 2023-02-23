@@ -5,7 +5,7 @@ const listObjects = async (s3, bucketName) => {
   console.info(" fetching object list \n", listObject);
 
   const data = await s3.listObjectsV2(listObject).promise();
-  console.info(" Response: \n", JSON.stringify(data, null, 2));
+  //console.info(" Response: \n", JSON.stringify(data, null, 2));
   return data;
 };
 
@@ -17,9 +17,9 @@ const listBuckets = async (s3, bucketName) => {
   const params = {
     Prefix: bucketName,
   };
-  console.error("\n Fetching extended bucket list to get Location");
+  //console.error("\n Fetching extended bucket list to get Location");
   const data = await s3.listBucketsExtended(params).promise();
-  console.info(" Response: \n", JSON.stringify(data, null, 2));
+  //console.info(" Response: \n", JSON.stringify(data, null, 2));
 
   return data;
 };

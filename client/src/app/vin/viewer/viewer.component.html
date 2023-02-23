@@ -13,7 +13,68 @@
  -->
 <div #modalContent class="inner-content">
   <!-- <ion-content> -->
-  <ion-grid>
+
+  <div #canvasContainer class="container">
+    <canvas #selectedPhoto></canvas>
+    <div class="buttonContainer">
+      <ion-button
+        *ngIf="action == 'add' || action == 'replace'"
+        size="small"
+        fill="solid"
+        (click)="dismiss('keep')"
+      >
+        {{ "Keep" | translate }}
+      </ion-button>
+      <ion-button
+        color="secondary"
+        size="small"
+        fill="solid"
+        (click)="dismiss('cancel')"
+      >
+        {{ "Cancel" | translate }}
+      </ion-button>
+
+      <input
+        *ngIf="action == 'modify'"
+        type="file"
+        accept="image/*"
+        id="uploadphoto"
+        (change)="loadPhoto()"
+        id="upload"
+        hidden
+      />
+      <label *ngIf="action == 'modify'" for="upload">REPLACE</label>
+
+      <!--       <div *ngIf="action == 'modify'">
+        <label for="uploadphoto" [ngClass]="'button'">{{
+          "Replace" | translate
+        }}</label>
+        <input
+          #uploadphoto
+          type="file"
+          accept="image/*"
+          id="uploadphoto"
+          (change)="loadPhoto()"
+        />
+      </div>
+ -->
+      <ion-button
+        *ngIf="action == 'modify'"
+        color="danger"
+        size="small"
+        fill="solid"
+        (click)="dismiss('delete')"
+      >
+        {{ "Delete" | translate }}
+      </ion-button>
+
+      <!--       <button *ngIf="action == 'modify'">Button 1</button>
+      <button *ngIf="action == 'modify'">Button 2</button>
+      <button *ngIf="action == 'modify'">Button 3</button> -->
+    </div>
+  </div>
+
+  <!--   <ion-grid>
     <ion-row>
       <ion-col #canvasContainer>
         <canvas #selectedPhoto></canvas>
@@ -51,5 +112,6 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+ -->
   <!-- </ion-content> -->
 </div>

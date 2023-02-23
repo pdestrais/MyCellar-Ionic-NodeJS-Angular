@@ -6,7 +6,7 @@ import * as Debugger from "debug";
 const debug = Debugger("app:vin:viewer");
 
 const pica = Pica();
-const quality = 1;
+const quality = 3;
 const viewerCanvasWidth: number = 300;
 const viewerCanvasHeight: number = 426;
 
@@ -16,7 +16,7 @@ const viewerCanvasHeight: number = 426;
   styleUrls: ["./viewer.component.scss"],
 })
 export class ViewerComponent implements OnInit {
-  @Input() fileOrBlob: any; // image is a File or Blob. This component can process both
+  @Input() fileOrBlob: File | Blob; // image is a File or Blob. This component can process both
   @Input() action: string;
   @ViewChild("selectedPhoto", { static: true }) canvasEl: ElementRef;
   @ViewChild("canvasContainer", { static: true }) canvasCntnr: any;
@@ -25,7 +25,7 @@ export class ViewerComponent implements OnInit {
   @ViewChild("modalContent", { static: true }) mContent: ElementRef;
 
   public from: string;
-  private selectedFile: File;
+  private selectedFile: File | Blob;
   //	private offScreenCanvas: HTMLCanvasElement = document.createElement('canvas');
 
   private canvas: HTMLCanvasElement;
@@ -39,6 +39,7 @@ export class ViewerComponent implements OnInit {
       choice == "keep" &&
       (this.action == "add" || this.action == "replace")
     ) {
+      // converts image in canvas (which is resized) into a blob
       compressedBlob = await pica.toBlob(this.canvas, "image/jpeg", quality);
       debug("[dismiss]compressedBlob size : " + compressedBlob.size);
       loadImage.parseMetaData(
@@ -47,7 +48,7 @@ export class ViewerComponent implements OnInit {
           if (!data.imageHead) {
             return;
           }
-          // Combine data.imageHead with the image body of a resized file
+          // Combine data.imageHead (that contains the exif of the original file) with the image body of a resized file
           // to create scaled images with the original image meta data, e.g.:
           compressedBlobWithExif = new Blob(
             [
@@ -64,7 +65,11 @@ export class ViewerComponent implements OnInit {
           //forcing canvas width and height to zero to solve a memory leak bug in Safari on iOS - see https://stackoverflow.com/questions/52532614/total-canvas-memory-use-exceeds-the-maximum-limit-safari-12
           this.canvas.height = 0;
           this.canvas.width = 0;
-          this.canvasCntnr.el.removeChild(this.canvas);
+          //this.canvasCntnr.el.removeChild(this.canvas);
+          //this.canvasCntnr.removeChild(this.canvas);
+          this.canvas.remove();
+          delete this.canvas;
+
           this.modalCtrl.dismiss({
             choice: choice,
             compressedBlob: compressedBlobWithExif,
@@ -81,7 +86,9 @@ export class ViewerComponent implements OnInit {
       //forcing canvas width and height to zero to solve a memory leak bug in Safari on iOS - see https://stackoverflow.com/questions/52532614/total-canvas-memory-use-exceeds-the-maximum-limit-safari-12
       this.canvas.height = 0;
       this.canvas.width = 0;
-      this.canvasCntnr.el.removeChild(this.canvas);
+      //this.canvasCntnr.el.removeChild(this.canvas);
+      this.canvas.remove();
+      delete this.canvas;
       this.modalCtrl.dismiss({
         choice: choice,
         compressedBlob: null,
@@ -98,11 +105,65 @@ export class ViewerComponent implements OnInit {
         ? this.fileOrBlob.size
         : "unknown"
     );
- */ this.from = this.action;
+ */
+    debug("[ngOnInit]Entering");
+    this.from = this.action;
     let img = new Image();
+    this.canvas = this.canvasEl.nativeElement;
+
+    this.selectedFile = this.fileOrBlob;
+    let url = URL.createObjectURL(this.fileOrBlob);
+    img.src = url;
+    img.onload = () => {
+      loadImage.parseMetaData(
+        this.fileOrBlob,
+        (data) => {
+          debug("[ngOnInit]image blob metadata");
+          let exifWidth = 0;
+          let exifHeigth = 0;
+          let exifOrientation = 1;
+          if (typeof data.exif !== "undefined") {
+            exifOrientation = parseInt(data.exif.get("Orientation"));
+            let allTags = data.exif.getAll();
+            debug(
+              "[showExitingImage]orientation : " +
+                exifOrientation +
+                " - x: " +
+                allTags.Exif["PixelXDimension"] +
+                " - y: " +
+                allTags.Exif["PixelYDimension"]
+            );
+            exifWidth = allTags.Exif["PixelXDimension"];
+            exifHeigth = allTags.Exif["PixelYDimension"];
+            this.canvas.width = viewerCanvasWidth; //window.innerWidth - 40;
+            this.canvas.height = (exifHeigth / exifWidth) * this.canvas.width;
+            // if fileOrBlob is a File
+            if (
+              this.fileOrBlob &&
+              this.fileOrBlob instanceof File &&
+              this.fileOrBlob.name
+            ) {
+              pica.resize(img, this.canvas).then((result) => {
+                debug("[ngOnInit] resize done !");
+              });
+            }
+            // Draw the image onto the canvas
+            this.canvas.getContext("2d").drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+          }
+        },
+        {
+          maxMetaDataSize: 262144,
+          disableImageHead: false,
+        }
+      );
+    };
+
+    //Legacy code
     // if fileOrBlob is a File
-    if (this.fileOrBlob && this.fileOrBlob.name) {
+    /*     if (this.fileOrBlob && this.fileOrBlob.name) {
       this.selectedFile = this.fileOrBlob;
+      // We adjust canvas width and height to File width and heigth (read in File exif data)
       loadImage.parseMetaData(this.fileOrBlob, (data) => {
         let exifWidth = 0;
         let exifHeigth = 0;
@@ -120,27 +181,27 @@ export class ViewerComponent implements OnInit {
           );
           exifWidth = allTags.Exif["PixelXDimension"];
           exifHeigth = allTags.Exif["PixelYDimension"];
-          this.canvas = this.canvasEl.nativeElement;
           this.canvas.width = viewerCanvasWidth; //window.innerWidth - 40;
           this.canvas.height = (exifHeigth / exifWidth) * this.canvas.width;
-          /*         this.canvas.height =
-            (this.canvas.width / Math.min(exifWidth, exifHeigth)) *
-            Math.max(exifWidth, exifHeigth);
-   */
           let mwidth = viewerCanvasWidth + 40;
           // adjusting modal width - this is not clean but I have not found a better way to do this.
           this.mContent.nativeElement.parentElement.parentElement.style =
             "opacity: 1; transform: translateY(0px);--width: " + mwidth + "px;";
-          img.src = URL.createObjectURL(this.fileOrBlob);
+          let url = URL.createObjectURL(this.fileOrBlob);
+          img.src = url;
           img.onload = () => {
-            if (this.fileOrBlob.name) {
+            pica.resize(img, this.canvas).then((result) => {
+              debug("[ngOnInit] resize done !");
+            });
+
+            this.canvas.getContext("2d").drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            /*             if (this.fileOrBlob.name) {
               // the image comes from a file
               debug("[ngOnInit] image comes from a file");
               loadImage(
                 this.fileOrBlob,
                 (img) => {
-                  //this.offScreenCanvas.width = exifWidth;
-                  //this.offScreenCanvas.height = exifHeigth;
                   debug(
                     "[ngOnInit]loadImage (x,y) : (" +
                       img.width +
@@ -148,18 +209,15 @@ export class ViewerComponent implements OnInit {
                       img.height +
                       ")"
                   );
-                  //this.offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
                   pica
-                    //									.resize(this.offScreenCanvas, this.canvas, {
                     .resize(img, this.canvas, {
                       unsharpAmount: 170,
                       unsharpRadius: 0.6,
                       unsharpThreshold: 5,
                       quality: 3,
                     })
-                    .then(() => {
+                    .then((result) => {
                       debug("[ngOnInit] resize done !");
-                      //this.canvas.getContext('2d', { alpha: Boolean(alpha) }).drawImage(offScreenCanvas, 0, 0);
                     });
                 },
                 {
@@ -170,97 +228,59 @@ export class ViewerComponent implements OnInit {
               // the image comes from the database, no resize is needed
               debug("[ngOnInit] image comes from the database");
               this.canvas.getContext("2d").drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
             }
-          };
+ */
+    /*          };
         }
       });
     } else {
-      img.src =
-        "https://testimagesbucket1.s3.eu-de.cloud-object-storage.appdomain.cloud/vin%7C33117f27cbb300f9e67b4b3443c8b244";
+      let url = URL.createObjectURL(this.fileOrBlob);
+      img.src = url;
       img.onload = () => {
-        // Draw the image onto the canvas
-        this.canvas.getContext("2d").drawImage(img, 0, 0);
+        loadImage.parseMetaData(
+          this.fileOrBlob,
+          (data) => {
+            debug("[ngOnInit]image blob metadata");
+            let exifWidth = 0;
+            let exifHeigth = 0;
+            let exifOrientation = 1;
+            if (typeof data.exif !== "undefined") {
+              exifOrientation = parseInt(data.exif.get("Orientation"));
+              let allTags = data.exif.getAll();
+              debug(
+                "[showExitingImage]orientation : " +
+                  exifOrientation +
+                  " - x: " +
+                  allTags.Exif["PixelXDimension"] +
+                  " - y: " +
+                  allTags.Exif["PixelYDimension"]
+              );
+              exifWidth = allTags.Exif["PixelXDimension"];
+              exifHeigth = allTags.Exif["PixelYDimension"];
+              this.canvas.width = viewerCanvasWidth; //window.innerWidth - 40;
+              this.canvas.height = (exifHeigth / exifWidth) * this.canvas.width;
+              //             let mwidth = viewerCanvasWidth + 40;
+              // adjusting modal width - this is not clean but I have not found a better way to do this.
+              /*               this.mContent.nativeElement.parentElement.parentElement.style =
+                "opacity: 1; transform: translateY(0px);--width: " +
+                mwidth +
+                "px;";
+ */
+    /*              // Draw the image onto the canvas
+              this.canvas.getContext("2d").drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
+            }
+          },
+          {
+            maxMetaDataSize: 262144,
+            disableImageHead: false,
+          }
+        );
       };
     }
-    //		let offScreenCanvas = document.createElement('canvas');
-    //		offScreenCanvas.width = this.canvas.width;
-    //		offScreenCanvas.height = this.canvas.width;
-    /*     loadImage.parseMetaData(this.fileOrBlob, (data) => {
-      let img = new Image();
-      let exifWidth = 0;
-      let exifHeigth = 0;
-      let exifOrientation = 1;
-      if (typeof data.exif !== "undefined") {
-        exifOrientation = parseInt(data.exif.get("Orientation"));
-        let allTags = data.exif.getAll();
-        debug(
-          "[showImage]orientation : " +
-            exifOrientation +
-            " - x: " +
-            allTags.Exif["PixelXDimension"] +
-            " - y: " +
-            allTags.Exif["PixelYDimension"]
-        );
-        exifWidth = allTags.Exif["PixelXDimension"];
-        exifHeigth = allTags.Exif["PixelYDimension"];
-        this.canvas = this.canvasEl.nativeElement;
-        this.canvas.width = viewerCanvasWidth; //window.innerWidth - 40;
-        this.canvas.height = (exifHeigth / exifWidth) * this.canvas.width;
-        /*         this.canvas.height =
-          (this.canvas.width / Math.min(exifWidth, exifHeigth)) *
-          Math.max(exifWidth, exifHeigth);
- 
-        let mwidth = viewerCanvasWidth + 40;
-        // adjusting modal width - this is not clean but I have not found a better way to do this.
-        this.mContent.nativeElement.parentElement.parentElement.style =
-          "opacity: 1; transform: translateY(0px);--width: " + mwidth + "px;";
-        //img.src = URL.createObjectURL(this.fileOrBlob);
-        img.src =
-          "https://testimagesbucket1.s3.eu-de.cloud-object-storage.appdomain.cloud/vin%7C33117f27cbb300f9e67b4b3443c8b244";
-        img.onload = () => {
-          if (this.fileOrBlob.name) {
-            // the image comes from a file
-            debug("[ngOnInit] image comes from a file");
-            loadImage(
-              this.fileOrBlob,
-              (img) => {
-                //this.offScreenCanvas.width = exifWidth;
-                //this.offScreenCanvas.height = exifHeigth;
-                debug(
-                  "[ngOnInit]loadImage (x,y) : (" +
-                    img.width +
-                    "," +
-                    img.height +
-                    ")"
-                );
-                //this.offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
-                pica
-                  //									.resize(this.offScreenCanvas, this.canvas, {
-                  .resize(img, this.canvas, {
-                    unsharpAmount: 170,
-                    unsharpRadius: 0.6,
-                    unsharpThreshold: 5,
-                    quality: 3,
-                  })
-                  .then(() => {
-                    debug("[ngOnInit] resize done !");
-                    //this.canvas.getContext('2d', { alpha: Boolean(alpha) }).drawImage(offScreenCanvas, 0, 0);
-                  });
-              },
-              {
-                orientation: exifOrientation,
-              } // Options
-            );
-          } else {
-            // the image comes from the database, no resize is needed
-            debug("[ngOnInit] image comes from the database");
-            this.canvas.getContext("2d").drawImage(img, 0, 0);
-          }
-        };
-      }
-    });
-
  */
+    // end of legacy code
   }
 
   loadPhoto() {

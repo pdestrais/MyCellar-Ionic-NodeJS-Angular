@@ -606,7 +606,7 @@ app.post("/api/createUserMngmtRequest", function (request, response, next) {
     type: request.body.type,
     userName: request.body.username,
     email: request.body.email,
-    requestDate: new Date().toISOString,
+    requestDate: new Date().toISOString(),
   };
   console.log(
     "/createUserMngmtRequest user request data:",
@@ -1647,16 +1647,27 @@ app.post("/api/updateUserData", function (request, response, next) {
 
 // savePhoto method
 // request body :
+// - user : username (used to create a folder inside the COS bucket)
 // - name : file name in COS
 // - image :Binary content (Blob)
 // returns either :
 // - Error
 // - {message "save photo successfull", translateKey}
 app.post(
-  "/api/savePhoto",
+  "/api/photo",
   upload.single("image"),
   async (request, response, next) => {
     console.log("[savePhoto]api called");
+
+    if (!request.body.user) {
+      return response.status(400).send({
+        code: "NoName",
+        type: "technical",
+        subtype: "missing request parameters",
+        resource: "/api/savePhoto",
+        message: "No username",
+      });
+    }
 
     if (!request.body.name) {
       return response.status(400).send({
@@ -1679,7 +1690,7 @@ app.post(
     }
 
     let image = request.file;
-    let name = request.body.name;
+    let name = request.body.user + "/" + request.body.name;
 
     try {
       /* Extract the serviceCredential and bucketName from the config.js file
@@ -1732,7 +1743,7 @@ app.post(
         translateKey: "savePhotoOK",
       });
     } catch (err) {
-      console.error("Found an error in S3 operations");
+      console.error("Found an error in S3 putObjet operation");
       console.error("statusCode: ", err.statusCode);
       console.error("message: ", err.message);
       console.error("stack: ", err.stack);
@@ -1741,16 +1752,25 @@ app.post(
   }
 );
 
-// savePhoto method
-// request body :
-// - name : file name in COS
-// - image :Binary content (Blob)
+// getPhoto method
+// request parameter :
+// - user : username (used to create a folder inside the COS bucket)
+// - id : wine id (= file name in COS)
 // returns either :
 // - Error
-// - {message "save photo successfull", translateKey}
-app.get("/api/getPhoto/:id", async (request, response, next) => {
+// - {message "get photo successfull", translateKey}
+app.get("/api/photo/:user/:id", async (request, response, next) => {
   console.log("[getPhoto]api called for name : " + request.params.id);
 
+  if (!request.params.user) {
+    return response.status(400).send({
+      code: "NoUsername",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/deletePhoto",
+      message: "No id",
+    });
+  }
   if (!request.params.id) {
     return response.status(400).send({
       code: "NoId",
@@ -1780,20 +1800,17 @@ app.get("/api/getPhoto/:id", async (request, response, next) => {
     } else {
       s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
     }
-    console.log("got s3 client");
 
     /* Fetch the Extended bucket Info for the selected bucket.
      * This call will give us the bucket's Location
      */
     const data = await listBuckets(s3, bucketName);
     const bucket = data.Buckets[0];
-    console.log("got bucket");
 
     /* Fetch all the available endpoints in Cloud Object Storage
      * We need to find the correct endpoint to use based on our bucjket's location
      */
     const endpoints = await getEndpoints(serviceCredential.endpoints);
-    console.log("got endpoints");
 
     /* Find the correct endpoint and set it to the S3 Client
      * We can skip these steps and directly assign the correct endpoint if we know it
@@ -1802,10 +1819,14 @@ app.get("/api/getPhoto/:id", async (request, response, next) => {
 
     /* Upload Objects into the selected bucket
      */
-    let returnedData = await getObject(s3, bucketName, request.params.id);
+    let returnedData = await getObject(
+      s3,
+      bucketName,
+      request.params.user + "/" + request.params.id
+    );
     //await putObjects(s3, bucketName, request.body.name, request.body.blob);
 
-    console.info("\nphoto loaded succesfully from IBM COS");
+    //console.info("\nphoto loaded succesfully from IBM COS");
     return response.status(200).send({
       data: returnedData,
       code: "OK",
@@ -1813,11 +1834,104 @@ app.get("/api/getPhoto/:id", async (request, response, next) => {
       translateKey: "getPhotoOK",
     });
   } catch (err) {
-    console.error("Found an error in S3 operations");
+    console.error("Found an error in S3 getObject operation");
     console.error("statusCode: ", err.statusCode);
     console.error("message: ", err.message);
     console.error("stack: ", err.stack);
     handleError("savePhoto", err, response);
+  }
+});
+
+// deletePhoto method
+// request parameter :
+// - user : username (used to create a folder inside the COS bucket)
+// - id : wine id (= file name in COS)
+// returns either :
+// - Error
+// - {message "delete photo successfull", translateKey}
+app.delete("/api/photo/:user/:id", async (request, response, next) => {
+  console.log("[deletePhoto]api called for name : " + request.params.id);
+
+  if (!request.params.user) {
+    return response.status(400).send({
+      code: "NoUsername",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/deletePhoto",
+      message: "No id",
+    });
+  }
+  if (!request.params.id) {
+    return response.status(400).send({
+      code: "NoId",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/deletePhoto",
+      message: "No username",
+    });
+  }
+
+  try {
+    /* Extract the serviceCredential and bucketName from the config.js file
+     * The service credential can be created in the COS UI's Service Credential Pane
+     */
+    const { serviceCredential } = CONFIG;
+    const { bucketName } = CONFIG;
+
+    /* Create the S3 Client using the IBM-COS-SDK - https://www.npmjs.com/package/ibm-cos-sdk
+     * We will use a default endpoint to initially find the bucket endpoint
+     *
+     * COS Operations can be done using an IAM APIKey or HMAC Credentials.
+     * We will create the S3 client differently based on what we use.
+     */
+    let s3;
+    if (!CONFIG.useHmac) {
+      s3 = await getS3(defaultEndpoint, serviceCredential);
+    } else {
+      s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
+    }
+    //console.log("got s3 client");
+
+    /* Fetch the Extended bucket Info for the selected bucket.
+     * This call will give us the bucket's Location
+     */
+    const data = await listBuckets(s3, bucketName);
+    const bucket = data.Buckets[0];
+    //console.log("got bucket");
+
+    /* Fetch all the available endpoints in Cloud Object Storage
+     * We need to find the correct endpoint to use based on our bucjket's location
+     */
+    const endpoints = await getEndpoints(serviceCredential.endpoints);
+    //console.log("got endpoints");
+
+    /* Find the correct endpoint and set it to the S3 Client
+     * We can skip these steps and directly assign the correct endpoint if we know it
+     */
+    s3.endpoint = findBucketEndpoint(bucket, endpoints);
+
+    /* Upload Objects into the selected bucket
+     */
+    let returnedData = await deleteObject(
+      s3,
+      bucketName,
+      request.params.user + "/" + request.params.id
+    );
+    //await putObjects(s3, bucketName, request.body.name, request.body.blob);
+
+    //console.info("\nphoto loaded succesfully from IBM COS");
+    return response.status(200).send({
+      data: returnedData,
+      code: "OK",
+      message: "delete photo successfull",
+      translateKey: "deletePhotoOK",
+    });
+  } catch (err) {
+    console.error("Found an error in S3 operations");
+    console.error("statusCode: ", err.statusCode);
+    console.error("message: ", err.message);
+    console.error("stack: ", err.stack);
+    handleError("deletePhoto", err, response);
   }
 });
 
