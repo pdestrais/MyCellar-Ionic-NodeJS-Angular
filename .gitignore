@@ -1,6 +1,9 @@
 # Specifies intentionally untracked files to ignore when using Git
 # http://git-scm.com/docs/gitignore
 
+vcap-local.json
+node_modules
+
 *~
 *.sw[mnpcod]
 *.log
@@ -10,28 +13,35 @@ log.txt
 *.sublime-project
 *.sublime-workspace
 .vscode/
-npm-debug.log*
+npm-debug.log*`
+.env
+.env.*
+.jsbeautifyrc
+private.md
 
-.angular/
 .idea/
-.ionic/
 .sourcemaps/
 .sass-cache/
 .tmp/
 .versions/
-coverage/
-www/
-node_modules/
-tmp/
-temp/
-platforms/
-plugins/
-plugins/android.json
-plugins/ios.json
+client/build/
+client/coverage/
+client/dist/
+client/node_modules/
+client/tmp/
+client/temp/
+client/hooks/
+client/platforms/
+client/plugins/
+client/plugins/android.json
+client/plugins/ios.json
+client/www/
+client/.angular/cache/
 $RECYCLE.BIN/
-build/
 
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
+user_data_mnmgt.drawio
+figma_mycellar_app.fig
 client/.$VinState Status Diagram.drawio.bkp
