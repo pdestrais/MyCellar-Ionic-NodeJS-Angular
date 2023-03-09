@@ -333,10 +333,7 @@
         </div>
       </div>
     </div>
-    <div
-      class="container1"
-      *ngIf="vin.photo && (!vin.photo.name|| (vin.photo.name && vin.photo.name.length==0))"
-    >
+    <div class="container1" *ngIf="currentPhoto.name==''">
       <div class="divlabel">
         <img src="../../assets/icons/NoWineImage.svg" height="48" />
       </div>
@@ -351,13 +348,10 @@
         />
       </div>
     </div>
-    <div
-      class="container1"
-      *ngIf="vin.photo && (vin.photo.name && vin.photo.name.length!=0)"
-    >
+    <div class="container1" *ngIf="currentPhoto.name!=''">
       <ion-button (click)="loadImageAndView('blob')">
         <ion-icon slot="end" name="image"></ion-icon>
-        {{vin.photo.name}}
+        {{currentPhoto.name}}
       </ion-button>
     </div>
   </form>
@@ -368,7 +362,7 @@
   <!--   </form> -->
 
   <ion-button
-    [disabled]="!vinForm.valid"
+    [disabled]="!vinForm.valid || !(dirtyPhoto || vinForm.dirty)"
     id="vin-button1"
     color="primary"
     expand="full"

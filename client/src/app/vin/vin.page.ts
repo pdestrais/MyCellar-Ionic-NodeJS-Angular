@@ -42,7 +42,7 @@ import * as TypeSelectors from "../state/type/type.selectors";
 import * as OrigineSelectors from "../state/origine/origine.selectors";
 import * as AppellationSelectors from "../state/appellation/appellation.selectors";
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import dayjs from "dayjs";
 import { map, debounceTime, switchMap } from "rxjs/operators";
 import { ToastController } from "@ionic/angular";
@@ -53,6 +53,9 @@ import { ViewerComponent } from "./viewer/viewer.component";
 
 import * as Debugger from "debug";
 import { AppState } from "../state/app.state";
+
+import { environment } from "../../environments/environment";
+
 const debug = Debugger("app:vin");
 
 interface Option {
@@ -82,10 +85,17 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   private originalName;
   private originalYear;
   public status: string;
-  private selectedPhoto: { contentType: string; data: File } = {
-    contentType: "jpeg",
+  public photoBlob: any;
+  public currentPhoto: {
+    contentType: string;
+    data: File | Blob;
+    name: string;
+  } = {
+    contentType: "image/jpeg",
     data: new File([], "Photo file"),
+    name: "",
   };
+  public dirtyPhoto: boolean = false;
   private vinMapState$: Observable<Map<string, VinModel>>;
   private unsubscribe$ = new Subject<void>();
   public types$: Observable<Array<TypeModel>>;
@@ -230,8 +240,40 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
           this.newWine = false;
           debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
+          // If the wine has a photo, asynchronously eagerly load the photo from the Cloud Object Storage
+          if (this.vin.photo && this.vin.photo.name != "" && !this.photoBlob) {
+            let url: string = "";
+            if (environment.production)
+              url = window.location.origin + "/api/photo/";
+            else url = environment.APIEndpoint + "/api/photo/"; // for dev purposeslet prefix = window.location.origin + "/api/";
+            url =
+              url +
+              JSON.parse(localStorage.getItem("currentUser")).username +
+              "/" +
+              this.vin._id;
+            debug("[Vin.ngOnInit]url :" + url);
+            this.http.get(url).subscribe(
+              (response: any) => {
+                this.currentPhoto.name = this.vin.photo.name;
+                this.currentPhoto.data = new Blob(
+                  [new Uint8Array(response.data.Body.data)],
+                  {
+                    type: "image/jpeg",
+                  }
+                );
+                this.currentPhoto.contentType = this.vin.photo.fileType;
+                debug("[Vin.ngOnInit]http get response ");
+                // this.showWineImageModal(mutableWine, fileOrBlob, "modify");
+              },
+              (error) => {
+                debug(
+                  "[Vin.ngOnInit]http get error : " + JSON.stringify(error)
+                );
+              }
+            );
+          }
         } else {
-          // No wine was selected, when will record a new win
+          // No wine was selected, when will record a new wine
           this.store.dispatch(VinActions.editVin({ id: "", rev: "" }));
         }
         this.vinForm.setValue(
@@ -285,11 +327,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
             // if we get an event that a wine is saved. We need to check it's id and
             // if the event source is internal (saved within this instance of the application) or external.
-            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home screen
             // - (II) external ?
             //       - (A) event comes from the local DB resulting from the update of the wine we just saved
             //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent update)
             if (vinState.source == "internal") {
               debug("[ngInit](I) Standard wine saved");
               // Internal event
@@ -440,40 +482,57 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public async loadImageAndView(type: string) {
-    let fileOrBlob: any;
+    let fileOrBlob: File | Blob;
+    // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
+    let mutableWine = JSON.parse(JSON.stringify(this.vin));
+    // No image existed, user wants to upload a new image
     if (type == "file") {
       let el = this.inputUploader.nativeElement;
       if (el) {
-        fileOrBlob = el.files[0];
-        this.selectedPhoto.data = fileOrBlob;
+        this.currentPhoto.data = el.files[0];
+        this.currentPhoto.contentType = el.files[0].type;
         debug("[loadImageAndView]platform : " + this.platform.platforms());
+
         if (this.platform.is("ios") || this.platform.is("ipad")) {
           let now = dayjs();
-          this.vin.photo.name = now.format("YYYY-MM-DD_hh-mm-ss") + "_img.jpeg";
-        } else this.vin.photo.name = fileOrBlob.name;
+          mutableWine.photo.name =
+            now.format("YYYY-MM-DD_hh-mm-ss") + "_img.jpeg";
+        } else
+          mutableWine.photo.name =
+            fileOrBlob instanceof File ? fileOrBlob.name : "";
+        this.currentPhoto.name = mutableWine.photo.name;
       }
+      this.showWineImageModal(mutableWine, this.currentPhoto.data, "add");
     }
-    if (type == "blob" && this.selectedPhoto.data.size == 0) {
+    if (type == "blob") {
       try {
-        fileOrBlob = await this.pouch.db.getAttachment(
+        /*         fileOrBlob = await this.pouch.db.getAttachment(
           this.vin._id,
           "photoFile"
         );
+ */
+        this.showWineImageModal(mutableWine, this.currentPhoto.data, "modify");
       } catch (err) {
         debug("[loadImageAndView]no attachemnt to load - error :", err);
       }
-    } else if (type == "blob" && this.selectedPhoto.data.size != 0) {
-      fileOrBlob = this.selectedPhoto.data;
     }
+  }
 
+  private showWineImageModal(
+    mutableWine: any,
+    fileOrBlob: any,
+    action: string
+  ) {
+    // The viewer component is used for 3 cases : 1. to view the image of the just uploaded file, to view the image that already exist for the wine
     this.modalCtrl
       .create({
         component: ViewerComponent,
         componentProps: {
           fileOrBlob: fileOrBlob,
-          action: type == "file" ? "add" : "modify",
+          action: action, //type == "file" ? "add" : "modify",
         },
         cssClass: "auto-height",
+        backdropDismiss: false,
       })
       .then(async (modal) => {
         modal.present();
@@ -482,59 +541,75 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           "[loadImageAndView]data from image preview modal : " +
             JSON.stringify(data)
         );
-        switch (data.choice) {
-          case "delete":
-            this.vin.photo = {
-              name: "",
-              width: 0,
-              heigth: 0,
-              orientation: 1,
-              fileType: "",
-            };
-            this.selectedPhoto = {
-              contentType: "jpeg",
-              data: new File([], "Photo file"),
-            };
-            try {
-              let result = await this.pouch.db.removeAttachment(
-                this.vin._id,
-                "photoFile",
-                this.vin._rev
-              );
-              debug("[loadImageAndView]delete attachment success");
-            } catch (err) {
-              debug(
-                "[loadImageAndView]problem to delete attachment - error : ",
-                err
-              );
-            }
-            break;
-          case "cancel":
-            if (data.from == "add") {
-              this.selectedPhoto = {
-                contentType: "jpeg",
-                data: new File([], "Photo file"),
-              };
-              this.vin.photo = {
+        if (data && data.choice != "") {
+          switch (data.choice) {
+            case "delete":
+              /*             try {
+                let result = await this.pouch.db.removeAttachment(
+                  this.vin._id,
+                  "photoFile",
+                  this.vin._rev
+                );
+   */
+              mutableWine.photo = {
                 name: "",
                 width: 0,
                 heigth: 0,
                 orientation: 1,
                 fileType: "",
               };
-            } else if (data.from == "replace") {
-              // Nothing to do
-            }
-            break;
-          case "replace":
-            this.selectedPhoto = data.file;
-            this.vin.photo.name = data.file.name;
-            this.vin.photo.fileType = data.file.type;
-          case "keep":
-            this.selectedPhoto.data = data.compressedBlob;
-            this.selectedPhoto.contentType = data.selectedFile.type;
-            this.vin.photo.name = data.selectedFile.name;
-            this.vin.photo.fileType = data.selectedFile.type;
+              this.currentPhoto = {
+                contentType: "jpeg",
+                data: new File([], "Photo file"),
+                name: "",
+              };
+              this.dirtyPhoto = true;
+              this.vin = { ...mutableWine };
+              debug("[loadImageAndView]delete attachment success");
+
+              // now combine the loaded wine data with the photo data
+              /*             } catch (err) {
+                debug(
+                  "[loadImageAndView]problem to delete attachment - error : ",
+                  err
+                );
+              }
+   */
+              break;
+            case "cancel":
+              if (data.from == "add") {
+                this.currentPhoto = {
+                  contentType: "jpeg",
+                  data: new File([], "Photo file"),
+                  name: "",
+                };
+                mutableWine.photo = {
+                  name: "",
+                  width: 0,
+                  heigth: 0,
+                  orientation: 1,
+                  fileType: "",
+                };
+              } else if (data.from == "replace") {
+                // Nothing to do
+              }
+              // now combine the loaded wine data with the photo data
+              this.vin = { ...mutableWine };
+              break;
+            case "replace":
+            case "keep":
+              this.currentPhoto.data = data.compressedBlob;
+              this.currentPhoto.contentType = data.selectedFile.type;
+              this.currentPhoto.name = data.selectedFile.name;
+              this.dirtyPhoto = true;
+              // To do : toruver une solution pour afficher le nom du vin dans la page lorsqu'il a été ajouté : utiliser this.selectedPhoto.name ?
+              //this.vin.photo.name = data.selectedFile.name;
+              //this.vin.photo.fileType = data.selectedFile.type;
+              mutableWine.photo.name = data.selectedFile.name;
+              mutableWine.photo.fileType = data.selectedFile.type;
+              // now combine the loaded wine data with the photo data
+              this.vin = { ...mutableWine };
+          }
         }
       });
   }
@@ -590,29 +665,86 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         });
         this.vin.remarque = "";
       }
+      // In addition to saving the wine in the DB, we also need to keep COS in sync.
+      // Photo must be either added/updated (if dirty.photo is true), deleted (dirtyPhoto is true and vin.photo.name == "") or (else) remain unchanged in COS (no action in COS)
       if (
-        this.selectedPhoto &&
-        this.selectedPhoto.data &&
-        this.selectedPhoto.data.size != 0
+        this.currentPhoto &&
+        this.currentPhoto.data &&
+        this.currentPhoto.name != "" &&
+        this.dirtyPhoto == true
       ) {
-        if (this.selectedPhoto.contentType == "image/jpeg") {
+        // save/update case
+        if (this.currentPhoto.contentType == "image/jpeg") {
           debug(
-            "[saveVin]saved image file size : " + this.selectedPhoto.data.size
+            "[saveVin]saved image file size : " + this.currentPhoto.data.size
           );
-          this.vin["_attachments"] = {
+          /* this.vin["_attachments"] = {
             photoFile: {
               content_type: "image/jpeg",
               data: this.selectedPhoto.data,
             },
-          };
+          }; */
+
+          let url: string = "";
+          if (environment.production)
+            url = window.location.origin + "/api/photo";
+          else url = environment.APIEndpoint + "/api/photo"; // for dev purposeslet prefix = window.location.origin + "/api/";
+          //let url = prefix + "savePhoto/";
+          debug("[Vin.saveVin]url :" + url);
+
+          const formData = new FormData();
+          formData.append("image", this.currentPhoto.data);
+          formData.append("name", this.vin._id);
+          formData.append(
+            "user",
+            JSON.parse(localStorage.getItem("currentUser")).username
+          );
+
+          const headers = new HttpHeaders({
+            //c            "Content-Type": "multipart/form-data",
+          });
+
+          this.http.post(url, formData).subscribe(
+            (response: any) => {
+              console.log("http post response ");
+            },
+            (error) => {
+              console.log("http get error : ");
+            }
+          );
         } else {
           this.vin["_attachments"] = {
             photoFile: {
-              content_type: this.selectedPhoto.contentType,
-              data: this.selectedPhoto.data,
+              content_type: this.currentPhoto.contentType,
+              data: this.currentPhoto.data,
             },
           };
         }
+      } else if (
+        this.currentPhoto &&
+        this.currentPhoto.name == "" &&
+        this.dirtyPhoto == true
+      ) {
+        let url: string = "";
+        if (environment.production)
+          url = window.location.origin + "/api/photo/";
+        else url = environment.APIEndpoint + "/api/photo/"; // for dev purposeslet prefix = window.location.origin + "/api/";
+        url =
+          url +
+          JSON.parse(localStorage.getItem("currentUser")).username +
+          "/" +
+          this.vin._id;
+        debug("[Vin.delete wine photo]url :" + url);
+        this.http.delete(url).subscribe(
+          (response: any) => {
+            debug("[Vin.delete wine photo]http delete succesfull ");
+          },
+          (error) => {
+            debug(
+              "[Vin.delete wine photo]http get error : " + JSON.stringify(error)
+            );
+          }
+        );
       }
       this.store.dispatch(VinActions.createVin({ vin: this.vin }));
     } else {

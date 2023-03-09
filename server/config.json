@@ -1,0 +1,13 @@
+{
+  "useHmac": false,
+  "bucketName": "mycellar-bucket-001",
+  "serviceCredential": {
+    "apikey": "ARQJMOjV5OJP1bAHjzhq-N57vAbCOi2Lp-nVsYFgW1Hw",
+    "endpoints": "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints",
+    "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba:resource-key:20525bb0-fe26-4fff-9b11-bbcec37cd6ae",
+    "iam_apikey_name": "mycellar-bucket-001",
+    "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Writer",
+    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/3e8a8cfb211e2685ddb8db1f8acacca2::serviceid:ServiceId-5281cbc2-e105-4011-b3eb-26932a969f45",
+    "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba::"
+  }
+}

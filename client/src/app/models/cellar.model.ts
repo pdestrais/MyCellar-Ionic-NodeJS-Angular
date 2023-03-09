@@ -46,7 +46,7 @@ export class VinModel implements IVin {
   public apogee?: string;
   public GWSScore?: number;
   public cotes?: Array<CoteModel>;
-  public photo?: { name; width; heigth; orientation; fileType };
+  public photo?: { name; width; heigth; orientation; fileType; binary? };
   public rating?: number;
 
   constructor(data: Partial<IVin>) {
