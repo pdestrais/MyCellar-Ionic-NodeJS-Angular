@@ -166,7 +166,6 @@ const getArchiveStatus = async (s3, bucketName, objectName) => {
 module.exports = {
   putObject,
   putImage,
-  putObjects,
   getObject,
   headObject,
   deleteObject,

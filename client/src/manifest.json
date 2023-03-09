@@ -6,7 +6,9 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "icons": [{
+  "version": "4.3.0",
+  "icons": [
+    {
       "src": "assets/icons/MyCellar-PWA-icon-72.png",
       "sizes": "72x72",
       "type": "image/png"

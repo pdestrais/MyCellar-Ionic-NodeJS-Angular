@@ -2,7 +2,7 @@
   "name": "mycellar",
   "main": "server.js",
   "description": "NodeJS serving an ionic app",
-  "version": "1.1.4",
+  "version": "4.3.0",
   "private": false,
   "engines": {
     "node": "16.*"
