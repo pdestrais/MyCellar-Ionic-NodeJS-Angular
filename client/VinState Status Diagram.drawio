@@ -1,1 +1,377 @@
-<mxfile host="Electron" modified="2023-02-22T09:44:55.848Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/20.8.16 Chrome/106.0.5249.199 Electron/21.4.0 Safari/537.36" etag="9sdESBzJMX2WPPHOw6fW" version="20.8.16" type="device" pages="3"><diagram name="Status state diagram" id="58cdce13-f638-feb5-8d6f-7d28b1aa9fa0">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</diagram><diagram id="451fx7DQcDaVuoOWkHTf" name="Listeners logic">dZHBDoMgDIafhruCM/Ps3Lzs5GFnIp2QoDXIotvTTwPOEbcT5fv/UtoSlrfTxfBeXlGAJjQSE2EnQmlM03g+FvJ05JglDjRGCW/aQKVe4GHk6UMJGAKjRdRW9SGsseugtgHjxuAY2u6ow6o9b2AHqprrPb0pYaWn6SHZhBJUI9fScZo5peWr27cySC5w/EKsICw3iNZF7ZSDXqa3Dsblnf+on58Z6OyPhDnY3p4vwYpY8QY=</diagram><diagram id="hDj2-_hlJABQjN8QBhhg" name="Photo logic">7V1Ld5s4FP4ts8iZdmEfgXgum7SdLjozOc2inaUMsq0GIwbkOJ5fPxKSzEPg0PoVu07PsS0hBNK997tP6A28Wzz/kaNs/ieNcXJjg/j5Br6/sW0LuBb/Ej1r2eM7ruyY5SRWg6qOB/If1meq3iWJcdEYyChNGMmanRFNUxyxRh/Kc7pqDpvSpHnVDM2w0fEQocTs/UpiNle9nutUBz5hMpvrS1teKI8skB6tllLMUUxXtS744Qbe5ZQy+WvxfIcTsXt6Y+R5H3uObu4sxykbcsLo89cVBu7j5MvS+jdKgm9BxEZqGU8oWaoV388po2KrCN8DGyyzhKJYrYCt9b7gmG+TaqY05V+3OV2mMRYXA7xFczanM5qi5DOlGe+0eOd3zNhaERkt+WXg7ZwtEnW0YDl9xHc0oXl5EQjKv/IIytk7Qc7qcmXfR5Ik6oI4jfWIKEFFQSLZqYaIC8hViFvv3ULVVdBlHuEt+6Z5EeUzzLaMgxtCcxHBdIFZvubn5ThBjDw17wMpXp1txlXU5D8UQX+AuP6VbG2yeQPp5p2SboEhlHcJiR5vhIB7/y4FYNy+i+Oq0Unnz2jCwbhBKpSQWSp2mm8c5tS6fcI5Ixzt3qkDCxLHSckVuCD/oUk5nyBTRknKynW6tzfue94zpSlTPBFubkHMh58bu6OQWc1VwWGdfP3ca5JAzQ7GlsIupVm0SA4mkZr6XqysNoROpwVnjTYNN3fw82S1LkQeY1TMyxs8EaZaJxVOyxDOEW/+JVRmplQnYgxFYotsLxHiOcn5r5n4JYam9aEk5R/vOwQ4SbiJIwi0mhOGHzJUbt2KW1ktamurAiiZ/IgWJBEy8QknT1hId1NYLVu1NYfEeIqW5X0a8GCwkhcFeDIVE3B2qPXHCAfTaBsMGAzRK9m27zYE2woVYqxqBphGkXnN9vLAgUhud5L8fhi18apG7gI9iYFXsneRHTTI7sEOssNjkt01yP6VpLii4hGwnO9dvv4mzh+7uvnPBql54/1zo7VWrXOyyeBA2LdPifo2PLHubplbr1yVD6bpSYkKO3Hd1OJgiyK/vyryoYjuWAMR3T8UolsmpD/gRMSNKrLLuMcl2OmdHtpexHuoF22FpxRvzyB2K7ZVlLQnNC15MhXi1yZ8RWXrZRHeg8wEQVNmrNAdZvy6BzN+nYvUfHuUBh2IeFEc3J6QxpFMGBP8IiOs9IhxduFxJcnQvRI4AmPbDRtCuGtoSc+sT9HTOs0ZDhd5sk8debocGbZPG3zqz9cUc7pKtSG6oDFKSq3BlYYNfhdi/fuNfSd+RyiNcMJbYLJkjKbFq1N6nYbiUZWeZdoOZYRvJQMAJCpthgookYjGq/2swycYqXAB/4pJIcDKDBwce7s98OpsDGBsynlEU2q4FrxOXAsH4prVoxWPZJuYUXWBZ38KGHsTLXOxcAV0d6bg6cbbE9srwWHsFdBNmU0iDEAAmwK9m7lyhExYaJqiNSKPY8SQILM4Aj5KZ40IUqWlVpskdMKpjhYCG9NJkZX7XoVoahygWUNQaVSUZHrHBwTZszxng9QyrNO4ixQtcPsuZN/eL8XWWXUp5Z3KvhZDF3OUiZ9ZTiNcFC/riwmKHmclcv69ZIlQXz3hphoPa/FI8FTcqVwLB03gtv72pP69pj6CoEP9ex36SNcS7T8waMKR6SpJtb7VVdIKDCcTuvpQdZyfqV2ugP/WQLlfLSXDwEPKaXrqaWpFAXa4G/ppI6nFlG7QMn7kvaqzKn47JoxC0607O8baIxe5/lAuOqkPB/vLe8hClCNqLbPxJy4wCANfqu4BnvXqzRgNWx3euKKgdsr5vfCPGknBm3LYEynLAwh7eya+4uldczu4dFWrvdRNo/RRK5e1x0vdpz4emuBxdo1ol6fyHUHr2gCFR7262dpwnHZ4fNDiKznlfrUt6MXtKqZ2gVAtBW5bvNzzA7tBD10x9Yqh2wzwfcHltUAz3ADKD51a57iNFxlbv9WnmsHTS/TQLOAOUANdqfyDuWi2GULQfnmRobTTM48khguvPJ9N3gAZTNJfb2XEtnTfp6r2Qgytl1/o45V7Hyr3XvXLa4oDKc0Xyk+Sx55QThD/5qRDbJmLp1q2jotQ1jdkpXZYHHSABH+QcC2G8xFffUTSmXkmzbM5StWUtuzjLMFGiplE9waQ9DHCdWeqrgT0UssjLOeTTfn8+kqlvpMsUT52U7vMiuZx88Y2c/G1TB4Jn07MKVXtSDGVec0YRzRHImM/YnMOvWkpYGIcSQkjeqXtsTWqbB1X44/GuGlCEWsvk5toWYLWengiMwO/kUXGbQyUss6gzx1NY6IqDtSO90acGmdXv1qFSDHJ2VpjlTxxipICmyN1Dxc3KSG6uwVgYldeRq2W2qmXEak9SoTeu92AW82A+uCJf/uBJjdwxs164Q3m1LFJP4dWxyb7UCYqNP2CT1T6A1GOsenRndqq9+CpM0Bwe5XJ+Vv1e7TO4dDqSsmHJ4tzmOWVXUH+BeariEsMVS6xAEc6+V6W5bVBTPnHNMMSs4VFpvo2FZicR8Vnvfvu7wczOXSJlprbSqW7XVX0x42lm2VHV0PtaqhdhKH2246WGsuXv5Ch1iyqc7wOZDqumRZebY7BNsexHpz+uYCg3QoIOuAIAUHHDAiaWeIvmINP9FKi+NxjhLCn0L+KEfqe15R//fTNjnlaJ+ic9fARRGdIjUCMubLfRvwrpuxQc7tJFkLLDXbjpiPwi71V25xrDTZ+JuybHs5/13JVvFWlqkTjAJmqwTx02mcvHNMXNl/pIZNIF64pnJ6YRKUpHNtpaopXn0yC/U+aba3Kz6VtYBTmly2pOl5zmX5nbKEraniw5zmdy3w27VBPZdsDsbKvym5XUw2E49CFAfRDP3SB7zVNdheOndCDvu17YeD4vt+cX65uS72djm1bLVfA8cYhdJ0ABj4IPT9oTttTxrc3rW9Cw5bXxfQ8aC5eWnd9Zcy2J81byNQVWjjqG2Mc3yD7zs8P4fR1loR5p84d6aDRhWmBPQK/M7Qy1u151uRIVrJZGXtNFVxTBReRKiiZ9popGKJg2pkCyzp1QYezPVNwNm+EOZRj4Ry3Xtj0LCwwBtWfLibR8QPY4oufdSWMiQ7sPLjbQ4bnn6A67FNl2uA8fJ3MTyWtnLBlR3tHyFm5Zs7qiaTjmiuaE+6G4HL1sh66WQC9Q0GOTob8YiU5TgtFrJOX5Lg7vvju+s67/kp5p0lsOPQtpgeLkbrXGOkPKY2hxZWuexhTRgRJQRhAF4YWtNtFMy4cW65vQQdYIPQtv5Xu3iVIGjie5cLy0wGtV1Md2tAxawQv/UHKzpccHDdsZoamr9GWa7TlIqItuxZm/uKP0EC3A5yOGnFxzQTKbhDeMDUH7OvLxGlYIKJxjwR8pGUPR5V9EacVgwg6gmFd3oMV/Lj7wJvV/0cllXv133rBD/8D</diagram></mxfile>
+<mxfile host="65bd71144e" pages="3">
+    <diagram name="Status state diagram" id="58cdce13-f638-feb5-8d6f-7d28b1aa9fa0">
+        <mxGraphModel dx="1179" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="382b91b5511bd0f7-1" value="" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=#ff0000;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;direction=south;" parent="1" vertex="1">
+                    <mxGeometry x="425" y="60" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="382b91b5511bd0f7-6" value="noop" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="120" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="2a3bc250acf0617d-9" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=none;endArrow=open;endSize=8;strokeColor=#ff0000;fontFamily=Verdana;fontSize=12;align=left;" parent="1" source="382b91b5511bd0f7-1" target="382b91b5511bd0f7-6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2a3bc250acf0617d-10" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=none;endArrow=open;endSize=8;strokeColor=#ff0000;fontFamily=Verdana;fontSize=12;align=left;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="382b91b5511bd0f7-6" target="PToJsRQ52dgiI2qYXvNa-2" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="440" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-3" value="Action : loadVins" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="2a3bc250acf0617d-10" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-1" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Verdana; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;&quot;&gt;VinState Status state Diagram&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="20" width="220" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#FF0000;" parent="1" source="PToJsRQ52dgiI2qYXvNa-2" target="PToJsRQ52dgiI2qYXvNa-4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-6" value="Action :&amp;nbsp;loadVinsSuccess" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-5" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-2" value="loading" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="190" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#FF0000;" parent="1" source="PToJsRQ52dgiI2qYXvNa-4" target="PToJsRQ52dgiI2qYXvNa-7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-9" value="Action : editVin&lt;br&gt;State : currentWine {id, rev} set" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-8" vertex="1" connectable="0">
+                    <mxGeometry x="-0.15" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-4" value="loaded" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="260" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#FF0000;" parent="1" source="PToJsRQ52dgiI2qYXvNa-7" target="PToJsRQ52dgiI2qYXvNa-10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-12" value="Action : createVin, deleteVin&amp;nbsp;" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-11" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-7" value="editing" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="330" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-15" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;align=left;" parent="1" source="PToJsRQ52dgiI2qYXvNa-10" target="PToJsRQ52dgiI2qYXvNa-13" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-16" value="Action :&amp;nbsp;createVinSuccess&lt;br&gt;State : &lt;br&gt;- vin added (or updated) to vins Map&lt;br&gt;- eventLog entry &lt;br&gt;({new wine id, rev, &quot;create&quot;, ts} created&lt;br&gt;- currentWine {id,rev} set to new wine id and rev&lt;br&gt;- source = internal" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-15" vertex="1" connectable="0">
+                    <mxGeometry x="-0.342" y="2" relative="1" as="geometry">
+                        <mxPoint x="-175" y="16" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-20" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;" parent="1" source="PToJsRQ52dgiI2qYXvNa-10" target="PToJsRQ52dgiI2qYXvNa-19" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-21" value="Action : createVinFailure,&amp;nbsp;&lt;br&gt;deleteVinFailure" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-20" vertex="1" connectable="0">
+                    <mxGeometry x="0.3429" relative="1" as="geometry">
+                        <mxPoint y="39" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-10" value="pending" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="410" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#FF0000;dashed=1;dashPattern=8 8;" parent="1" source="PToJsRQ52dgiI2qYXvNa-13" target="PToJsRQ52dgiI2qYXvNa-22" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="40" y="585"/>
+                            <mxPoint x="40" y="780"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-13" value="saved" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="570" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#FF0000;dashed=1;dashPattern=8 8;" parent="1" source="PToJsRQ52dgiI2qYXvNa-14" target="PToJsRQ52dgiI2qYXvNa-22" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="890" y="585"/>
+                            <mxPoint x="890" y="780"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-32" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;endArrow=none;endFill=0;startArrow=oval;startFill=1;" parent="1" source="PToJsRQ52dgiI2qYXvNa-14" target="PToJsRQ52dgiI2qYXvNa-31" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="860" y="520"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-14" value="deleted" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="570" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-17" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;align=left;" parent="1" source="PToJsRQ52dgiI2qYXvNa-10" target="PToJsRQ52dgiI2qYXvNa-14" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="436.6071428571429" y="450" as="sourcePoint"/>
+                        <mxPoint x="338.3928571428571" y="560" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-18" value="Action : deleteVinSuccess&lt;br&gt;State : &lt;br&gt;- vin deleted from vins Map&lt;br&gt;- eventLog entry &lt;br&gt;({new wine id, rev, &quot;delete&quot;, ts} created&lt;br&gt;- source = internal" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-17" vertex="1" connectable="0">
+                    <mxGeometry x="-0.342" y="2" relative="1" as="geometry">
+                        <mxPoint x="29" y="19" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-19" value="error" style="rounded=1;whiteSpace=wrap;html=1;arcSize=24;fillColor=#ffffc0;strokeColor=#ff0000;shadow=0;comic=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;fontColor=#000000;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="680" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-25" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="PToJsRQ52dgiI2qYXvNa-22" target="PToJsRQ52dgiI2qYXvNa-13" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-27" value="Action :&amp;nbsp;createVinSuccess&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;State :&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- vin added (or updated) to vins Map&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- eventLog entry&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;({new wine id, rev, &quot;create&quot;, ts} created&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- currentWine {id,rev} set to new wine id and rev&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;div style=&quot;&quot;&gt;- source = external&lt;/div&gt;" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-25" vertex="1" connectable="0">
+                    <mxGeometry x="0.0393" relative="1" as="geometry">
+                        <mxPoint x="-211" y="18" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-26" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=1;entryDx=0;entryDy=0;strokeColor=#FF0000;" parent="1" source="PToJsRQ52dgiI2qYXvNa-22" target="PToJsRQ52dgiI2qYXvNa-14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-28" value="Action : deleteVinSuccess&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;State :&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- vin deleted from vins Map&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- eventLog entry&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;({new wine id, rev, &quot;delete&quot;, ts} created&lt;/span&gt;&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;span style=&quot;&quot;&gt;- source = external&lt;/span&gt;" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="PToJsRQ52dgiI2qYXvNa-26" vertex="1" connectable="0">
+                    <mxGeometry x="0.057" y="3" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-22" value="Pouch DB Changes" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+                    <mxGeometry x="385" y="760" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-30" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;endArrow=oval;endFill=1;" parent="1" source="PToJsRQ52dgiI2qYXvNa-29" target="PToJsRQ52dgiI2qYXvNa-13" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="125" y="520"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-29" value="Listener A" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="220" width="90" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="PToJsRQ52dgiI2qYXvNa-31" value="Listener B" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="220" width="90" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="451fx7DQcDaVuoOWkHTf" name="Listeners logic">
+        <mxGraphModel dx="939" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="htEpLGy_G7VEI5BY4dgc-1" value="Listener A" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=4;fontSize=16;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="40" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="htEpLGy_G7VEI5BY4dgc-2" value="If source = internal&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- present Toast (change done)&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Go to Home screen after 2 secs.&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Call back to VinLoaded action&lt;br&gt;&lt;br&gt;If source = external, different options are possible :&lt;br&gt;&lt;br&gt;1. Action can come from the local DB resulting from the update of the wine we just saved&lt;br&gt;2. Action can come from the remoteDB resulting from the update of a wine (not the one we worked on or are still working on)&lt;br&gt;3. Action can come from the remote DB resulting from the update of the wine we are working on&lt;br&gt;&lt;br&gt;Pseudo-code&lt;br&gt;(1) If eventLog contains 2 times the elementwith id == vin.id (vin received in action) and rev== vin.rev&lt;br&gt;then call action backToVinLoaded&lt;br&gt;else&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;(3)&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;if last element of eventLog(el).id (&amp;amp; rev) == wineInstance.id (&amp;amp;rev)&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;then&lt;br&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- presentToast (concurrent editing, values updated)&lt;/blockquote&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- stay on editing screen after toast closes&lt;/blockquote&gt;&lt;/blockquote&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;else (2)&#9;- present nothing and no action&lt;br&gt;&lt;br&gt;&lt;br&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=0;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="70" width="1590" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="htEpLGy_G7VEI5BY4dgc-3" value="Listener B" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=4;fontSize=16;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="420" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="htEpLGy_G7VEI5BY4dgc-4" value="If source = internal&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- present Toast (delete done)&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Go to Home screen after 2 secs.&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Call back to VinLoaded action&lt;br&gt;&lt;br&gt;If source = external, different options are possible :&lt;br&gt;&lt;br&gt;1. Action can come from the local DB resulting from the deletion of the wine we just saved&lt;br&gt;2. Action can come from the remoteDB resulting from the deletion of a wine (not the one we worked on or are still working on)&lt;br&gt;3. Action can come from the remote DB resulting from the deletion of the wine we are working on (editing)&lt;br&gt;&lt;br&gt;Pseudo-code&lt;br&gt;(1) If eventLog contains 2 times the elementwith id == vin.id (vin received in action) and rev== vin.rev&lt;br&gt;then call action backToVinLoaded&lt;br&gt;else&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;(3)&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;if last element of eventLog(el).id (&amp;amp; rev) == wineInstance.id (&amp;amp;rev)&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;then&lt;br&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- presentToast (concurrent editing, values updated)&lt;/blockquote&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- stay on editing screen after toast closes&lt;/blockquote&gt;&lt;/blockquote&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;else (2)&#9;- present nothing and no action&lt;br&gt;&lt;br&gt;" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=0;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="450" width="1590" height="300" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="hDj2-_hlJABQjN8QBhhg" name="Photo logic">
+        <mxGraphModel dx="319" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-4" value="Photo file upload" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-1" target="-LWwe05kbRu1qcl8X8ct-3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-7" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-16" target="-LWwe05kbRu1qcl8X8ct-6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-8" value="Click &quot;Add&quot;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-7" vertex="1" connectable="0">
+                    <mxGeometry x="0.14" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-17" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-1" target="-LWwe05kbRu1qcl8X8ct-16" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-1" value="- No photo attached&lt;br&gt;- no photo in DB" style="ellipse;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;fontColor=default;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
+                    <mxGeometry x="275" y="190" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-2" value="- Photo attached&lt;br&gt;- new photo saved in DB" style="ellipse;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;fontColor=default;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="630" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-5" value="Wine saved" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-3" target="-LWwe05kbRu1qcl8X8ct-2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-23" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-3" target="-LWwe05kbRu1qcl8X8ct-22" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-3" value="- photo attached &lt;br&gt;- no Photo in DB" style="ellipse;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;fontColor=default;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="410" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-15" value="Select photo file" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;fontSize=9;" parent="1" source="-LWwe05kbRu1qcl8X8ct-6" target="-LWwe05kbRu1qcl8X8ct-19" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-6" value="Photo file selection window" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="195" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-24" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-14" target="-LWwe05kbRu1qcl8X8ct-57" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-25" value="click &quot;keep&quot;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-24" vertex="1" connectable="0">
+                    <mxGeometry x="-0.259" y="-1" relative="1" as="geometry">
+                        <mxPoint x="-21" y="-4" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-27" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-14" target="-LWwe05kbRu1qcl8X8ct-26" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-14" value="Photo shown in modal with 'keep', 'cancel' buttons" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="410" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-16" value="No wine icon &quot;add button&quot; - save disabled" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="195" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-20" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#000000;fontSize=8;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-19" target="-LWwe05kbRu1qcl8X8ct-14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-21" value="showModal(currentPhoto, &quot;add&quot;)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;" parent="-LWwe05kbRu1qcl8X8ct-20" vertex="1" connectable="0">
+                    <mxGeometry x="0.0303" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-19" value="currentPhoto.data = File internal blob&amp;nbsp;&lt;br style=&quot;font-size: 8px;&quot;&gt;currentPhoto.name = File name&lt;br style=&quot;font-size: 8px;&quot;&gt;currentPhoto.type = file type" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;shadow=0;fontSize=8;align=left;size=0.05555555555555555;" parent="1" vertex="1">
+                    <mxGeometry x="860" y="300" width="160" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-31" value="click &quot;save&quot;" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;elbow=vertical;" parent="1" source="-LWwe05kbRu1qcl8X8ct-22" target="-LWwe05kbRu1qcl8X8ct-33" edge="1">
+                    <mxGeometry x="0.1429" relative="1" as="geometry">
+                        <mxPoint x="660" y="580" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-37" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-57" target="-LWwe05kbRu1qcl8X8ct-36" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-38" value="Click image name button" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-37" vertex="1" connectable="0">
+                    <mxGeometry x="0.0611" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-22" value="Photo name shown as a button (to view it) - save disabled" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="410" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-28" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="-LWwe05kbRu1qcl8X8ct-26" target="-LWwe05kbRu1qcl8X8ct-47" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1120" y="170"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-30" value="Click 'cancel'" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-28" vertex="1" connectable="0">
+                    <mxGeometry x="-0.6782" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-26" value="Reset currentPhoto to default (empty) values" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;shadow=0;fontSize=8;align=left;size=0.05555555555555555;" parent="1" vertex="1">
+                    <mxGeometry x="1050" y="410" width="130" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-29" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 9px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;&quot;&gt;Condition : currentPhoto.name = &quot;&quot;&lt;br&gt;dirtyPhoto = false&lt;br&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;fontSize=9;fillColor=none;labelBackgroundColor=#E6E6E6;" parent="1" vertex="1">
+                    <mxGeometry x="584.5" y="245" width="151" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-32" value="Home screen" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="635" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-34" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-33" target="-LWwe05kbRu1qcl8X8ct-32" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-33" value="currentPhoto.data merged into vin object&lt;br&gt;save operation (save in DB + save in COS)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;shadow=0;fontSize=8;align=left;size=0.05555555555555555;" parent="1" vertex="1">
+                    <mxGeometry x="580" y="530" width="160" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-35" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 9px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;&quot;&gt;Condition : currentPhoto.name != &quot;&quot;&lt;br&gt;dirtyPhoto = true&lt;br&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;fontSize=9;fillColor=none;labelBackgroundColor=#E6E6E6;" parent="1" vertex="1">
+                    <mxGeometry x="589" y="460" width="151" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-39" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-36" target="-LWwe05kbRu1qcl8X8ct-6" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1220" y="400"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-40" value="click &quot;Replace&quot;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-39" vertex="1" connectable="0">
+                    <mxGeometry x="-0.7669" y="-3" relative="1" as="geometry">
+                        <mxPoint x="48" y="-3" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-41" value="click &quot;delete&quot;" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-36" target="-LWwe05kbRu1qcl8X8ct-26" edge="1">
+                    <mxGeometry x="0.3158" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-42" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="-LWwe05kbRu1qcl8X8ct-36" target="-LWwe05kbRu1qcl8X8ct-57" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-43" value="Click &quot;cancel&quot;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" parent="-LWwe05kbRu1qcl8X8ct-42" vertex="1" connectable="0">
+                    <mxGeometry x="-0.4249" y="2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-36" value="Photo shown in modal with 'replace', 'cancel', 'delete' buttons" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="530" width="120" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-44" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-2" target="-LWwe05kbRu1qcl8X8ct-33" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="409.9538379795076" y="453.49637276984777" as="sourcePoint"/>
+                        <mxPoint x="610" y="446.9354838709678" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-46" value="- No photo attached &lt;br&gt;- old photo in DB" style="ellipse;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;fontColor=default;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="60" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-47" value="No wine icon &quot;add button&quot; - save enabled" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="65" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-51" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-47" target="-LWwe05kbRu1qcl8X8ct-50" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-48" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 9px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;&quot;&gt;Condition : currentPhoto.name = &quot;&quot;&lt;br&gt;dirtyPhoto = true&lt;br&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;fontSize=9;fillColor=none;labelBackgroundColor=#E6E6E6;" parent="1" vertex="1">
+                    <mxGeometry x="589" y="115" width="151" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-49" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-46" target="-LWwe05kbRu1qcl8X8ct-47" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="410.0000000000034" y="230" as="sourcePoint"/>
+                        <mxPoint x="610" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-52" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;elbow=vertical;" parent="1" source="-LWwe05kbRu1qcl8X8ct-50" target="-LWwe05kbRu1qcl8X8ct-32" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="490" y="660"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-50" value="vin.photo attribute reset to default&lt;br&gt;save operation (save in DB + delete in COS)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;shadow=0;fontSize=8;align=left;size=0.05555555555555555;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="130" width="160" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-53" value="- photo attached &lt;br&gt;- Photo in DB" style="ellipse;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;fontColor=default;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
+                    <mxGeometry x="140" y="330" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-54" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontSize=9;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="-LWwe05kbRu1qcl8X8ct-53" target="-LWwe05kbRu1qcl8X8ct-55" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="409.9098353913289" y="453.15713401097173" as="sourcePoint"/>
+                        <mxPoint x="610" y="446.84615384615404" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-55" value="Photo name shown as a button (to view it) - save disabled" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="300" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-56" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 9px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;&quot;&gt;Condition : currentPhoto.name != &quot;&quot;&lt;br&gt;dirtyPhoto = false&lt;br&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;fontSize=9;fillColor=none;labelBackgroundColor=#E6E6E6;" parent="1" vertex="1">
+                    <mxGeometry x="584.5" y="350" width="151" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="-LWwe05kbRu1qcl8X8ct-57" value="" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=#E6E6E6;fontSize=9;fillColor=none;dashed=1;dashPattern=1 4;" parent="1" vertex="1">
+                    <mxGeometry x="580" y="285" width="160" height="185" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
