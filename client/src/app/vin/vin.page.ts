@@ -935,6 +935,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     if (typeof ctrlLeft.value === "string")
       newQty = parseFloat(ctrlLeft.value.replace(",", ".")) + q;
     ctrlLeft.patchValue(Math.max(Math.min(newQty, nbrBought), 0));
+    this.vinForm.markAsDirty();
   }
 
   async presentLoading() {
