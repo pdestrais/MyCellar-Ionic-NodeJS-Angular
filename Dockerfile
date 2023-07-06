@@ -3,7 +3,7 @@
 #############
 
 # base image
-FROM node:12.2.0 as build
+FROM node:lts-hydrogen as buildimg
 
 # install chrome for protractor tests
 # RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
@@ -23,7 +23,7 @@ COPY ./client/src /app/src
 COPY ./server /app/server
 
 RUN npm install
-RUN npm install -g @angular/cli@8.3.25
+RUN npm install -g @angular/cli@13.0.1
 
 
 # run tests
@@ -38,16 +38,16 @@ RUN ng build --prod=true
 ############
 
 # base image
-FROM node:12-alpine
+FROM node:hydrogen-alpine3.17
 
 # set working directory
 WORKDIR /app
 
 # copy artifact build from the 'build environment'
-COPY --from=build /app/www /app/client/www
+COPY --from=buildimg /app/www /app/client/www
 COPY package.json /app/package.json
 COPY ./server /app/server
-#not needed for deployment on code engine ans env variable are defined in code engine
+#not needed for deployment on code engine as env variable are defined in code engine
 #COPY .env.prod /app/.env
 RUN npm install
 EXPOSE 8080
