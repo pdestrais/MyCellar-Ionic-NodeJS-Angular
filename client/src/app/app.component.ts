@@ -4,6 +4,8 @@ import { PouchdbService } from "./services/pouchdb.service";
 import { Component } from "@angular/core";
 
 import { Platform, MenuController } from "@ionic/angular";
+import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
+import { filter, map } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { timeout } from "q";
@@ -44,8 +46,21 @@ export class AppComponent {
     private menuCtrl: MenuController,
     private authenticationService: AuthenticationService,
     private translateService: TranslateService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private swUpdate: SwUpdate
   ) {
+    console.log("Detecting application updates");
+    swUpdate.versionUpdates
+      .pipe(
+        filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY")
+      )
+      .subscribe((evt) => {
+        if (confirm("A new version is available. Would you like to update?")) {
+          // Reload the page to update to the latest version.
+          console.log("reloading application");
+          document.location.reload();
+        }
+      });
     this.initializeApp();
     this.authenticationService.currentUser.subscribe((x) => {
       this.currentUser = x;
