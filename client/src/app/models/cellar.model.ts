@@ -24,24 +24,24 @@ interface IVin {
   rating?: number;
 }
 export class VinModel implements IVin {
-  public _id: string;
+  public _id!: string;
   public id?: string;
   public _rev?: string;
   public rev?: string;
-  public nom: string;
-  public annee: string;
-  public nbreBouteillesAchat: number;
-  public nbreBouteillesReste: number;
-  public prixAchat: number;
-  public dateAchat: string;
+  public nom!: string;
+  public annee!: string;
+  public nbreBouteillesAchat!: number;
+  public nbreBouteillesReste!: number;
+  public prixAchat!: number;
+  public dateAchat!: string;
   public remarque?: string;
-  public localisation: string;
+  public localisation!: string;
   public contenance?: string;
   public history?: Array<HistoryModel>;
   public lastUpdated?: string;
-  public appellation: AppellationModel;
-  public origine: OrigineModel;
-  public type: TypeModel;
+  public appellation!: AppellationModel;
+  public origine!: OrigineModel;
+  public type!: TypeModel;
   public cepage?: string;
   public apogee?: string;
   public GWSScore?: number;
@@ -61,11 +61,11 @@ interface IType {
   nom: string;
 }
 export class TypeModel implements IType {
-  public _id: string;
+  public _id!: string;
   public id?: string;
   public _rev?: string;
   public rev?: string;
-  public nom: string;
+  public nom: string = "";
   constructor(data: Partial<IVin>) {
     Object.assign(this, data);
   }
@@ -93,12 +93,12 @@ interface IAppellation {
   longue: string;
 }
 export class AppellationModel {
-  public _id: string;
+  public _id: string = "";
   public id?: string;
   public _rev?: string;
   public rev?: string;
-  public courte: string;
-  public longue: string;
+  public courte: string = "";
+  public longue: string = "";
   constructor(data: Partial<IAppellation>) {
     Object.assign(this, data);
   }
@@ -113,12 +113,12 @@ interface IOrigine {
   groupVal?: string;
 }
 export class OrigineModel {
-  public _id: string;
-  public id?: string;
-  public _rev?: string;
-  public rev?: string;
-  public pays: string;
-  public region: string;
+  public _id?: string | undefined;
+  public id?: string | undefined;
+  public _rev?: string | undefined;
+  public rev?: string | undefined;
+  public pays!: string;
+  public region!: string;
   public groupVal?: string;
   constructor(data: Partial<IOrigine>) {
     Object.assign(this, data);
@@ -138,12 +138,12 @@ export class CoteModel {
 }
 
 export class UserModel {
-  username: string;
-  password: string;
-  firstname: string;
-  lastname: string;
-  token: string;
-  email: string;
-  address: string;
-  admin: boolean;
+  username: string = "";
+  password: string = "";
+  firstname: string = "";
+  lastname: string = "";
+  token: string = "";
+  email: string = "";
+  address: string = "";
+  admin: boolean = false;
 }

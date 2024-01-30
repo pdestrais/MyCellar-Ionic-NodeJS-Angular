@@ -8,13 +8,16 @@ import { replacer } from "../../util/util";
 
 const debug = Debug("app:state:origineselector");
 
-export const getOrigineState = (state: AppState) => {
+export const getOrigineState = (state: AppState): OrigineState => {
   return state
     ? state.origines
     : {
         origines: new Map(),
         error: null,
         status: "pending",
+        source: "",
+        eventLog: [],
+        currentOrigine: null,
       };
 };
 export const getAllOrigines = createSelector(

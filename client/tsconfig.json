@@ -4,6 +4,9 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
@@ -18,10 +21,7 @@
     "importHelpers": true,
     "target": "es2022",
     "module": "es2020",
-    "lib": [
-      "es2018", 
-      "dom"
-    ],
+    "lib": ["es2018", "dom"],
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {

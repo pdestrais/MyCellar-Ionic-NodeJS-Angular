@@ -9,7 +9,7 @@ const debug = Debug("app:state:originereducer");
 
 export interface OrigineState {
   // origines is a Map with origine._id as as key and origine as value
-  origines: Map<string, OrigineModel>;
+  origines: Map<string | undefined, OrigineModel>;
   error: string | null;
   status:
     | "pending"
@@ -18,10 +18,11 @@ export interface OrigineState {
     | "saved"
     | "deleted"
     | "loaded"
-    | "noop";
+    | "noop"
+    | null;
   eventLog: IEventLog[];
   source: string;
-  currentOrigine: { id: string; rev: string };
+  currentOrigine: { id: string; rev: string } | null;
 }
 
 export const initialState: OrigineState = {
@@ -30,7 +31,7 @@ export const initialState: OrigineState = {
   status: null,
   source: "",
   eventLog: [],
-  currentOrigine: undefined,
+  currentOrigine: null,
 };
 
 export const origineReducer = createReducer(

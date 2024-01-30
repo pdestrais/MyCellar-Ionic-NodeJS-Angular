@@ -9,8 +9,8 @@ import {
 import { Dayjs } from "dayjs";
 
 export interface IEventLog {
-  id: string;
-  rev: string;
+  id: string | undefined;
+  rev: string | undefined;
   action: string;
   timestamp: Dayjs;
 }

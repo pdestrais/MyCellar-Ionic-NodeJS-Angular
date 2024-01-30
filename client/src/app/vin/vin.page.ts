@@ -73,18 +73,18 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public nbreAvantUpdate: number = 0;
   public newWine: boolean = true;
   public vin: VinModel;
-  public vinsMap: Map<string, VinModel>;
+  public vinsMap!: Map<string, VinModel>;
   public origines: Array<any> = [];
   public appellations: Array<any> = [];
   public types: Array<any> = [];
   public comment: string = "";
-  public errors: Array<any>;
+  public errors!: Array<any>;
   public vinForm: FormGroup;
-  public nameYearForm: FormGroup;
+  public nameYearForm!: FormGroup;
   public submitted: boolean;
   private originalName;
   private originalYear;
-  public status: string;
+  public status!: string;
   public photoBlob: any;
   public currentPhoto: {
     contentType: string;
@@ -96,19 +96,20 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     name: "",
   };
   public dirtyPhoto: boolean = false;
-  private vinMapState$: Observable<Map<string, VinModel>>;
+  private vinMapState$!: Observable<Map<string, VinModel>>;
   private unsubscribe$ = new Subject<void>();
-  public types$: Observable<Array<TypeModel>>;
-  public origines$: Observable<Array<TypeModel>>;
-  public appellations$: Observable<Array<TypeModel>>;
+  public types$!: Observable<Array<TypeModel>>;
+  public origines$!: Observable<Array<TypeModel>>;
+  public appellations$!: Observable<Array<TypeModel>>;
 
   /**
    * 'plug into' DOM canvas element using @ViewChild
    */
-  @ViewChild("hiddenInput", { static: false }) hiddenInput: ElementRef;
+  @ViewChild("hiddenInput", { static: false })
+  hiddenInput!: ElementRef;
   @ViewChild("photoImage", { static: false }) photoImage: any;
   @ViewChild("uploadphoto", { static: false })
-  inputUploader: ElementRef<HTMLInputElement>;
+  inputUploader!: ElementRef<HTMLInputElement>;
   alert: any;
   navTransition: any;
 
@@ -1066,7 +1067,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   `,
 })
 export class ModalPage {
-  @Input() vin: VinModel;
+  @Input()
+  vin!: VinModel;
 
   constructor(private modalCtrl: ModalController) {}
   dismiss() {

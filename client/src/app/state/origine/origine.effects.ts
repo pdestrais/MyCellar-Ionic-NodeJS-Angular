@@ -32,7 +32,7 @@ export class OrigineEffects {
       ofType(OrigineAction.loadOrigines),
       switchMap(() =>
         // Call the getOrigines method, convert it to an observable
-        from(this.pouchService.getDocsOfType("origine")).pipe(
+        of(this.pouchService.getDocsOfType("origine")).pipe(
           // Take the returned value and return a new success action containing the Origines
           map((origines: OrigineModel[]) =>
             OrigineAction.loadOriginesSuccess({
@@ -55,7 +55,7 @@ export class OrigineEffects {
         ofType(OrigineAction.createOrigine),
         switchMap((action) => {
           //        this.lastSavedWine = action.origine;
-          return from(
+          return of(
             this.pouchService.saveDoc(
               Object.assign({}, action.origine),
               "origine"
@@ -102,7 +102,7 @@ export class OrigineEffects {
       this.actions$.pipe(
         ofType(OrigineAction.deleteOrigine),
         exhaustMap((action) =>
-          from(this.pouchService.deleteDoc(action.origine)).pipe(
+          of<IResult>(this.pouchService.deleteDoc(action.origine)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
             map((deleteResult: IResult) =>
               OrigineAction.deleteOrigineSuccess({
