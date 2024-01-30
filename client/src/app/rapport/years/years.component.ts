@@ -41,6 +41,7 @@ export class YearsComponent implements OnInit {
       this.wines = docs;
       this.wines.map((v) => {
         v.origine.groupVal = v.origine.pays + " - " + v.origine.region;
+        v.annee = String(v.annee);
       });
 
       this.elementListType = "year";
