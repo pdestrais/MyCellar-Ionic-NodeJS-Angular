@@ -38,7 +38,7 @@ export const typeReducer = createReducer(
   initialState,
   // Trigger loading the types
   on(TypeAction.loadTypes, (state) => {
-    return { ...state, status: "loading" };
+    return { ...state, status: "loading" } as TypeState;
   }),
   // Handle successfully loaded types
   on(TypeAction.loadTypesSuccess, (state, { types }) => {
@@ -51,21 +51,25 @@ export const typeReducer = createReducer(
           : new Map(),
       error: null,
       status: "loaded",
-    };
+    } as TypeState;
   }),
   // Handle types load failure
-  on(TypeAction.loadTypesFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    TypeAction.loadTypesFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as TypeState)
+  ),
   // Set pending while type is added
   on(TypeAction.editType, (state, { id, rev }) => {
     return { ...state, currentType: { id: id, rev: rev } };
   }),
   // Set pending while type is added
   on(TypeAction.createType, (state, { type }) => {
-    return { ...state, status: "pending" };
+    return { ...state, status: "pending" } as TypeState;
   }),
   // Add the new type to the types array
   on(TypeAction.createTypeSuccess, (state, { _type, source }) => {
@@ -101,7 +105,7 @@ export const typeReducer = createReducer(
         types: newTypeMap,
         source: source,
         eventLog: newEventArray,
-      };
+      } as TypeState;
     } else {
       debug(
         "[createTypeSuccess] ts: " +
@@ -116,20 +120,28 @@ export const typeReducer = createReducer(
         source: source,
         eventLog: newEventArray,
         currentType: { id: _type._id, rev: _type._rev },
-      };
+      } as TypeState;
     }
   }),
   // handle type save failure
-  on(TypeAction.createTypeFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    TypeAction.createTypeFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as TypeState)
+  ),
   // Set pending while type is deleted
-  on(TypeAction.deleteType, (state, { type }) => ({
-    ...state,
-    status: "pending",
-  })),
+  on(
+    TypeAction.deleteType,
+    (state, { type }) =>
+      ({
+        ...state,
+        status: "pending",
+      } as TypeState)
+  ),
   // add created type to types state
   on(TypeAction.deleteTypeSuccess, (state, { result, source }) => {
     debug(
@@ -159,16 +171,24 @@ export const typeReducer = createReducer(
       types: newTypeMap,
       source: source,
       eventLog: newEventArray,
-    };
+    } as TypeState;
   }),
   // handle type save failure
-  on(TypeAction.createTypeFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
-  on(TypeAction.setStatusToLoaded, (state) => ({
-    ...state,
-    status: "loaded",
-  }))
+  on(
+    TypeAction.createTypeFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as TypeState)
+  ),
+  on(
+    TypeAction.setStatusToLoaded,
+    (state) =>
+      ({
+        ...state,
+        status: "loaded",
+      } as TypeState)
+  )
 );

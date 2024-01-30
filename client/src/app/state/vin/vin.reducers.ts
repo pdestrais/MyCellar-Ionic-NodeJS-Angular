@@ -38,7 +38,7 @@ export const vinReducer = createReducer(
   initialState,
   // Trigger loading the wines
   on(VinAction.loadVins, (state) => {
-    return { ...state, status: "loading" };
+    return { ...state, status: "loading" } as VinState;
   }),
   // Handle successfully loaded wines
   on(VinAction.loadVinsSuccess, (state, { vins }) => {
@@ -51,21 +51,25 @@ export const vinReducer = createReducer(
           : new Map(),
       error: null,
       status: "loaded",
-    };
+    } as VinState;
   }),
   // Handle wines load failure
-  on(VinAction.loadVinsFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    VinAction.loadVinsFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as VinState)
+  ),
   // Set pending while wine is added
   on(VinAction.editVin, (state, { id, rev }) => {
     return { ...state, currentWine: { id: id, rev: rev } };
   }),
   // Set pending while wine is added
   on(VinAction.createVin, (state, { vin }) => {
-    return { ...state, status: "pending" };
+    return { ...state, status: "pending" } as VinState;
   }),
   // Add the new wine to the wines array
   on(VinAction.createVinSuccess, (state, { vin, source }) => {
@@ -101,7 +105,7 @@ export const vinReducer = createReducer(
         vins: newWineMap,
         source: source,
         eventLog: newEventArray,
-      };
+      } as VinState;
     } else {
       debug(
         "[createVinSuccess] ts: " +
@@ -116,20 +120,28 @@ export const vinReducer = createReducer(
         source: source,
         eventLog: newEventArray,
         currentWine: { id: vin._id, rev: vin._rev },
-      };
+      } as VinState;
     }
   }),
   // handle wine save failure
-  on(VinAction.createVinFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    VinAction.createVinFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as VinState)
+  ),
   // Set pending while wine is deleted
-  on(VinAction.deleteVin, (state, { vin }) => ({
-    ...state,
-    status: "pending",
-  })),
+  on(
+    VinAction.deleteVin,
+    (state, { vin }) =>
+      ({
+        ...state,
+        status: "pending",
+      } as VinState)
+  ),
   // add created wine to wines state
   on(VinAction.deleteVinSuccess, (state, { result, source }) => {
     debug(
@@ -159,16 +171,24 @@ export const vinReducer = createReducer(
       vins: newWineMap,
       source: source,
       eventLog: newEventArray,
-    };
+    } as VinState;
   }),
   // handle wine save failure
-  on(VinAction.createVinFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
-  on(VinAction.setStatusToLoaded, (state) => ({
-    ...state,
-    status: "loaded",
-  }))
+  on(
+    VinAction.createVinFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as VinState)
+  ),
+  on(
+    VinAction.setStatusToLoaded,
+    (state) =>
+      ({
+        ...state,
+        status: "loaded",
+      } as VinState)
+  )
 );

@@ -25,7 +25,6 @@ import { reducers } from "./state/app.state";
 
 @NgModule({
   declarations: [AppComponent, MultiLevelSideMenuComponent],
-  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),

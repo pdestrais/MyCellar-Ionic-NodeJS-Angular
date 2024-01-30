@@ -38,7 +38,7 @@ export const appellationReducer = createReducer(
   initialState,
   // Trigger loading the appellations
   on(AppellationAction.loadAppellations, (state) => {
-    return { ...state, status: "loading" };
+    return { ...state, status: "loading" } as AppellationState;
   }),
   // Handle successfully loaded appellations
   on(AppellationAction.loadAppellationsSuccess, (state, { appellations }) => {
@@ -51,21 +51,28 @@ export const appellationReducer = createReducer(
           : new Map(),
       error: null,
       status: "loaded",
-    };
+    } as AppellationState;
   }),
   // Handle appellations load failure
-  on(AppellationAction.loadAppellationsFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    AppellationAction.loadAppellationsFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as AppellationState)
+  ),
   // Set pending while appellation is added
   on(AppellationAction.editAppellation, (state, { id, rev }) => {
-    return { ...state, currentAppellation: { id: id, rev: rev } };
+    return {
+      ...state,
+      currentAppellation: { id: id, rev: rev },
+    } as AppellationState;
   }),
   // Set pending while appellation is added
   on(AppellationAction.createAppellation, (state, { appellation }) => {
-    return { ...state, status: "pending" };
+    return { ...state, status: "pending" } as AppellationState;
   }),
   // Add the new appellation to the appellations array
   on(
@@ -103,7 +110,7 @@ export const appellationReducer = createReducer(
           appellations: newAppellationMap,
           source: source,
           eventLog: newEventArray,
-        };
+        } as AppellationState;
       } else {
         debug(
           "[createAppellationSuccess] ts: " +
@@ -118,21 +125,29 @@ export const appellationReducer = createReducer(
           source: source,
           eventLog: newEventArray,
           currentAppellation: { id: appellation._id, rev: appellation._rev },
-        };
+        } as AppellationState;
       }
     }
   ),
   // handle appellation save failure
-  on(AppellationAction.createAppellationFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    AppellationAction.createAppellationFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as AppellationState)
+  ),
   // Set pending while appellation is deleted
-  on(AppellationAction.deleteAppellation, (state, { appellation }) => ({
-    ...state,
-    status: "pending",
-  })),
+  on(
+    AppellationAction.deleteAppellation,
+    (state, { appellation }) =>
+      ({
+        ...state,
+        status: "pending",
+      } as AppellationState)
+  ),
   // add created appellation to appellations state
   on(
     AppellationAction.deleteAppellationSuccess,
@@ -164,17 +179,25 @@ export const appellationReducer = createReducer(
         appellations: newAppellationMap,
         source: source,
         eventLog: newEventArray,
-      };
+      } as AppellationState;
     }
   ),
   // handle appellation save failure
-  on(AppellationAction.createAppellationFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
-  on(AppellationAction.setStatusToLoaded, (state) => ({
-    ...state,
-    status: "loaded",
-  }))
+  on(
+    AppellationAction.createAppellationFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as AppellationState)
+  ),
+  on(
+    AppellationAction.setStatusToLoaded,
+    (state) =>
+      ({
+        ...state,
+        status: "loaded",
+      } as AppellationState)
+  )
 );

@@ -38,7 +38,7 @@ export const origineReducer = createReducer(
   initialState,
   // Trigger loading the origines
   on(OrigineAction.loadOrigines, (state) => {
-    return { ...state, status: "loading" };
+    return { ...state, status: "loading" } as OrigineState;
   }),
   // Handle successfully loaded origines
   on(OrigineAction.loadOriginesSuccess, (state, { origines }) => {
@@ -51,21 +51,25 @@ export const origineReducer = createReducer(
           : new Map(),
       error: null,
       status: "loaded",
-    };
+    } as OrigineState;
   }),
   // Handle origines load failure
-  on(OrigineAction.loadOriginesFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    OrigineAction.loadOriginesFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as OrigineState)
+  ),
   // Set pending while origine is added
   on(OrigineAction.editOrigine, (state, { id, rev }) => {
-    return { ...state, currentOrigine: { id: id, rev: rev } };
+    return { ...state, currentOrigine: { id: id, rev: rev } } as OrigineState;
   }),
   // Set pending while origine is added
   on(OrigineAction.createOrigine, (state, { origine }) => {
-    return { ...state, status: "pending" };
+    return { ...state, status: "pending" } as OrigineState;
   }),
   // Add the new origine to the origines array
   on(OrigineAction.createOrigineSuccess, (state, { origine, source }) => {
@@ -101,7 +105,7 @@ export const origineReducer = createReducer(
         origines: newOrigineMap,
         source: source,
         eventLog: newEventArray,
-      };
+      } as OrigineState;
     } else {
       debug(
         "[createOrigineSuccess] ts: " +
@@ -116,20 +120,28 @@ export const origineReducer = createReducer(
         source: source,
         eventLog: newEventArray,
         currentOrigine: { id: origine._id, rev: origine._rev },
-      };
+      } as OrigineState;
     }
   }),
   // handle origine save failure
-  on(OrigineAction.createOrigineFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
+  on(
+    OrigineAction.createOrigineFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as OrigineState)
+  ),
   // Set pending while origine is deleted
-  on(OrigineAction.deleteOrigine, (state, { origine }) => ({
-    ...state,
-    status: "pending",
-  })),
+  on(
+    OrigineAction.deleteOrigine,
+    (state, { origine }) =>
+      ({
+        ...state,
+        status: "pending",
+      } as OrigineState)
+  ),
   // add created origine to origines state
   on(OrigineAction.deleteOrigineSuccess, (state, { result, source }) => {
     debug(
@@ -159,16 +171,24 @@ export const origineReducer = createReducer(
       origines: newOrigineMap,
       source: source,
       eventLog: newEventArray,
-    };
+    } as OrigineState;
   }),
   // handle origine save failure
-  on(OrigineAction.createOrigineFailure, (state, { error }) => ({
-    ...state,
-    error: error,
-    status: "error",
-  })),
-  on(OrigineAction.setStatusToLoaded, (state) => ({
-    ...state,
-    status: "loaded",
-  }))
+  on(
+    OrigineAction.createOrigineFailure,
+    (state, { error }) =>
+      ({
+        ...state,
+        error: error,
+        status: "error",
+      } as OrigineState)
+  ),
+  on(
+    OrigineAction.setStatusToLoaded,
+    (state) =>
+      ({
+        ...state,
+        status: "loaded",
+      } as OrigineState)
+  )
 );

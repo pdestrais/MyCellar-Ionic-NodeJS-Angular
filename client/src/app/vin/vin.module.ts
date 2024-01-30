@@ -26,7 +26,6 @@ const routes: Routes = [
     TranslateModule,
   ],
   providers: [],
-  entryComponents: [ModalPage, ViewerComponent],
   declarations: [VinPage, ModalPage, ViewerComponent, NgxStarRatingComponent],
 })
 export class VinPageModule {}
