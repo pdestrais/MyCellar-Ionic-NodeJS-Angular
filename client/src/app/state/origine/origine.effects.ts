@@ -30,9 +30,9 @@ export class OrigineEffects {
   loadOrigines$ = createEffect(() =>
     this.actions$.pipe(
       ofType(OrigineAction.loadOrigines),
-      switchMap(() =>
+      exhaustMap(() =>
         // Call the getOrigines method, convert it to an observable
-        of(this.pouchService.getDocsOfType("origine")).pipe(
+        this.pouchService.getDocsOfType$("origine").pipe(
           // Take the returned value and return a new success action containing the Origines
           map((origines: OrigineModel[]) =>
             OrigineAction.loadOriginesSuccess({

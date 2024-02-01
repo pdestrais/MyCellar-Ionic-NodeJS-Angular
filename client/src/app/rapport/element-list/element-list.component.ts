@@ -7,12 +7,12 @@ import { Router } from "@angular/router";
   styleUrls: ["./element-list.component.scss"],
 })
 export class ElementListComponent implements OnInit {
-  @Input() elementList: Array<any>;
-  @Input() typeView: string;
-  @Input() elementType: string;
-  @Input() preSelectedType: string;
-  @Input() preSelectedYear: string;
-  @Input() preSelectedOrigine: string;
+  @Input() elementList: Array<any> = [];
+  @Input() typeView: string = "";
+  @Input() elementType: string = "";
+  @Input() preSelectedType: string = "";
+  @Input() preSelectedYear: string = "";
+  @Input() preSelectedOrigine: string = "";
 
   constructor(private router: Router) {}
 
@@ -40,7 +40,7 @@ export class ElementListComponent implements OnInit {
         }
         break;
       case "year":
-        let bcYear = JSON.parse(sessionStorage.getItem("breadcrumb"));
+        let bcYear = JSON.parse(sessionStorage.getItem("breadcrumb")!);
         if (this.typeView == "toy") {
           bcYear.push({
             key: key,
@@ -79,7 +79,7 @@ export class ElementListComponent implements OnInit {
         }
         break;
       case "origine":
-        let bcOrigine = JSON.parse(sessionStorage.getItem("breadcrumb"));
+        let bcOrigine = JSON.parse(sessionStorage.getItem("breadcrumb")!);
 
         if (this.typeView == "toy") {
           bcOrigine.push({

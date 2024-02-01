@@ -51,14 +51,14 @@ export class PouchdbService {
     this.db = new PouchDB(
       "cellar" /* ,{revs_limit: 1, auto_compaction: true} */
     );
-    this.remote = window.localStorage.getItem("myCellar.remoteDBURL");
+    this.remote = window.localStorage.getItem("myCellar.remoteDBURL")!;
     debug("[DataService constructor]calling syncLocalWithRemote");
     this.syncLocalwithRemote();
     this.execHooks();
     this.getChanges$();
   }
 
-  syncLocalwithRemote() {
+  syncLocalwithRemote(): void {
     if (this.remote && this.remote.startsWith("http")) {
       this.db
         .sync(this.remote, this.syncOptions)
@@ -82,7 +82,6 @@ export class PouchdbService {
         });
       this.dbEvents$.next({ eventType: "dbSyncStarted" });
       debug("[syncLocalwithRemote]replication started");
-      return this.dbEvents$;
     }
   }
 
@@ -136,7 +135,7 @@ export class PouchdbService {
       )
       .subscribe((event) => {
         debug("[execHooks]updates wines");
-        let winesToUpdate = [];
+        let winesToUpdate: VinModel[] = [];
         let letChangedDocType = event.doc._id
           ? event.doc._id.split("|")[0]
           : "";

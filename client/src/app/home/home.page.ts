@@ -18,6 +18,7 @@ import * as TypeActions from "../state/type/type.actions";
 import * as OrigineActions from "../state/origine/origine.actions";
 import * as AppellationActions from "../state/appellation/appellation.actions";
 import * as VinSelectors from "../state/vin/vin.selectors";
+import { AppState } from "../state/app.state";
 
 const debug = Debug("app:home");
 
@@ -30,8 +31,7 @@ export class HomePage implements OnInit {
   public wines: Array<VinModel> = [];
   public isInStock: boolean = true;
   public loading: boolean = true;
-  public searchTerm: string = "";
-  public selectedWine: VinModel;
+  public selectedWine!: VinModel;
   /* AlertReadyToDrink (ARTD), ReadyToDrink (RTD), NealrlyReadyToDrink (NearlyRTD), Not Ready To Drink (NotRTD) */
   public RTDList: Array<VinModel> = [];
   public NotRTDList: Array<VinModel> = [];
@@ -43,9 +43,9 @@ export class HomePage implements OnInit {
   public nbrNotRTD: number = 0;
   public details: boolean = false;
   public dashboard: boolean = true;
-  public winesForDrinkList: VinModel[];
+  public winesForDrinkList: VinModel[] = [];
   public winesForDrinkList$;
-  public filteredWines$: Observable<VinModel[]>;
+  public filteredWines$!: Observable<VinModel[]>;
 
   constructor(
     private dataService: PouchdbService,
@@ -53,7 +53,7 @@ export class HomePage implements OnInit {
     private menuCtrl: MenuController,
     private navCtrl: NavController,
     private zone: NgZone,
-    private store: Store
+    private store: Store<AppState>
   ) {}
 
   async alertNoRemoteDB() {
@@ -176,19 +176,20 @@ export class HomePage implements OnInit {
 
   onInStockChange() {
     this.isInStock = !this.isInStock;
-    this.setFilteredItems();
   }
 
   cancelSearch() {
-    this.searchTerm = "";
     this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines(this.searchTerm, this.isInStock)
+      VinSelectors.getFilteredWines("", this.isInStock)
     );
   }
 
-  setFilteredItems() {
+  setFilteredItems(event) {
     this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines(this.searchTerm, this.isInStock)
+      VinSelectors.getFilteredWines(
+        event.target.value.toLowerCase(),
+        this.isInStock
+      )
     );
   }
 

@@ -8,23 +8,42 @@ import { replacer } from "../../util/util";
 
 const debug = Debug("app:state:appellationselector");
 
-export const getAppellationState = (state: AppState) => {
+export const getAppellationState = (state: AppState): AppellationState => {
+  console.log(
+    "[getAppellationState]state : " +
+      JSON.stringify(state.appellations, replacer)
+  );
   return state
     ? state.appellations
     : {
         appellations: new Map(),
         error: null,
         status: "pending",
+        eventLog: [],
+        source: "",
+        currentAppellation: { id: "", rev: "" },
       };
 };
+
+// export const getAppellationState = (state: AppState) => {
+//   return state
+//     ? state.appellations
+//     : {
+//         appellations: new Map(),
+//         error: null,
+//         status: "pending",
+//         source: "",
+//         eventLog: [],
+//         currentAppellation: null,
+//       };
+// };
+
 export const getAllAppellations = createSelector(
   getAppellationState,
   (state: AppellationState) => {
-    return state
-      ? state.hasOwnProperty("appellations")
-        ? state.appellations
-        : new Map()
-      : new Map();
+    return state && state.appellations
+      ? state.appellations
+      : new Map<string, AppellationModel>();
   }
 );
 

@@ -25,17 +25,17 @@ import {
 // This class is defined in this file because
 // we don't want to make it exportable
 class InnerMenuOptionModel {
-  public id: number;
-  public iconName: string;
-  public iconSrc: string;
-  public displayText: string;
+  public id!: number;
+  public iconName!: string;
+  public iconSrc!: string;
+  public displayText!: string;
   public badge?: Observable<any>;
-  public targetOption: SideMenuOption;
-  public parent: InnerMenuOptionModel;
-  public selected: boolean;
-  public expanded: boolean;
-  public suboptionsCount: number;
-  public subOptions: Array<InnerMenuOptionModel>;
+  public targetOption!: SideMenuOption;
+  public parent: InnerMenuOptionModel | null = null;
+  public selected!: boolean;
+  public expanded!: boolean;
+  public suboptionsCount!: number;
+  public subOptions!: Array<InnerMenuOptionModel>;
   private static counter = 1;
   public static fromMenuOptionModel(
     option: SideMenuOption,
@@ -44,14 +44,14 @@ class InnerMenuOptionModel {
     let innerMenuOptionModel = new InnerMenuOptionModel();
 
     innerMenuOptionModel.id = this.counter++;
-    innerMenuOptionModel.iconName = option.iconName;
-    innerMenuOptionModel.iconSrc = option.iconSrc;
+    innerMenuOptionModel.iconName = option.iconName!;
+    innerMenuOptionModel.iconSrc = option.iconSrc!;
     innerMenuOptionModel.displayText = option.displayText;
     innerMenuOptionModel.badge = option.badge;
     innerMenuOptionModel.targetOption = option;
     innerMenuOptionModel.parent = parent || null;
 
-    innerMenuOptionModel.selected = option.selected;
+    innerMenuOptionModel.selected = option.selected!;
 
     if (option.suboptions) {
       innerMenuOptionModel.expanded = false;
@@ -67,7 +67,7 @@ class InnerMenuOptionModel {
 
         // Select the parent if any
         // child option is selected
-        if (subItem.selected) {
+        if (subItem.selected && innerSubItem.parent) {
           innerSubItem.parent.selected = true;
           innerSubItem.parent.expanded = true;
         }
@@ -86,11 +86,11 @@ class InnerMenuOptionModel {
 })
 export class MultiLevelSideMenuComponent {
   // Main inputs
-  public menuSettings: SideMenuSettings;
-  public menuOptions: Array<SideMenuOption>;
+  public menuSettings!: SideMenuSettings;
+  public menuOptions!: Array<SideMenuOption>;
 
   // Private properties
-  private selectedOption: InnerMenuOptionModel;
+  private selectedOption: InnerMenuOptionModel | null = null;
 
   public collapsableItems: Array<InnerMenuOptionModel> = [];
 
@@ -188,7 +188,7 @@ export class MultiLevelSideMenuComponent {
 
       if (option.suboptionsCount) {
         option.subOptions.forEach((subItem) => {
-          if (subItem.selected) {
+          if (subItem.selected && subItem.parent) {
             // Expand the parent if any of
             // its childs is selected
             subItem.parent.expanded = true;
@@ -204,18 +204,43 @@ export class MultiLevelSideMenuComponent {
 
   // Get the proper indentation of each option
   public get subOptionIndentation(): number {
-    if (this.platform.is("ios"))
+    if (
+      this.platform.is("ios") &&
+      this.menuSettings.subOptionIndentation &&
+      this.menuSettings.subOptionIndentation.ios
+    )
       return this.menuSettings.subOptionIndentation.ios;
-    if (this.platform.is("android"))
+    if (
+      this.platform.is("android") &&
+      this.menuSettings.subOptionIndentation &&
+      this.menuSettings.subOptionIndentation.wp
+    )
       return this.menuSettings.subOptionIndentation.wp;
-    return this.menuSettings.subOptionIndentation.md;
+    if (
+      this.menuSettings.subOptionIndentation &&
+      this.menuSettings.subOptionIndentation.md
+    )
+      return this.menuSettings.subOptionIndentation.md;
+    return 0;
   }
 
   // Get the proper height of each option
   public get optionHeight(): number {
-    if (this.platform.is("ios")) return this.menuSettings.optionHeight.ios;
-    if (this.platform.is("android")) return this.menuSettings.optionHeight.wp;
-    return this.menuSettings.optionHeight.md;
+    if (
+      this.platform.is("ios") &&
+      this.menuSettings.optionHeight &&
+      this.menuSettings.optionHeight.ios
+    )
+      return this.menuSettings.optionHeight.ios;
+    if (
+      this.platform.is("android") &&
+      this.menuSettings.optionHeight &&
+      this.menuSettings.optionHeight.wp
+    )
+      return this.menuSettings.optionHeight.wp;
+    if (this.menuSettings.optionHeight && this.menuSettings.optionHeight.md)
+      return this.menuSettings.optionHeight.md;
+    return 0;
   }
 
   // ---------------------------------------------------
@@ -260,14 +285,14 @@ export class MultiLevelSideMenuComponent {
   private updateSelectedOption(data: SideMenuOptionSelectData): void {
     if (!data.displayText) return;
 
-    let targetOption: InnerMenuOptionModel;
+    let targetOption: InnerMenuOptionModel = new InnerMenuOptionModel();
 
     if (data.displayText.includes(">>")) {
       // The display text includes the name of the parent
       const parentDisplayText = data.displayText.split(">>")[0];
       const childDisplayText = data.displayText.split(">>")[1];
 
-      let targetParent: InnerMenuOptionModel;
+      let targetParent: InnerMenuOptionModel = new InnerMenuOptionModel();
 
       // First search the parent option
       this.collapsableItems.forEach((option) => {
@@ -277,7 +302,7 @@ export class MultiLevelSideMenuComponent {
       });
 
       // Now try to find the child option within the parent
-      if (targetParent) {
+      if (targetParent && targetParent.subOptions) {
         targetParent.subOptions.forEach((subOption) => {
           if (
             this.compareOptionsName(subOption.displayText, childDisplayText)
@@ -341,17 +366,17 @@ export class MultiLevelSideMenuComponent {
         this.menuSettings.optionHeight.ios
       )
         ? this.menuSettings.optionHeight.ios
-        : defaultSettings.optionHeight.ios;
+        : defaultSettings.optionHeight!.ios;
       this.menuSettings.optionHeight.md = this.isDefinedAndPositive(
         this.menuSettings.optionHeight.md
       )
         ? this.menuSettings.optionHeight.md
-        : defaultSettings.optionHeight.md;
+        : defaultSettings.optionHeight!.md;
       this.menuSettings.optionHeight.wp = this.isDefinedAndPositive(
         this.menuSettings.optionHeight.wp
       )
         ? this.menuSettings.optionHeight.wp
-        : defaultSettings.optionHeight.wp;
+        : defaultSettings.optionHeight!.wp;
     }
 
     this.menuSettings.showSelectedOption = this.isDefined(
@@ -386,17 +411,17 @@ export class MultiLevelSideMenuComponent {
         this.menuSettings.subOptionIndentation.ios
       )
         ? this.menuSettings.subOptionIndentation.ios
-        : defaultSettings.subOptionIndentation.ios;
+        : defaultSettings.subOptionIndentation!.ios;
       this.menuSettings.subOptionIndentation.md = this.isDefinedAndPositive(
         this.menuSettings.subOptionIndentation.md
       )
         ? this.menuSettings.subOptionIndentation.md
-        : defaultSettings.subOptionIndentation.md;
+        : defaultSettings.subOptionIndentation!.md;
       this.menuSettings.subOptionIndentation.wp = this.isDefinedAndPositive(
         this.menuSettings.subOptionIndentation.wp
       )
         ? this.menuSettings.subOptionIndentation.wp
-        : defaultSettings.subOptionIndentation.wp;
+        : defaultSettings.subOptionIndentation!.wp;
     }
   }
 

@@ -26,10 +26,10 @@ const debug = Debugger("app:root");
   styleUrls: ["./app.component.scss"],
 })
 export class AppComponent {
-  public appMenuItems: Array<any>;
+  public appMenuItems: Array<any> = [];
 
   // Options to show in the SideMenuContentComponent
-  public options: Array<SideMenuOption>;
+  public options: Array<SideMenuOption> = [];
 
   // Settings for the SideMenuContentComponent
   public sideMenuSettings: SideMenuSettings = {
@@ -37,7 +37,7 @@ export class AppComponent {
     showSelectedOption: true,
     selectedOptionClass: "active-side-menu-option",
   };
-  public currentUser: UserModel;
+  public currentUser!: UserModel | null;
 
   constructor(
     private platform: Platform,
@@ -94,9 +94,9 @@ export class AppComponent {
   public onOptionSelected(option: SideMenuOption): void {
     if (option.custom == "logout") this.authenticationService.logout();
     else
-      this.menuCtrl
-        .close()
-        .then((result) => this.router.navigate(option.route));
+      this.menuCtrl.close().then((result) => {
+        if (option.route) this.router.navigate(option.route);
+      });
 
     /* 		this.menuCtrl.close().then(() => {
 			if (option.custom && option.custom.isLogin) {

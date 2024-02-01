@@ -30,13 +30,13 @@ export class TypePage implements OnInit {
     _id: "",
     nom: "",
   });
-  public wineTypes$: Observable<TypeModel[]>;
+  public wineTypes$!: Observable<TypeModel[]>;
   private unsubscribe$ = new Subject<void>();
 
   public typeList: Array<TypeModel> = [];
-  public typesMap: Map<any, any>;
-  public submitted: boolean;
-  public typeForm: FormGroup;
+  public typesMap: Map<any, any> = new Map<any, any>();
+  public submitted: boolean = false;
+  public typeForm!: FormGroup;
   public list: boolean = true;
 
   constructor(
@@ -46,7 +46,7 @@ export class TypePage implements OnInit {
     private translate: TranslateService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private store: Store
+    private store: Store<AppState>
   ) {}
 
   public ngOnInit() {
@@ -59,7 +59,7 @@ export class TypePage implements OnInit {
       { validator: this.noDouble.bind(this) }
     );
     this.submitted = false;
-    this.route.snapshot.data.action == "list"
+    this.route.snapshot.data["action"] == "list"
       ? (this.list = true)
       : (this.list = false);
     // We need to load the type list even if we create or modify an type because in this case we need the type list to check for doubles
@@ -87,11 +87,9 @@ export class TypePage implements OnInit {
     // Now loading selected type from the state
     // if id param is there, the type will be loaded, if not, we want to create a new type and the form values will remain as initialized
     this.store
-      .select<TypeModel>(
-        TypeSelectors.getType(this.route.snapshot.paramMap.get("id"))
-      )
+      .select(TypeSelectors.getType(this.route.snapshot.paramMap.get("id")!))
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((type: TypeModel) => {
+      .subscribe((type) => {
         if (type) {
           this.list = false;
           this.type = type;
@@ -103,7 +101,7 @@ export class TypePage implements OnInit {
               rev: type._rev,
             })
           );
-          this.typeForm.get("nom").setValue(type.nom);
+          this.typeForm.get("nom")!.setValue(type.nom);
           debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
         } else {
           // No wine was selected, when will register a new type
@@ -272,7 +270,7 @@ export class TypePage implements OnInit {
 
   private noDouble(group: FormGroup) {
     debug("[noDouble] called");
-    if (!group.controls.nom || !group.controls.nom.dirty) return null;
+    if (!group.controls["nom"] || !group.controls["nom"].dirty) return null;
     if (this.typesMap && this.typesMap.has(group.value.nom)) {
       debug("[noDouble]double detected");
       return { double: true };
@@ -355,7 +353,7 @@ export class TypePage implements OnInit {
   async presentToast(
     message: string,
     type: string,
-    nextPageUrl: string,
+    nextPageUrl: string | null,
     duration?: number,
     closeButtonText?: string
   ) {

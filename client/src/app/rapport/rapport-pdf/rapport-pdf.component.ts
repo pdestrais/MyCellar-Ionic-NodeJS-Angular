@@ -11,7 +11,7 @@ import * as d3 from "d3";
 })
 export class RapportPdfComponent implements OnInit {
   private doc: jsPDF;
-  private vins: Array<VinModel>;
+  private vins: Array<VinModel> = [];
   private vinsFiltered;
   private typesGrouping: Array<any> = [];
   private typesOrigineGrouping: Array<any> = [];

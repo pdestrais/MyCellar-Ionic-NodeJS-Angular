@@ -26,8 +26,8 @@ export class PreferencesPage implements OnInit {
   ngOnInit() {
     debug("[ngOnInit]");
     this.zone.run(() => {
-      this.language = window.localStorage.getItem("myCellar.language");
-      let tmpRemoteDB = localStorage.getItem("myCellar.remoteDBURL");
+      this.language = window.localStorage.getItem("myCellar.language")!;
+      let tmpRemoteDB = localStorage.getItem("myCellar.remoteDBURL")!;
       this.remoteDB = tmpRemoteDB.split("@")[1];
     });
   }

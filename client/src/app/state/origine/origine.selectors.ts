@@ -20,6 +20,7 @@ export const getOrigineState = (state: AppState): OrigineState => {
         currentOrigine: null,
       };
 };
+
 export const getAllOrigines = createSelector(
   getOrigineState,
   (state: OrigineState) => {

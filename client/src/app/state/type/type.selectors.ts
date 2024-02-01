@@ -8,7 +8,18 @@ import { replacer } from "../../util/util";
 
 const debug = Debug("app:state:typeselector");
 
-export const getTypeState = (state: AppState) => {
+// export const getTypeState = (state: AppState) => {
+//   console.log("[getTypeState]state : " + JSON.stringify(state.types, replacer));
+//   return state
+//     ? state.types
+//     : {
+//         types: new Map(),
+//         error: null,
+//         status: "pending",
+//       };
+// };
+
+export const getTypeState = (state: AppState): TypeState => {
   console.log("[getTypeState]state : " + JSON.stringify(state.types, replacer));
   return state
     ? state.types
@@ -16,31 +27,50 @@ export const getTypeState = (state: AppState) => {
         types: new Map(),
         error: null,
         status: "pending",
+        eventLog: [],
+        source: "",
+        currentType: { id: "", rev: "" },
       };
 };
 
+// export const getAllTypes = createSelector(getTypeState, (state: TypeState) => {
+//   console.log("[getAllTypes]state : " + JSON.stringify(state, replacer));
+//   return state
+//     ? state.hasOwnProperty("types")
+//       ? state.types
+//       : new Array() as TypeModel[]
+//     : new Array() as TypeModel[];
+// });
+
 export const getAllTypes = createSelector(getTypeState, (state: TypeState) => {
   console.log("[getAllTypes]state : " + JSON.stringify(state, replacer));
-  return state
-    ? state.hasOwnProperty("types")
-      ? state.types
-      : new Array()
-    : new Array();
+  return state && state.types ? state.types : new Map<string, TypeModel>();
 });
 
 export const getAllTypesArraySorted = createSelector(
-  getTypeState,
+  (state: AppState) => getTypeState(state),
   (state: TypeState) => {
     debug("[getAllTypesArraySorted]state : " + JSON.stringify(state, replacer));
-    return state
-      ? state.hasOwnProperty("types")
-        ? Array.from(state.types.values()).sort((a, b) => {
-            return a.nom < b.nom ? -1 : 1;
-          })
-        : new Array()
-      : new Array();
+    return state && state.types
+      ? Array.from(state.types.values()).sort((a, b) => {
+          return a.nom < b.nom ? -1 : 1;
+        })
+      : [];
   }
 );
+// export const getAllTypesArraySorted = createSelector(
+//   getTypeState,
+//   (state: TypeState) => {
+//     debug("[getAllTypesArraySorted]state : " + JSON.stringify(state, replacer));
+//     return state
+//       ? state.hasOwnProperty("types")
+//         ? (Array.from(state.types.values()).sort((a, b) => {
+//             return a.nom < b.nom ? -1 : 1;
+//           }) as TypeModel[])
+//         : (new Array() as TypeModel[])
+//       : (new Array() as TypeModel[]);
+//   }
+// );
 
 export const typeMapForDuplicates = createSelector(
   getAllTypes,

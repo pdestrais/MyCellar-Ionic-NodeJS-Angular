@@ -14,13 +14,13 @@ const debug = Debugger("app:rapport:years");
   styleUrls: ["./origines.component.scss"],
 })
 export class OriginesComponent implements OnInit {
-  public typeView: string;
-  private wines: Array<VinModel>;
-  public elementList: Array<any>;
-  private elementListType: string;
-  public type: string;
-  public year: string;
-  public breadcrumb: Array<any>;
+  public typeView: string = "";
+  private wines: Array<VinModel> = [];
+  public elementList: Array<any> = [];
+  private elementListType: string = "";
+  public type: string = "";
+  public year: string = "";
+  public breadcrumb: Array<any> = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -29,12 +29,12 @@ export class OriginesComponent implements OnInit {
 
   ngOnInit() {
     this.route.data.subscribe((data) => {
-      this.typeView = data.typeView;
+      this.typeView = data["typeView"];
     });
-    this.type = this.route.snapshot.paramMap.get("type");
-    this.year = this.route.snapshot.paramMap.get("year");
+    this.type = this.route.snapshot.paramMap.get("type")!;
+    this.year = this.route.snapshot.paramMap.get("year")!;
     // fectch breadcrumb
-    this.breadcrumb = JSON.parse(sessionStorage.getItem("breadcrumb"));
+    this.breadcrumb = JSON.parse(sessionStorage.getItem("breadcrumb")!);
 
     this.pouchdbService.getDocsOfType("vin").then((docs) => {
       this.wines = docs;

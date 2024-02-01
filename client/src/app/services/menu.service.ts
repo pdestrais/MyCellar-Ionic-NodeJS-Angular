@@ -6,8 +6,8 @@ import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: "root" })
 export class MenuService {
-  private currentUser: UserModel;
-  private options: Array<SideMenuOption>;
+  private currentUser!: UserModel | null;
+  private options: Array<SideMenuOption> = [];
 
   constructor(
     private authenticationService: AuthenticationService,

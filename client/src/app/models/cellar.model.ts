@@ -1,7 +1,7 @@
 interface IVin {
   _id: string;
   id?: string;
-  _rev?: string;
+  _rev: string;
   nom: string;
   annee: string;
   nbreBouteillesAchat: number;
@@ -11,7 +11,7 @@ interface IVin {
   remarque?: string;
   localisation: string;
   contenance?: string;
-  history?: Array<HistoryModel>;
+  history: Array<HistoryModel>;
   lastUpdated?: string;
   appellation: AppellationModel;
   origine: OrigineModel;
@@ -25,9 +25,9 @@ interface IVin {
 }
 export class VinModel implements IVin {
   public _id!: string;
-  public id?: string;
-  public _rev?: string;
-  public rev?: string;
+  public id!: string;
+  public _rev!: string;
+  public rev!: string;
   public nom!: string;
   public annee!: string;
   public nbreBouteillesAchat!: number;
@@ -37,7 +37,7 @@ export class VinModel implements IVin {
   public remarque?: string;
   public localisation!: string;
   public contenance?: string;
-  public history?: Array<HistoryModel>;
+  public history: Array<HistoryModel> = [];
   public lastUpdated?: string;
   public appellation!: AppellationModel;
   public origine!: OrigineModel;
@@ -56,15 +56,15 @@ export class VinModel implements IVin {
 
 interface IType {
   _id: string;
-  id?: string;
-  _rev?: string;
+  id: string;
+  _rev: string;
   nom: string;
 }
 export class TypeModel implements IType {
-  public _id!: string;
-  public id?: string;
-  public _rev?: string;
-  public rev?: string;
+  public _id: string = "";
+  public id: string = "";
+  public _rev: string = "";
+  public rev: string = "";
   public nom: string = "";
   constructor(data: Partial<IVin>) {
     Object.assign(this, data);
@@ -94,9 +94,9 @@ interface IAppellation {
 }
 export class AppellationModel {
   public _id: string = "";
-  public id?: string;
-  public _rev?: string;
-  public rev?: string;
+  public id: string = "";
+  public _rev: string = "";
+  public rev: string = "";
   public courte: string = "";
   public longue: string = "";
   constructor(data: Partial<IAppellation>) {
@@ -113,10 +113,10 @@ interface IOrigine {
   groupVal?: string;
 }
 export class OrigineModel {
-  public _id?: string | undefined;
-  public id?: string | undefined;
-  public _rev?: string | undefined;
-  public rev?: string | undefined;
+  public _id: string = "";
+  public id: string = "";
+  public _rev: string = "";
+  public rev: string = "";
   public pays!: string;
   public region!: string;
   public groupVal?: string;

@@ -16,19 +16,19 @@ const viewerCanvasHeight: number = 426;
   styleUrls: ["./viewer.component.scss"],
 })
 export class ViewerComponent implements OnInit {
-  @Input() fileOrBlob: File | Blob; // image is a File or Blob. This component can process both
-  @Input() action: string;
-  @ViewChild("selectedPhoto", { static: true }) canvasEl: ElementRef;
+  @Input() fileOrBlob!: File | Blob; // image is a File or Blob. This component can process both
+  @Input() action: string = "";
+  @ViewChild("selectedPhoto", { static: true }) canvasEl!: ElementRef;
   @ViewChild("canvasContainer", { static: true }) canvasCntnr: any;
   @ViewChild("uploadphoto", { static: false })
-  inputUploader: ElementRef<HTMLInputElement>;
-  @ViewChild("modalContent", { static: true }) mContent: ElementRef;
+  inputUploader!: ElementRef<HTMLInputElement>;
+  @ViewChild("modalContent", { static: true }) mContent!: ElementRef;
 
-  public from: string;
-  private selectedFile: File | Blob;
+  public from: string = "";
+  private selectedFile!: File | Blob;
   //	private offScreenCanvas: HTMLCanvasElement = document.createElement('canvas');
 
-  private canvas: HTMLCanvasElement;
+  private canvas: HTMLCanvasElement = this.canvasEl.nativeElement;
 
   constructor(private modalCtrl: ModalController) {}
 
@@ -68,7 +68,7 @@ export class ViewerComponent implements OnInit {
           //this.canvasCntnr.el.removeChild(this.canvas);
           //this.canvasCntnr.removeChild(this.canvas);
           this.canvas.remove();
-          delete this.canvas;
+          //delete this.canvas;
 
           this.modalCtrl.dismiss({
             choice: choice,
@@ -88,7 +88,7 @@ export class ViewerComponent implements OnInit {
       this.canvas.width = 0;
       //this.canvasCntnr.el.removeChild(this.canvas);
       this.canvas.remove();
-      delete this.canvas;
+      //delete this.canvas;
       this.modalCtrl.dismiss({
         choice: choice,
         compressedBlob: null,
@@ -109,7 +109,6 @@ export class ViewerComponent implements OnInit {
     debug("[ngOnInit]Entering");
     this.from = this.action;
     let img = new Image();
-    this.canvas = this.canvasEl.nativeElement;
 
     this.selectedFile = this.fileOrBlob;
     let url = URL.createObjectURL(this.fileOrBlob);
@@ -148,7 +147,7 @@ export class ViewerComponent implements OnInit {
               });
             }
             // Draw the image onto the canvas
-            this.canvas.getContext("2d").drawImage(img, 0, 0);
+            this.canvas.getContext("2d")!.drawImage(img, 0, 0);
             URL.revokeObjectURL(url);
           }
         },
@@ -286,7 +285,7 @@ export class ViewerComponent implements OnInit {
   loadPhoto() {
     this.action = "replace";
     let el = this.inputUploader.nativeElement;
-    if (el) {
+    if (el && el.files) {
       this.fileOrBlob = el.files[0];
       this.selectedFile = el.files[0];
       this.ngOnInit();

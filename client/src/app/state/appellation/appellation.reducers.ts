@@ -18,10 +18,11 @@ export interface AppellationState {
     | "saved"
     | "deleted"
     | "loaded"
-    | "noop";
+    | "noop"
+    | null;
   eventLog: IEventLog[];
   source: string;
-  currentAppellation: { id: string; rev: string };
+  currentAppellation: { id: string; rev: string } | null;
 }
 
 export const initialState: AppellationState = {
@@ -30,7 +31,7 @@ export const initialState: AppellationState = {
   status: null,
   source: "",
   eventLog: [],
-  currentAppellation: undefined,
+  currentAppellation: null,
 };
 
 export const appellationReducer = createReducer(

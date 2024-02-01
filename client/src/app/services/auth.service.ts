@@ -16,13 +16,21 @@ const APIEndpoint = environment.APIEndpoint;
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService {
-  private currentUserSubject: BehaviorSubject<UserModel>;
-  public currentUser: Observable<UserModel>;
+  private currentUserSubject: BehaviorSubject<UserModel | null> =
+    new BehaviorSubject<UserModel | null>(null);
+  public currentUser: Observable<UserModel | null> =
+    new Observable<UserModel | null>();
 
   constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<UserModel>(
-      JSON.parse(localStorage.getItem("currentUser"))
-    );
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+      this.currentUserSubject = new BehaviorSubject<UserModel | null>(
+        JSON.parse(storedUser) as UserModel
+      );
+    } else {
+      this.currentUserSubject = new BehaviorSubject<UserModel | null>(null);
+    }
+
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -30,8 +38,8 @@ export class AuthenticationService {
     return this.currentUserSubject;
   }
 
-  public get currentUserValue(): UserModel {
-    return this.currentUserSubject.value;
+  public get currentUserValue(): UserModel | null {
+    return this.currentUserSubject ? this.currentUserSubject.value : null;
   }
 
   login(username: string, password: string) {
@@ -62,7 +70,7 @@ export class AuthenticationService {
     this.currentUserSubject.next(null);
   }
 
-  getTokenExpirationDate(token: string): Date {
+  getTokenExpirationDate(token: string): Date | null {
     const decoded = jwtDecode<JwtPayload>(token);
 
     if (decoded.exp === undefined) return null;
@@ -74,11 +82,11 @@ export class AuthenticationService {
 
   isTokenExpired(token?: string): boolean {
     if (!token)
-      token = this.currentUserValue ? this.currentUserValue.token : null;
+      token = this.currentUserValue ? this.currentUserValue.token : undefined;
     if (!token) return true;
 
     const date = this.getTokenExpirationDate(token);
-    if (date === undefined) return false;
+    if (!date || date === undefined) return false;
     return !(date.valueOf() > new Date().valueOf());
   }
 }

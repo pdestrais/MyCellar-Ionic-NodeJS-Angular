@@ -15,7 +15,7 @@ const debug = Debugger("app:readytodrink");
 })
 export class ReadyToDrinkPage implements OnInit {
   public wines: Array<VinModel> = [];
-  public readyToDrinkList: Array<VinModel>;
+  public readyToDrinkList: Array<VinModel> = [];
   public RTDList: Array<VinModel> = [];
   public NotRTDList: Array<VinModel> = [];
   public NearlyRTDList: Array<VinModel> = [];
@@ -25,8 +25,8 @@ export class ReadyToDrinkPage implements OnInit {
   public nbrNearlyRTD: number = 0;
   public nbrNotRTD: number = 0;
 
-  @ViewChild(IonAccordionGroup, { static: true })
-  accordionGroup: IonAccordionGroup;
+  // @ViewChild(IonAccordionGroup, { static: true })
+  // accordionGroup: IonAccordionGroup;
 
   constructor(private router: Router, private PouchdbService: PouchdbService) {}
 

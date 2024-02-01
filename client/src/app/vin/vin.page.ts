@@ -125,7 +125,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private store: Store
+    private store: Store<AppState>
   ) {
     // Initializing vin object & form
     this.vin = new VinModel({
@@ -222,9 +222,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.unsubscribe$));
     // Now loading selected wine from the state
     this.store
-      .select<VinModel>(VinSelectors.getWine(paramId))
+      .select<VinModel | undefined>(VinSelectors.getWine(paramId))
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((vin: VinModel) => {
+      .subscribe((vin: VinModel | undefined) => {
         if (vin) {
           // We have selected a wine
           // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
@@ -247,31 +247,37 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             if (environment.production)
               url = window.location.origin + "/api/photo/";
             else url = environment.APIEndpoint + "/api/photo/"; // for dev purposeslet prefix = window.location.origin + "/api/";
-            url =
-              url +
-              JSON.parse(localStorage.getItem("currentUser")).username +
-              "/" +
-              this.vin._id;
-            debug("[Vin.ngOnInit]url :" + url);
-            this.http.get(url).subscribe(
-              (response: any) => {
-                this.currentPhoto.name = this.vin.photo.name;
-                this.currentPhoto.data = new Blob(
-                  [new Uint8Array(response.data.Body.data)],
-                  {
-                    type: "image/jpeg",
+            const currentUserString = localStorage.getItem("currentUser");
+            const currentUser = currentUserString
+              ? JSON.parse(currentUserString)
+              : null;
+            if (currentUser && currentUser.username) {
+              // Access the username property safely
+              const username = currentUser.username;
+              url = url + username + "/" + this.vin._id;
+              debug("[Vin.ngOnInit]url :" + url);
+              this.http.get(url).subscribe(
+                (response: any) => {
+                  if (this.vin.photo) {
+                    this.currentPhoto.name = this.vin.photo.name;
+                    this.currentPhoto.data = new Blob(
+                      [new Uint8Array(response.data.Body.data)],
+                      {
+                        type: "image/jpeg",
+                      }
+                    );
+                    this.currentPhoto.contentType = this.vin.photo.fileType;
+                    debug("[Vin.ngOnInit]http get response ");
+                    // this.showWineImageModal(mutableWine, fileOrBlob, "modify");
                   }
-                );
-                this.currentPhoto.contentType = this.vin.photo.fileType;
-                debug("[Vin.ngOnInit]http get response ");
-                // this.showWineImageModal(mutableWine, fileOrBlob, "modify");
-              },
-              (error) => {
-                debug(
-                  "[Vin.ngOnInit]http get error : " + JSON.stringify(error)
-                );
-              }
-            );
+                },
+                (error) => {
+                  debug(
+                    "[Vin.ngOnInit]http get error : " + JSON.stringify(error)
+                  );
+                }
+              );
+            }
           }
         } else {
           // No wine was selected, when will record a new wine
@@ -454,15 +460,21 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
     // For each change of value in nom or annee fields, check if no wine with the same name/year combination exist
     merge(
-      this.vinForm.get("nom").valueChanges,
-      this.vinForm.get("annee").valueChanges
+      this.vinForm.get("annee")?.valueChanges as Observable<string>,
+      this.vinForm.get("nom")?.valueChanges as Observable<string>
     )
       .pipe(debounceTime(1000))
       .subscribe((value) => {
         debug("[ngInit]on name or year value change", +JSON.stringify(value));
-        let checkDuplicate = this.noDouble(this.vinForm);
-        if (checkDuplicate != null) {
-          this.vinForm.setErrors({ double: true });
+        if (
+          this.vinForm &&
+          this.vinForm.get("nom") &&
+          this.vinForm.get("annee")
+        ) {
+          let checkDuplicate = this.noDouble(this.vinForm);
+          if (checkDuplicate != null) {
+            this.vinForm.setErrors({ double: true });
+          }
         }
       });
   }
@@ -483,13 +495,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public async loadImageAndView(type: string) {
-    let fileOrBlob: File | Blob;
+    // let fileOrBlob: File | Blob;
     // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
     let mutableWine = JSON.parse(JSON.stringify(this.vin));
     // No image existed, user wants to upload a new image
     if (type == "file") {
       let el = this.inputUploader.nativeElement;
-      if (el) {
+      if (el && el.files) {
         this.currentPhoto.data = el.files[0];
         this.currentPhoto.contentType = el.files[0].type;
         debug("[loadImageAndView]platform : " + this.platform.platforms());
@@ -500,7 +512,10 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             now.format("YYYY-MM-DD_hh-mm-ss") + "_img.jpeg";
         } else
           mutableWine.photo.name =
-            fileOrBlob instanceof File ? fileOrBlob.name : "";
+            //            fileOrBlob instanceof File ? fileOrBlob.name : "";
+            this.currentPhoto.data instanceof File
+              ? this.currentPhoto.data.name
+              : "";
         this.currentPhoto.name = mutableWine.photo.name;
       }
       this.showWineImageModal(mutableWine, this.currentPhoto.data, "add");
@@ -642,6 +657,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       this.vin = { ...mutableWine, ...this.vinForm.value };
       this.vin.lastUpdated = new Date().toISOString();
       if (this.newWine) {
+        this.vin.history = [];
         this.vin.history.push({
           type: "creation",
           difference: this.vin.nbreBouteillesReste,
@@ -696,10 +712,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           const formData = new FormData();
           formData.append("image", this.currentPhoto.data);
           formData.append("name", this.vin._id);
-          formData.append(
-            "user",
-            JSON.parse(localStorage.getItem("currentUser")).username
-          );
+          const currentUserString = localStorage.getItem("currentUser");
+          const currentUser = currentUserString
+            ? JSON.parse(currentUserString)
+            : null;
+          if (currentUser && currentUser.username) {
+            formData.append("user", currentUser.username);
+          }
 
           const headers = new HttpHeaders({
             //c            "Content-Type": "multipart/form-data",
@@ -730,22 +749,25 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         if (environment.production)
           url = window.location.origin + "/api/photo/";
         else url = environment.APIEndpoint + "/api/photo/"; // for dev purposeslet prefix = window.location.origin + "/api/";
-        url =
-          url +
-          JSON.parse(localStorage.getItem("currentUser")).username +
-          "/" +
-          this.vin._id;
-        debug("[Vin.delete wine photo]url :" + url);
-        this.http.delete(url).subscribe(
-          (response: any) => {
-            debug("[Vin.delete wine photo]http delete succesfull ");
-          },
-          (error) => {
-            debug(
-              "[Vin.delete wine photo]http get error : " + JSON.stringify(error)
-            );
-          }
-        );
+        const currentUserString = localStorage.getItem("currentUser");
+        const currentUser = currentUserString
+          ? JSON.parse(currentUserString)
+          : null;
+        if (currentUser && currentUser.username) {
+          url = url + currentUser.username + "/" + this.vin._id;
+          debug("[Vin.delete wine photo]url :" + url);
+          this.http.delete(url).subscribe(
+            (response: any) => {
+              debug("[Vin.delete wine photo]http delete succesfull ");
+            },
+            (error) => {
+              debug(
+                "[Vin.delete wine photo]http get error : " +
+                  JSON.stringify(error)
+              );
+            }
+          );
+        }
       }
       this.store.dispatch(VinActions.createVin({ vin: this.vin }));
     } else {
@@ -795,8 +817,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   async presentToast(
     message: string,
     type: string,
-    nextPageUrl: string,
-    duration?: number,
+    nextPageUrl: string | null,
+    duration?: number | undefined,
     closeButtonText?: string
   ) {
     if (duration && duration != 0) {
@@ -929,14 +951,16 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   adjustQuantityLeft(q: number) {
     let ctrlLeft = this.vinForm.get("nbreBouteillesReste");
     let ctrlBought = this.vinForm.get("nbreBouteillesAchat");
-    let nbrBought = ctrlBought.value;
-    if (typeof ctrlBought.value === "string")
-      nbrBought = parseFloat(ctrlBought.value.replace(",", "."));
-    let newQty = ctrlLeft.value + q;
-    if (typeof ctrlLeft.value === "string")
-      newQty = parseFloat(ctrlLeft.value.replace(",", ".")) + q;
-    ctrlLeft.patchValue(Math.max(Math.min(newQty, nbrBought), 0));
-    this.vinForm.markAsDirty();
+    if (ctrlLeft && ctrlBought) {
+      let nbrBought = ctrlBought.value;
+      if (typeof ctrlBought.value === "string")
+        nbrBought = parseFloat(ctrlBought.value.replace(",", "."));
+      let newQty = ctrlLeft.value + q;
+      if (typeof ctrlLeft.value === "string")
+        newQty = parseFloat(ctrlLeft.value.replace(",", ".")) + q;
+      ctrlLeft.patchValue(Math.max(Math.min(newQty, nbrBought), 0));
+      this.vinForm.markAsDirty();
+    }
   }
 
   async presentLoading() {
@@ -964,11 +988,14 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   // function called for each value change of wine name or year
   private noDouble(group: FormGroup) {
     debug("nodouble called");
-    if (!group.controls.nom || !group.controls.annee) return null;
+    if (!group.controls["nom"] || !group.controls["annee"]) return null;
     //		if (!group.controls.nom.dirty || !group.controls.annee.dirty) return null;
     if (
-      group.get("nom").value == this.originalName &&
-      group.get("annee").value == this.originalYear
+      group &&
+      group.get("nom") &&
+      group.get("annee") &&
+      group.get("nom")!.value === this.originalName &&
+      group.get("annee")!.value === this.originalYear
     )
       return null;
     let testKey = group.value.nom + group.value.annee;

@@ -30,14 +30,14 @@ export class AppellationPage implements OnInit {
     courte: "",
     longue: "",
   });
-  public appellations$: Observable<AppellationModel[]>;
+  public appellations$!: Observable<AppellationModel[]>;
   private unsubscribe$ = new Subject<void>();
-  public winesForAppellation$: Observable<VinModel[]>;
+  public winesForAppellation$!: Observable<VinModel[]>;
 
   public appellationList: Array<AppellationModel> = [];
-  public appellationsMap: Map<any, any>;
-  public submitted: boolean;
-  public appellationForm: FormGroup;
+  public appellationsMap: Map<any, any> = new Map<any, any>();
+  public submitted: boolean = false;
+  public appellationForm!: FormGroup;
   public list: boolean = true;
   public showWines: boolean = false;
 
@@ -48,7 +48,7 @@ export class AppellationPage implements OnInit {
     private translate: TranslateService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private store: Store
+    private store: Store<AppState>
   ) {}
 
   public ngOnInit() {
@@ -62,7 +62,7 @@ export class AppellationPage implements OnInit {
       { validator: this.noDouble.bind(this) }
     );
     this.submitted = false;
-    this.route.snapshot.data.action == "list"
+    this.route.snapshot.data["action"] == "list"
       ? (this.list = true)
       : (this.list = false);
     // We need to load the appellation list even if we create or modify an appellation because in this case we need the appellation list to check for doubles
@@ -77,13 +77,13 @@ export class AppellationPage implements OnInit {
     // Now loading selected wine from the state
     // if id param is there, the appellation will be loaded, if not, we want to create a new appellation and the form values will remain as initialized
     this.store
-      .select<AppellationModel>(
+      .select(
         AppellationSelectors.getAppellation(
-          this.route.snapshot.paramMap.get("id")
+          this.route.snapshot.paramMap.get("id")!
         )
       )
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((appellation: AppellationModel) => {
+      .subscribe((appellation) => {
         if (appellation) {
           this.list = false;
           this.appellation = appellation;
@@ -95,8 +95,8 @@ export class AppellationPage implements OnInit {
               rev: appellation._rev,
             })
           );
-          this.appellationForm.get("courte").setValue(appellation.courte);
-          this.appellationForm.get("longue").setValue(appellation.longue);
+          this.appellationForm.get("courte")!.setValue(appellation.courte);
+          this.appellationForm.get("longue")!.setValue(appellation.longue);
           debug(
             "[Vin.ngOnInit]Appellation loaded : " + JSON.stringify(appellation)
           );
@@ -158,8 +158,8 @@ export class AppellationPage implements OnInit {
               // let's try to find a duplicate event in the eventLog
               let filteredEventLog = appellationState.eventLog.filter(
                 (value) =>
-                  value.id == appellationState.currentAppellation.id &&
-                  value.rev == appellationState.currentAppellation.rev &&
+                  value.id == appellationState.currentAppellation!.id &&
+                  value.rev == appellationState.currentAppellation!.rev &&
                   value.action == "create"
               );
               debug(
@@ -173,9 +173,9 @@ export class AppellationPage implements OnInit {
                 this.store.dispatch(AppellationActions.setStatusToLoaded());
               } else if (
                 appellationState.eventLog[appellationState.eventLog.length - 1]
-                  .id == appellationState.currentAppellation.id &&
+                  .id == appellationState.currentAppellation!.id &&
                 appellationState.eventLog[appellationState.eventLog.length - 1]
-                  .rev == appellationState.currentAppellation.rev &&
+                  .rev == appellationState.currentAppellation!.rev &&
                 appellationState.eventLog[appellationState.eventLog.length - 1]
                   .action == "create" &&
                 this.appellationForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
@@ -231,8 +231,8 @@ export class AppellationPage implements OnInit {
               if (
                 appellationState.eventLog.filter(
                   (value) =>
-                    value.id == appellationState.currentAppellation.id &&
-                    value.rev >= appellationState.currentAppellation.rev &&
+                    value.id == appellationState.currentAppellation!.id &&
+                    value.rev >= appellationState.currentAppellation!.rev &&
                     value.action == "delete"
                 ).length == 2
               ) {
@@ -242,7 +242,7 @@ export class AppellationPage implements OnInit {
                 this.store.dispatch(AppellationActions.setStatusToLoaded());
               } else if (
                 appellationState.eventLog[appellationState.eventLog.length - 1]
-                  .id == appellationState.currentAppellation.id &&
+                  .id == appellationState.currentAppellation!.id &&
                 appellationState.eventLog[appellationState.eventLog.length - 1]
                   .action == "delete"
               ) {
@@ -276,10 +276,10 @@ export class AppellationPage implements OnInit {
   private noDouble(group: FormGroup) {
     debug("[noDouble] called");
     if (
-      !group.controls.courte ||
-      !group.controls.longue ||
-      !group.controls.courte.dirty ||
-      !group.controls.courte.dirty
+      !group.controls["courte"] ||
+      !group.controls["longue"] ||
+      !group.controls["courte"].dirty ||
+      !group.controls["courte"].dirty
     )
       return null;
     /*     if (!group.controls.courte.dirty || !group.controls.courte.dirty)
@@ -370,7 +370,7 @@ export class AppellationPage implements OnInit {
   async presentToast(
     message: string,
     type: string,
-    nextPageUrl: string,
+    nextPageUrl: string | null,
     duration?: number,
     closeButtonText?: string
   ) {

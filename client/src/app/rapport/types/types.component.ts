@@ -14,10 +14,10 @@ const debug = Debugger("app:rapport:types");
   styleUrls: ["./types.component.scss"],
 })
 export class TypesComponent implements OnInit {
-  public typeView: string;
-  private wines: Array<VinModel>;
-  public elementList: Array<any>;
-  public elementListType: string;
+  public typeView: string = "";
+  private wines: Array<VinModel> = [];
+  public elementList: Array<any> = [];
+  public elementListType: string = "";
 
   constructor(
     private route: ActivatedRoute,
@@ -26,7 +26,7 @@ export class TypesComponent implements OnInit {
 
   ngOnInit() {
     this.route.data.subscribe((data) => {
-      this.typeView = data.typeView;
+      this.typeView = data["typeView"];
     });
     this.pouchdbService.getDocsOfType("vin").then((docs) => {
       this.wines = docs;

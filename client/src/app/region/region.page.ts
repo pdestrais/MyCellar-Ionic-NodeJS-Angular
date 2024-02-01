@@ -11,7 +11,7 @@ import * as OrigineSelectors from "../state/origine/origine.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import * as OrigineActions from "../state/origine/origine.actions";
 import { Observable, Subject } from "rxjs";
-import { takeUntil, tap } from "rxjs/operators";
+import { flatMap, takeUntil, tap } from "rxjs/operators";
 import { AppState } from "../state/app.state";
 
 import { replacer } from "../util/util";
@@ -30,14 +30,14 @@ export class RegionPage implements OnInit {
     pays: "",
     region: "",
   });
-  public origines$: Observable<OrigineModel[]>;
+  public origines$!: Observable<OrigineModel[]>;
   private unsubscribe$ = new Subject<void>();
-  public winesForOrigine$: Observable<VinModel[]>;
+  public winesForOrigine$!: Observable<VinModel[]>;
 
   public origineList: Array<OrigineModel> = [];
-  public originesMap: Map<any, any>;
-  public submitted: boolean;
-  public origineForm: FormGroup;
+  public originesMap: Map<any, any> = new Map<any, any>();
+  public submitted: boolean = false;
+  public origineForm!: FormGroup;
   public list: boolean = true;
   public showWine: boolean = false;
 
@@ -48,7 +48,7 @@ export class RegionPage implements OnInit {
     private translate: TranslateService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private store: Store
+    private store: Store<AppState>
   ) {}
 
   public ngOnInit() {
@@ -62,7 +62,7 @@ export class RegionPage implements OnInit {
       { validator: this.noDouble.bind(this) }
     );
     this.submitted = false;
-    this.route.snapshot.data.action == "list"
+    this.route.snapshot.data["action"] == "list"
       ? (this.list = true)
       : (this.list = false);
     // We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
@@ -77,11 +77,11 @@ export class RegionPage implements OnInit {
     // Now loading selected wine from the state
     // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized
     this.store
-      .select<OrigineModel>(
-        OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id"))
+      .select(
+        OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!)
       )
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((origine: OrigineModel) => {
+      .subscribe((origine) => {
         if (origine) {
           this.list = false;
           this.origine = origine;
@@ -89,12 +89,12 @@ export class RegionPage implements OnInit {
           // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
           this.store.dispatch(
             OrigineActions.editOrigine({
-              id: origine._id,
-              rev: origine._rev,
+              id: origine._id!,
+              rev: origine._rev!,
             })
           );
-          this.origineForm.get("pays").setValue(origine.pays);
-          this.origineForm.get("region").setValue(origine.region);
+          this.origineForm.get("pays")!.setValue(origine.pays);
+          this.origineForm.get("region")!.setValue(origine.region);
           debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
         } else {
           // No wine was selected, when will register a new origine
@@ -152,8 +152,8 @@ export class RegionPage implements OnInit {
               // let's try to find a duplicate event in the eventLog
               let filteredEventLog = origineState.eventLog.filter(
                 (value) =>
-                  value.id == origineState.currentOrigine.id &&
-                  value.rev == origineState.currentOrigine.rev &&
+                  value.id == origineState.currentOrigine!.id &&
+                  value.rev == origineState.currentOrigine!.rev &&
                   value.action == "create"
               );
               debug(
@@ -167,9 +167,9 @@ export class RegionPage implements OnInit {
                 this.store.dispatch(OrigineActions.setStatusToLoaded());
               } else if (
                 origineState.eventLog[origineState.eventLog.length - 1].id ==
-                  origineState.currentOrigine.id &&
+                  origineState.currentOrigine!.id &&
                 origineState.eventLog[origineState.eventLog.length - 1].rev ==
-                  origineState.currentOrigine.rev &&
+                  origineState.currentOrigine!.rev &&
                 origineState.eventLog[origineState.eventLog.length - 1]
                   .action == "create" &&
                 this.origineForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
@@ -225,8 +225,8 @@ export class RegionPage implements OnInit {
               if (
                 origineState.eventLog.filter(
                   (value) =>
-                    value.id == origineState.currentOrigine.id &&
-                    value.rev >= origineState.currentOrigine.rev &&
+                    value.id == origineState.currentOrigine!.id &&
+                    value.rev >= origineState.currentOrigine!.rev &&
                     value.action == "delete"
                 ).length == 2
               ) {
@@ -236,7 +236,7 @@ export class RegionPage implements OnInit {
                 this.store.dispatch(OrigineActions.setStatusToLoaded());
               } else if (
                 origineState.eventLog[origineState.eventLog.length - 1].id ==
-                  origineState.currentOrigine.id &&
+                  origineState.currentOrigine!.id &&
                 origineState.eventLog[origineState.eventLog.length - 1]
                   .action == "delete"
               ) {
@@ -270,10 +270,10 @@ export class RegionPage implements OnInit {
   private noDouble(group: FormGroup) {
     debug("[noDouble] called");
     if (
-      !group.controls.pays ||
-      !group.controls.region ||
-      !group.controls.pays.dirty ||
-      !group.controls.region.dirty
+      !group.controls["pays"] ||
+      !group.controls["region"] ||
+      !group.controls["pays"].dirty ||
+      !group.controls["region"].dirty
     )
       return null;
     if (
@@ -360,7 +360,7 @@ export class RegionPage implements OnInit {
   async presentToast(
     message: string,
     type: string,
-    nextPageUrl: string,
+    nextPageUrl: string | null,
     duration?: number,
     closeButtonText?: string
   ) {

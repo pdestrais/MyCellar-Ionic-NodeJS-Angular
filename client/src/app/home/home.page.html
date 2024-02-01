@@ -95,11 +95,10 @@
   <div id="search-container1">
     <ion-searchbar
       placeholder=""
-      debounce="300"
-      showCancelButton="never"
-      [(ngModel)]="searchTerm"
-      (ionChange)="setFilteredItems()"
-      (ionCancel)="cancelSearch()"
+      show-clear-button="focus"
+      search-icon="search-circle"
+      [debounce]="300"
+      (ionInput)="setFilteredItems($event)"
     ></ion-searchbar>
   </div>
   <div *ngIf="loading" class="spinner-container">
@@ -120,16 +119,16 @@
       *ngFor="let item of filteredWines$ | async"
       [routerLink]="['/vin', item._id]"
       routerDirection="root"
-      ><ion-label>{{item.nom}} - {{item.annee}}</ion-label>
+      ><ion-label>{{item.annee}} - {{item.nom}}</ion-label>
       <ion-icon
         *ngIf="item.type.nom=='Rouge'"
-        slot="end"
+        slot="start"
         size="small"
         src="assets/icons/Rouge.svg"
       ></ion-icon>
       <ion-icon
         *ngIf="item.type.nom=='Blanc'"
-        slot="end"
+        slot="start"
         size="small"
         src="assets/icons/Blanc.svg"
       ></ion-icon>

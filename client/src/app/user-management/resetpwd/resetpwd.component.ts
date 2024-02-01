@@ -16,7 +16,7 @@ const debug = Debugger("app:resetpwd");
   styleUrls: ["./resetpwd.component.scss"],
 })
 export class ResetpwdComponent implements OnInit {
-  resetpwdForm: FormGroup;
+  resetpwdForm!: FormGroup;
   loading = false;
   submitted = false;
 
@@ -50,7 +50,7 @@ export class ResetpwdComponent implements OnInit {
 
     this.loading = true;
     this.userManagementService
-      .resetPassword(this.resetpwdForm.get("username").value)
+      .resetPassword(this.resetpwdForm.get("username")!.value)
       .pipe(first())
       .subscribe(
         async (data) => {

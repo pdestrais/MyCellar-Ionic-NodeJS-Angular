@@ -18,7 +18,8 @@ export interface TypeState {
     | "saved"
     | "deleted"
     | "loaded"
-    | "noop";
+    | "noop"
+    | null;
   eventLog: IEventLog[];
   source: string;
   currentType: { id: string; rev: string };
@@ -30,7 +31,7 @@ export const initialState: TypeState = {
   status: null,
   source: "",
   eventLog: [],
-  currentType: undefined,
+  currentType: { id: "", rev: "" },
 };
 
 export const typeReducer = createReducer(

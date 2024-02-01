@@ -28,11 +28,11 @@ const debug = Debugger("app:login");
   styleUrls: ["login.component.scss"],
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
+  loginForm!: FormGroup;
   loading = false;
   submitted = false;
-  returnUrl: string;
-  loadingOverlay: HTMLIonLoadingElement;
+  returnUrl: string = "";
+  loadingOverlay!: HTMLIonLoadingElement;
   cloudantURL = "https://";
   version = environment.version;
 
@@ -81,7 +81,7 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.authenticationService
-      .login(this.f.username.value, this.f.password.value)
+      .login(this.f["username"].value, this.f["password"].value)
       .pipe(first())
       .subscribe(
         (data) => {
@@ -217,7 +217,11 @@ export class LoginComponent implements OnInit {
       );
   }
 
-  async presentToast(message: string, type: string, nextPageUrl: string) {
+  async presentToast(
+    message: string,
+    type: string,
+    nextPageUrl: string | null
+  ) {
     const toast = await this.toastCtrl.create({
       color: type == "success" ? "secondary" : "danger",
       message: message,

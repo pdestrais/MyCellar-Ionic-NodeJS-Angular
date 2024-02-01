@@ -30,9 +30,9 @@ export class AppellationEffects {
   loadAppellations$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AppellationAction.loadAppellations),
-      switchMap(() =>
+      exhaustMap(() =>
         // Call the getAppellations method, convert it to an observable
-        from(this.pouchService.getDocsOfType("appellation")).pipe(
+        this.pouchService.getDocsOfType$("appellation").pipe(
           // Take the returned value and return a new success action containing the Appellations
           map((appellations: AppellationModel[]) =>
             AppellationAction.loadAppellationsSuccess({
@@ -55,7 +55,7 @@ export class AppellationEffects {
         ofType(AppellationAction.createAppellation),
         switchMap((action) => {
           //        this.lastSavedWine = action.appellation;
-          return from(
+          return of(
             this.pouchService.saveDoc(
               Object.assign({}, action.appellation),
               "appellation"
@@ -102,7 +102,7 @@ export class AppellationEffects {
       this.actions$.pipe(
         ofType(AppellationAction.deleteAppellation),
         exhaustMap((action) =>
-          from(this.pouchService.deleteDoc(action.appellation)).pipe(
+          of(this.pouchService.deleteDoc(action.appellation)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
             map((deleteResult: IResult) =>
               AppellationAction.deleteAppellationSuccess({

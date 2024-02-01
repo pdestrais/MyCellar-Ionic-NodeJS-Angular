@@ -17,8 +17,8 @@ const APIEndpoint = environment.APIEndpoint;
 
 @Injectable({ providedIn: "root" })
 export class UserManagementService {
-  private currentUserSubject: BehaviorSubject<UserModel>;
-  public currentUser: Observable<UserModel>;
+  //private currentUserSubject: BehaviorSubject<UserModel>;
+  public currentUser!: Observable<UserModel>;
   private backendURL: string = "";
 
   constructor(
@@ -35,7 +35,7 @@ export class UserManagementService {
       map((result) => {
         if (result.user) {
           // adding token resulting from previous login to update user data
-          let userTemp = JSON.parse(localStorage.getItem("currentUser"));
+          let userTemp = JSON.parse(localStorage.getItem("currentUser")!);
           result.user.token = userTemp.token;
           localStorage.setItem("currentUser", JSON.stringify(result.user));
           this.authenticationService.getCurrentUserSubject().next(result.user);
@@ -57,7 +57,7 @@ export class UserManagementService {
         map((result) => {
           if (result.code) {
             // adding token resulting from previous login to update user data
-            let userTemp = JSON.parse(localStorage.getItem("currentUser"));
+            let userTemp = JSON.parse(localStorage.getItem("currentUser")!);
           }
           return result;
         })

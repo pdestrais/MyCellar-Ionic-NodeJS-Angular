@@ -9,7 +9,7 @@ const debug = Debug("app:state:originereducer");
 
 export interface OrigineState {
   // origines is a Map with origine._id as as key and origine as value
-  origines: Map<string | undefined, OrigineModel>;
+  origines: Map<string, OrigineModel>;
   error: string | null;
   status:
     | "pending"

@@ -4,21 +4,20 @@ import { VinState } from "./vin.reducers";
 import { VinModel } from "../../models/cellar.model";
 import dayjs from "dayjs";
 
-export const getVinState = (state: AppState) => {
+export const getVinState = (state: AppState): VinState => {
   return state
     ? state.vins
     : {
         vins: new Map(),
         error: null,
         status: "pending",
+        source: "",
+        eventLog: [],
+        currentWine: { id: "", rev: "" },
       };
 };
 export const getAllVins = createSelector(getVinState, (state: VinState) => {
-  return state
-    ? state.hasOwnProperty("vins")
-      ? state.vins
-      : new Map()
-    : new Map();
+  return state && state.vins ? state.vins : new Map<string, VinModel>();
 });
 
 export const vinMapForDuplicates = createSelector(

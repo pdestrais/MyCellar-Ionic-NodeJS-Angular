@@ -18,7 +18,8 @@ export interface VinState {
     | "saved"
     | "deleted"
     | "loaded"
-    | "noop";
+    | "noop"
+    | null;
   eventLog: IEventLog[];
   source: string;
   currentWine: { id: string; rev: string };
@@ -30,7 +31,7 @@ export const initialState: VinState = {
   status: "noop",
   source: "",
   eventLog: [],
-  currentWine: undefined,
+  currentWine: { id: "", rev: "" },
 };
 
 export const vinReducer = createReducer(

@@ -32,7 +32,7 @@ export class VinEffects {
       ofType(VinAction.loadVins),
       switchMap(() =>
         // Call the getVins method, convert it to an observable
-        from(this.pouchService.getDocsOfType("vin")).pipe(
+        from(this.pouchService.getDocsOfType$("vin")).pipe(
           // Take the returned value and return a new success action containing the Vins
           map((vins: VinModel[]) => VinAction.loadVinsSuccess({ vins: vins })),
           // Or... if it errors return a new failure action containing the error
@@ -49,7 +49,7 @@ export class VinEffects {
         ofType(VinAction.createVin),
         switchMap((action) => {
           //        this.lastSavedWine = action.vin;
-          return from(
+          return of(
             this.pouchService.saveDoc(Object.assign({}, action.vin), "vin")
           ).pipe(
             map((result: IResult) => {
@@ -87,7 +87,7 @@ export class VinEffects {
       this.actions$.pipe(
         ofType(VinAction.deleteVin),
         exhaustMap((action) =>
-          from(this.pouchService.deleteDoc(action.vin)).pipe(
+          of(this.pouchService.deleteDoc(action.vin)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
             map((deleteResult: IResult) =>
               VinAction.deleteVinSuccess({

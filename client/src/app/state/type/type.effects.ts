@@ -30,9 +30,9 @@ export class TypeEffects {
   loadTypes$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TypeAction.loadTypes),
-      switchMap(() =>
+      exhaustMap(() =>
         // Call the getTypes method, convert it to an observable
-        from(this.pouchService.getDocsOfType("type")).pipe(
+        this.pouchService.getDocsOfType$("type").pipe(
           // Take the returned value and return a new success action containing the Types
           map((types: TypeModel[]) =>
             TypeAction.loadTypesSuccess({
@@ -53,7 +53,7 @@ export class TypeEffects {
         ofType(TypeAction.createType),
         switchMap((action) => {
           //        this.lastSavedWine = action.type;
-          return from(
+          return of(
             this.pouchService.saveDoc(Object.assign({}, action._type), "type")
           ).pipe(
             map((result: IResult) => {
@@ -95,7 +95,7 @@ export class TypeEffects {
       this.actions$.pipe(
         ofType(TypeAction.deleteType),
         exhaustMap((action) =>
-          from(this.pouchService.deleteDoc(action._type)).pipe(
+          of(this.pouchService.deleteDoc(action._type)).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
             map((deleteResult: IResult) =>
               TypeAction.deleteTypeSuccess({
