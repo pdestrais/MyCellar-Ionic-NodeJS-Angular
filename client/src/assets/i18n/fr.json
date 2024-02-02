@@ -188,7 +188,9 @@
     "failed": "La connection a échoué",
     "BadPassword": "Mauvais mot de passe",
     "NoUsername": "Mauvais nom d'utilisateur",
-    "forcedPasswordChange": "Vous devez changer votre mot de passe immédiatement"
+    "forcedPasswordChange": "Vous devez changer votre mot de passe immédiatement",
+    "userNameRequired": "Le user name est requis",
+    "passwordRequired": "Le password est requis"
   },
   "register": {
     "firstname": "Prénom",

@@ -13,50 +13,42 @@
               <h3>{{ "login.title" | translate }}</h3>
             </div>
             <div class="ion-padding">
-              <ion-item>
-                <ion-label for="username" position="floating">{{
-                  "login.username" | translate
-                }}</ion-label>
-                <ion-input
-                  aria-label="username"
-                  type="text"
-                  formControlName="username"
-                  [ngClass]="{ 'is-invalid': submitted && f.username.errors }"
-                ></ion-input>
-                <div
-                  *ngIf="submitted && f.username.errors"
-                  class="invalid-feedback"
-                >
-                  <div *ngIf="f.username.errors.required">
-                    Username is required
-                  </div>
+              <ion-input
+                type="text"
+                fill="outline"
+                label="{{ 'login.username' | translate }}"
+                label-placement="fixed"
+                formControlName="username"
+                placeholder="Enter your username"
+              ></ion-input>
+              <div *ngIf="f.username.errors" class="invalid-feedback">
+                <div *ngIf="f.username.errors?.required">
+                  {{ "login.userNameRequired" | translate }}
                 </div>
-              </ion-item>
-              <ion-item>
-                <ion-label for="password" position="floating">{{
-                  "login.password" | translate
-                }}</ion-label>
-                <ion-input
-                  aria-label="password"
-                  type="password"
-                  formControlName="password"
-                  [ngClass]="{ 'is-invalid': submitted && f.password.errors }"
-                ></ion-input>
-                <div
-                  *ngIf="submitted && f.password.errors"
-                  class="invalid-feedback"
-                >
-                  <div *ngIf="f.password.errors.required">
-                    Password is required
-                  </div>
+              </div>
+
+              <ion-input
+                type="password"
+                fill="outline"
+                label="{{ 'login.password' | translate }}"
+                label-placement="fixed"
+                formControlName="password"
+                placeholder="Enter your password"
+              ></ion-input>
+              <div
+                *ngIf="submitted && f.password.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.password.errors?.required">
+                  {{ "login.passwordRequired" | translate }}
                 </div>
-              </ion-item>
+              </div>
             </div>
             <div class="ion-padding">
               <ion-button
                 size="large"
                 type="submit"
-                [disabled]="form.invalid"
+                disabled="{{ loginForm.invalid }}"
                 expand="block"
                 >Login</ion-button
               >

@@ -188,7 +188,9 @@
     "failed": "Login failed",
     "BadPassword": "Wrong password",
     "NoUsername": "Wrong user name",
-    "forcedPasswordChange": "You have to change your password immediately"
+    "forcedPasswordChange": "You have to change your password immediately",
+    "userNameRequired": "username is required",
+    "passwordRequired": "Password is required"
   },
   "register": {
     "firstname": "First name",
