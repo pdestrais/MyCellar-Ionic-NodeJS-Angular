@@ -12,7 +12,7 @@ import {
 import { Observable } from "rxjs";
 
 // Ionic
-import { Platform /* , Events */ } from "@ionic/angular";
+import { Platform /* , Events */ } from "@ionic/angular/standalone";
 
 // Models
 import { SideMenuOption } from "./models/side-menu-option";
@@ -21,6 +21,8 @@ import {
   SideMenuOptionSelect,
   SideMenuOptionSelectData,
 } from "./models/side-menu-option-select-event";
+import { addIcons } from "ionicons";
+import { chevronDownOutline } from "ionicons/icons";
 
 // This class is defined in this file because
 // we don't want to make it exportable
@@ -138,9 +140,10 @@ export class MultiLevelSideMenuComponent {
   ) {
     // Handle the redirect event
     /* 		this.eventsCtrl.subscribe(SideMenuOptionSelect, (data: SideMenuOptionSelectData) => {
-			this.updateSelectedOption(data);
-		});
- */
+                this.updateSelectedOption(data);
+            });
+     */
+    addIcons({ chevronDownOutline });
   }
 
   ngOnDestroy() {

@@ -2,7 +2,21 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouteReuseStrategy } from "@angular/router";
 
-import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
+import {
+  IonicRouteStrategy,
+  provideIonicAngular,
+  IonApp,
+  IonSplitPane,
+  IonMenu,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonRouterOutlet,
+  IonBadge,
+  IonIcon,
+  IonList,
+} from "@ionic/angular/standalone";
 
 // import ngx-translate and the http loader
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
@@ -27,7 +41,6 @@ import { reducers } from "./state/app.state";
   declarations: [AppComponent, MultiLevelSideMenuComponent],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(),
     AppRoutingModule,
     // configure the ngx-translate imports
     HttpClientModule,
@@ -51,8 +64,22 @@ import { reducers } from "./state/app.state";
       TypeEffects,
       AppellationEffects,
     ]),
+    IonApp,
+    IonSplitPane,
+    IonMenu,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonRouterOutlet,
+    IonBadge,
+    IonIcon,
+    IonList,
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideIonicAngular(),
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

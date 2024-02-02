@@ -1,9 +1,9 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
-import { NavController, AlertController } from "@ionic/angular";
+import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { OrigineModel, VinModel } from "../models/cellar.model";
-import { ToastController } from "@ionic/angular";
+import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
 import { Store } from "@ngrx/store";
@@ -17,6 +17,9 @@ import { AppState } from "../state/app.state";
 import { replacer } from "../util/util";
 
 import * as Debugger from "debug";
+import { addIcons } from "ionicons";
+import { caretForwardOutline } from "ionicons/icons";
+
 const debug = Debugger("app:region");
 
 @Component({
@@ -39,7 +42,8 @@ export class RegionPage implements OnInit {
   public submitted: boolean = false;
   public origineForm!: FormGroup;
   public list: boolean = true;
-  public showWine: boolean = false;
+  public showWines: boolean = false;
+  public newOrigine: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -49,7 +53,9 @@ export class RegionPage implements OnInit {
     private alertController: AlertController,
     private toastCtrl: ToastController,
     private store: Store<AppState>
-  ) {}
+  ) {
+    addIcons({ caretForwardOutline });
+  }
 
   public ngOnInit() {
     debug("[ngOnInit]called");
@@ -85,6 +91,7 @@ export class RegionPage implements OnInit {
         if (origine) {
           this.list = false;
           this.origine = origine;
+          this.newOrigine = false;
           // We have selected an origine
           // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
           this.store.dispatch(
@@ -98,6 +105,7 @@ export class RegionPage implements OnInit {
           debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
         } else {
           // No wine was selected, when will register a new origine
+          this.newOrigine = true;
           this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
         }
       });
@@ -112,14 +120,14 @@ export class RegionPage implements OnInit {
       .pipe(
         takeUntil(this.unsubscribe$)
         /*         tap((origineState) =>
-          debug(
-            "[ngOnInit]handle origineState Changes - ts " +
-              window.performance.now() +
-              "\norigineState : " +
-              JSON.stringify(origineState, replacer)
-          )
-        )
- */
+                  debug(
+                    "[ngOnInit]handle origineState Changes - ts " +
+                      window.performance.now() +
+                      "\norigineState : " +
+                      JSON.stringify(origineState, replacer)
+                  )
+                )
+         */
       )
       .subscribe((origineState) => {
         switch (origineState.status) {

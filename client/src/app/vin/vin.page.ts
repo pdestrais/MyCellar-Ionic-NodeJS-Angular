@@ -23,7 +23,7 @@ import {
   ModalController,
   LoadingController,
   Platform,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { PouchdbService } from "../services/pouchdb.service";
 import {
@@ -45,7 +45,7 @@ import * as AppellationSelectors from "../state/appellation/appellation.selector
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import dayjs from "dayjs";
 import { map, debounceTime, switchMap } from "rxjs/operators";
-import { ToastController } from "@ionic/angular";
+import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 import loadImage from "blueimp-load-image/js/index";
 import pica from "pica/dist/pica.js";
@@ -55,6 +55,14 @@ import * as Debugger from "debug";
 import { AppState } from "../state/app.state";
 
 import { environment } from "../../environments/environment";
+import { addIcons } from "ionicons";
+import {
+  arrowUpCircleOutline,
+  arrowDownCircleOutline,
+  eyeOutline,
+  image,
+  clipboardOutline,
+} from "ionicons/icons";
 
 const debug = Debugger("app:vin");
 
@@ -99,8 +107,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   private vinMapState$!: Observable<Map<string, VinModel>>;
   private unsubscribe$ = new Subject<void>();
   public types$!: Observable<Array<TypeModel>>;
-  public origines$!: Observable<Array<TypeModel>>;
-  public appellations$!: Observable<Array<TypeModel>>;
+  public origines$!: Observable<Array<OrigineModel>>;
+  public appellations$!: Observable<Array<AppellationModel>>;
 
   /**
    * 'plug into' DOM canvas element using @ViewChild
@@ -205,6 +213,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       //{ validator: this.noDouble.bind(this) }
     );
     this.submitted = false;
+    addIcons({
+      arrowUpCircleOutline,
+      arrowDownCircleOutline,
+      eyeOutline,
+      image,
+      clipboardOutline,
+    });
   }
 
   public ngOnInit() {
@@ -486,11 +501,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   // Used to comare Objects in html selects
   compareFn(e1: any, e2: any): boolean {
     /*     debug("[compareFn] object 1 :" + JSON.stringify(e1));
-    debug("[compareFn] object 2 :" + JSON.stringify(e2));
-    debug(
-      "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
-    );
- */
+        debug("[compareFn] object 2 :" + JSON.stringify(e2));
+        debug(
+          "[compareFn] compare result :" + e1 && e2 ? e1._id === e2._id : e1 === e2
+        );
+     */
     return e1 && e2 ? e1._id === e2._id : e1 === e2;
   }
 
@@ -523,10 +538,10 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     if (type == "blob") {
       try {
         /*         fileOrBlob = await this.pouch.db.getAttachment(
-          this.vin._id,
-          "photoFile"
-        );
- */
+                  this.vin._id,
+                  "photoFile"
+                );
+         */
         this.showWineImageModal(mutableWine, this.currentPhoto.data, "modify");
       } catch (err) {
         debug("[loadImageAndView]no attachemnt to load - error :", err);
@@ -561,12 +576,12 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           switch (data.choice) {
             case "delete":
               /*             try {
-                let result = await this.pouch.db.removeAttachment(
-                  this.vin._id,
-                  "photoFile",
-                  this.vin._rev
-                );
-   */
+                              let result = await this.pouch.db.removeAttachment(
+                                this.vin._id,
+                                "photoFile",
+                                this.vin._rev
+                              );
+                 */
               mutableWine.photo = {
                 name: "",
                 width: 0,
@@ -585,12 +600,12 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
               // now combine the loaded wine data with the photo data
               /*             } catch (err) {
-                debug(
-                  "[loadImageAndView]problem to delete attachment - error : ",
-                  err
-                );
-              }
-   */
+                              debug(
+                                "[loadImageAndView]problem to delete attachment - error : ",
+                                err
+                              );
+                            }
+                 */
               break;
             case "cancel":
               if (data.from == "add") {
@@ -696,11 +711,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             "[saveVin]saved image file size : " + this.currentPhoto.data.size
           );
           /* this.vin["_attachments"] = {
-            photoFile: {
-              content_type: "image/jpeg",
-              data: this.selectedPhoto.data,
-            },
-          }; */
+                      photoFile: {
+                        content_type: "image/jpeg",
+                        data: this.selectedPhoto.data,
+                      },
+                    }; */
 
           let url: string = "";
           if (environment.production)
@@ -1019,28 +1034,28 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   // Not used anymore - image canvas resizing is dynamic
   /* 	private getCanvasDim() {
-		if (this.mq420.matches) {
-			this.canvasWidth = 150;
-			this.canvasHeight = 180;
-			return;
-		}
-		if (this.mq500.matches) {
-			this.canvasWidth = 210;
-			this.canvasHeight = 280;
-			return;
-		}
-		if (this.mq800.matches) {
-			this.canvasWidth = 300;
-			this.canvasHeight = 400;
-			return;
-		}
-		if (this.mq2000.matches) {
-			this.canvasWidth = 510;
-			this.canvasHeight = 680;
-			return;
-		}
-	}
- */
+          if (this.mq420.matches) {
+              this.canvasWidth = 150;
+              this.canvasHeight = 180;
+              return;
+          }
+          if (this.mq500.matches) {
+              this.canvasWidth = 210;
+              this.canvasHeight = 280;
+              return;
+          }
+          if (this.mq800.matches) {
+              this.canvasWidth = 300;
+              this.canvasHeight = 400;
+              return;
+          }
+          if (this.mq2000.matches) {
+              this.canvasWidth = 510;
+              this.canvasHeight = 680;
+              return;
+          }
+      }
+   */
   private getCanvasXSize() {
     return (
       ((window.outerWidth - 100 - Math.floor(window.outerWidth / 990) * 270) *

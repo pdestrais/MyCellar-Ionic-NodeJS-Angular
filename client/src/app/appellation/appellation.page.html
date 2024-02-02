@@ -35,6 +35,7 @@
       <ion-item id="appellation-input1">
         <ion-label floating translate> appellation.short </ion-label>
         <ion-input
+          aria-label="courte"
           type="text"
           placeholder="{{ 'appellation.appellationShort' | translate }}"
           formControlName="courte"
@@ -54,6 +55,7 @@
       <ion-item id="appellation-input2">
         <ion-label floating translate> appellation.long </ion-label>
         <ion-input
+          aria-label="longue"
           type="text"
           placeholder="{{ 'appellation.appellationLong' | translate }}"
           formControlName="longue"
@@ -69,11 +71,11 @@
         [disabled]="!appellationForm.valid"
         color="primary"
         block
-        (click)="saveAppellation(appellation)"
+        (click)="saveAppellation()"
       >
         {{'general.save' | translate }}
       </ion-button>
-      <ion-button color="danger" block (click)="deleteAppellation(appellation)">
+      <ion-button color="danger" block (click)="deleteAppellation()">
         {{'general.suppress' | translate }}
       </ion-button>
       <ion-button color="light" block [routerLink]="['/appellations']">
@@ -96,7 +98,10 @@
     >
       {{'appellation.hideWinesForAppellation' | translate }}
     </ion-button>
-    <div [ngClass]="'border'" *ngIf="showWines && winesForAppellation$ | async">
+    <div
+      [ngClass]="'border'"
+      *ngIf="showWines && (winesForAppellation$ | async)"
+    >
       <ion-list>
         <ion-item
           *ngFor="let wine of winesForAppellation$ | async"

@@ -96,7 +96,7 @@
     <ion-searchbar
       placeholder=""
       show-clear-button="focus"
-      search-icon="search-circle"
+      search-icon="search-outline"
       [debounce]="300"
       (ionInput)="setFilteredItems($event)"
     ></ion-searchbar>
@@ -108,6 +108,7 @@
     <ion-item id="search-radio1">
       <ion-label> {{ 'search.inStock' | translate }} </ion-label>
       <ion-toggle
+        aria-label="isInStock"
         [checked]="isInStock"
         (ionChange)="onInStockChange()"
       ></ion-toggle>

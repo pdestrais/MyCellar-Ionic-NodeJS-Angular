@@ -3,20 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-
-import { IonicModule } from '@ionic/angular';
-
 import { ReadyToDrinkPage } from './ready-to-drink.page';
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonList, IonIcon, IonBadge } from "@ionic/angular/standalone";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: ReadyToDrinkPage
-	}
+    {
+        path: '',
+        component: ReadyToDrinkPage
+    }
 ];
 
 @NgModule({
-	imports: [ CommonModule, FormsModule, IonicModule, TranslateModule, RouterModule.forChild(routes) ],
-	declarations: [ ReadyToDrinkPage ]
+    imports: [CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonList, IonIcon, IonBadge],
+    declarations: [ReadyToDrinkPage]
 })
-export class ReadyToDrinkPageModule {}
+export class ReadyToDrinkPageModule { }

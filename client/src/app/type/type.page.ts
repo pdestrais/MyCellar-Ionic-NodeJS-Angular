@@ -1,9 +1,9 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
-import { NavController, AlertController } from "@ionic/angular";
+import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TypeModel } from "../models/cellar.model";
-import { ToastController } from "@ionic/angular";
+import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
 import * as Debugger from "debug";
@@ -17,6 +17,8 @@ import { takeUntil, tap } from "rxjs/operators";
 import { AppState } from "../state/app.state";
 
 import { replacer } from "../util/util";
+import { addIcons } from "ionicons";
+import { caretForwardOutline } from "ionicons/icons";
 
 const debug = Debugger("app:type");
 
@@ -38,6 +40,7 @@ export class TypePage implements OnInit {
   public submitted: boolean = false;
   public typeForm!: FormGroup;
   public list: boolean = true;
+  public newType: boolean = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -47,7 +50,9 @@ export class TypePage implements OnInit {
     private alertController: AlertController,
     private toastCtrl: ToastController,
     private store: Store<AppState>
-  ) {}
+  ) {
+    addIcons({ caretForwardOutline });
+  }
 
   public ngOnInit() {
     debug("[ngOnInit]called");
@@ -93,8 +98,9 @@ export class TypePage implements OnInit {
         if (type) {
           this.list = false;
           this.type = type;
+          this.newType = false;
           // We have selected an type
-          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+          // reset VinState status to avoid shadow UI messages coming from previous updates in other app instances
           this.store.dispatch(
             TypeActions.editType({
               id: type._id,
@@ -105,6 +111,7 @@ export class TypePage implements OnInit {
           debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
         } else {
           // No wine was selected, when will register a new type
+          this.newType = true;
           this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
         }
       });
@@ -115,14 +122,14 @@ export class TypePage implements OnInit {
       .pipe(
         takeUntil(this.unsubscribe$)
         /*         tap((typeState) =>
-          debug(
-            "[ngOnInit]handle typeState Changes - ts " +
-              window.performance.now() +
-              "\ntypeState : " +
-              JSON.stringify(typeState, replacer)
-          )
-        )
- */
+                  debug(
+                    "[ngOnInit]handle typeState Changes - ts " +
+                      window.performance.now() +
+                      "\ntypeState : " +
+                      JSON.stringify(typeState, replacer)
+                  )
+                )
+         */
       )
       .subscribe((typeState) => {
         switch (typeState.status) {
