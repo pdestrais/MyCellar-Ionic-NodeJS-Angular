@@ -35,6 +35,7 @@
       <ion-item id="origine-input1">
         <ion-label floating translate> origin.country</ion-label>
         <ion-input
+          aria-label="pays"
           type="text"
           placeholder="{{ 'origin.originCountry' | translate }}"
           formControlName="pays"
@@ -53,6 +54,7 @@
       <ion-item id="origine-input2">
         <ion-label floating translate> origin.region</ion-label>
         <ion-input
+          aria-label="region"
           type="text"
           placeholder="{{ 'origin.originRegion' | translate }}"
           formControlName="region"
@@ -73,7 +75,7 @@
         ion-button
         color="primary"
         block
-        (click)="saveOrigine(origine)"
+        (click)="saveOrigine()"
       >
         <!--             <ion-button [disabled]="!origineForm.valid" id="region-button5" ion-button color="primary" block (click)="saveOrigine(origine)">
    -->
@@ -85,7 +87,7 @@
         ion-button
         color="danger"
         block
-        (click)="deleteOrigine(origine)"
+        (click)="deleteOrigine()"
       >
         {{'general.suppress' | translate }}
       </ion-button>
@@ -109,7 +111,7 @@
     >
       {{'origin.hideWinesForOrigin' | translate }}
     </ion-button>
-    <div [ngClass]="'border'" *ngIf="showWines && winesForOrigine$ | async">
+    <div [ngClass]="'border'" *ngIf="showWines && (winesForOrigine$ | async)">
       <ion-list>
         <ion-item
           *ngFor="let wine of winesForOrigine$ | async"

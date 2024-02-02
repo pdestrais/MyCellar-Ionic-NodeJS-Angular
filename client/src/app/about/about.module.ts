@@ -2,21 +2,20 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
-
-import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AboutPage } from './about.page';
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent } from "@ionic/angular/standalone";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: AboutPage
-	}
+    {
+        path: '',
+        component: AboutPage
+    }
 ];
 
 @NgModule({
-	imports: [ CommonModule, FormsModule, IonicModule, TranslateModule, RouterModule.forChild(routes) ],
-	declarations: [ AboutPage ]
+    imports: [CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent],
+    declarations: [AboutPage]
 })
-export class AboutPageModule {}
+export class AboutPageModule { }

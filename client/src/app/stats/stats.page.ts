@@ -16,7 +16,7 @@ import * as d3select from "d3-selection";
 })
 export class StatsPage implements OnInit {
   private total: number = 0;
-  private dataset: Array<any> = [];
+  public dataset: Array<any> = [];
   private vins: Array<VinModel> = [];
   public from: number = 0;
   public to: number = 1;

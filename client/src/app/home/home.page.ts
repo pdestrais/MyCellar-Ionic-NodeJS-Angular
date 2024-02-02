@@ -1,5 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { AlertController, NavController, MenuController } from "@ionic/angular";
+import {
+  AlertController,
+  NavController,
+  MenuController,
+} from "@ionic/angular/standalone";
 import { PouchdbService } from "../services/pouchdb.service";
 import { filter, debounce } from "rxjs/operators";
 import { NgZone } from "@angular/core";
@@ -19,6 +23,9 @@ import * as OrigineActions from "../state/origine/origine.actions";
 import * as AppellationActions from "../state/appellation/appellation.actions";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import { AppState } from "../state/app.state";
+import { addIcons } from "ionicons";
+import { arrowBackOutline, searchCircle, searchOutline } from "ionicons/icons";
+import { IonRouterLink } from "@ionic/angular/standalone";
 
 const debug = Debug("app:home");
 
@@ -54,7 +61,9 @@ export class HomePage implements OnInit {
     private navCtrl: NavController,
     private zone: NgZone,
     private store: Store<AppState>
-  ) {}
+  ) {
+    addIcons({ arrowBackOutline, searchOutline });
+  }
 
   async alertNoRemoteDB() {
     const alert = await this.alertCtrl.create({
@@ -109,33 +118,33 @@ export class HomePage implements OnInit {
 
     //this.store.dispatch(VinActions.loadVins());
     /*this.store
-      .select(VinSelectors.getAllVins)
-      .subscribe((wineList) => (this.wines = Array.from(wineList.values())));
-*/
+          .select(VinSelectors.getAllVins)
+          .subscribe((wineList) => (this.wines = Array.from(wineList.values())));
+    */
     // Most of the time, we just have to load the notes data
     //this.getAllWines();
     // but sometime we have to load the notes data after the synchronizatioin with a remote db is finished or when database service hooks have been applied
     /*  this.dataService.dbEvents$
-      .pipe(
-        filter(
-          (event) =>
-            event.eventType == "dbReplicationCompleted" ||
-            event.eventType == "docDelete" ||
-            event.eventType == "docUpdate" ||
-            event.eventType == "docInsert" ||
-            event.eventType == "winesReadyToLoad"
-        ),
-        debounce(() => interval(100))
-      )
-      .subscribe((event) => {
-        this.getAllWines();
-        debug(
-          "[ngOnInit - observed event message]" +
-            JSON.stringify(event) +
-            " - loading wines"
-        );
-      });
-*/ // and sometime, there is no synchronization defined
+          .pipe(
+            filter(
+              (event) =>
+                event.eventType == "dbReplicationCompleted" ||
+                event.eventType == "docDelete" ||
+                event.eventType == "docUpdate" ||
+                event.eventType == "docInsert" ||
+                event.eventType == "winesReadyToLoad"
+            ),
+            debounce(() => interval(100))
+          )
+          .subscribe((event) => {
+            this.getAllWines();
+            debug(
+              "[ngOnInit - observed event message]" +
+                JSON.stringify(event) +
+                " - loading wines"
+            );
+          });
+    */ // and sometime, there is no synchronization defined
     let result = window.localStorage.getItem("myCellar.remoteDBURL");
     if (!result || !result.startsWith("http")) {
       debug("[ngOnInit] no remote db initialized, using local database");

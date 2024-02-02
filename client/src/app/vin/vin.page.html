@@ -11,6 +11,7 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.name' | translate }} </ion-label>
       <ion-input
+        aria-label="nom"
         type="text"
         placeholder="Nom du vin"
         formControlName="nom"
@@ -29,6 +30,7 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.year' | translate }} </ion-label>
       <ion-input
+        aria-label="annee"
         type="text"
         placeholder="Année"
         formControlName="annee"
@@ -55,6 +57,7 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.type' | translate }} </ion-label>
       <ion-select
+        aria-label="type"
         formControlName="type"
         [compareWith]="compareFn"
         interface="popover"
@@ -81,6 +84,7 @@
         {{'wine.origin' | translate }}
       </ion-label>
       <ion-select
+        aria-label="origine"
         formControlName="origine"
         [compareWith]="compareFn"
         interface="popover"
@@ -107,6 +111,7 @@
         {{'wine.appellation' | translate }}
       </ion-label>
       <ion-select
+        aria-label="appellation"
         formControlName="appellation"
         [compareWith]="compareFn"
         interface="popover"
@@ -133,6 +138,7 @@
         {{'wine.bottlesPurchase' | translate }}
       </ion-label>
       <ion-input
+        aria-label="btlesachat"
         type="number"
         placeholder="Nbre bouteilles achat"
         formControlName="nbreBouteillesAchat"
@@ -158,6 +164,7 @@
               {{'wine.bottlesLeft' | translate }}
             </ion-label>
             <ion-input
+              aria-label="btlsreste"
               type="number"
               placeholder="Nbre bouteilles restantes"
               formControlName="nbreBouteillesReste"
@@ -203,6 +210,7 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.price' | translate }} </ion-label>
       <ion-input
+        aria-label="prix"
         type="text"
         placeholder="Prix"
         formControlName="prixAchat"
@@ -217,6 +225,7 @@
         {{'wine.purchaseDate' | translate }}
       </ion-label>
       <ion-input
+        aria-label="dateachat"
         type="date"
         placeholder="Date achat"
         formControlName="dateAchat"
@@ -238,6 +247,7 @@
         {{'wine.location' | translate }}
       </ion-label>
       <ion-input
+        aria-label="localisation"
         type="text"
         placeholder="D/G.y.x"
         formControlName="localisation"
@@ -259,6 +269,7 @@
         {{'wine.contains' | translate }}
       </ion-label>
       <ion-input
+        aria-label="contenance"
         type="text"
         placeholder="75 - 150 cl"
         formControlName="contenance"
@@ -271,6 +282,7 @@
         {{'wine.apogee' | translate }}
       </ion-label>
       <ion-input
+        aria-label="apogee"
         type="text"
         placeholder="ex: 2020-2025"
         formControlName="apogee"
@@ -290,6 +302,7 @@
     <ion-item>
       <ion-label position="floating"> {{'wine.grape' | translate }} </ion-label>
       <ion-input
+        aria-label="cepage"
         type="text"
         formControlName="cepage"
         placeholder="100% Cabernet, ..."
@@ -305,6 +318,7 @@
               {{'wine.GWSScore' | translate }}
             </ion-label>
             <ion-input
+              aria-label="gwsscore"
               type="number"
               formControlName="GWSScore"
               placeholder="85.7"

@@ -3,26 +3,32 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { IonicModule } from '@ionic/angular';
-
 import { LoginComponent } from './login.component';
+import { IonContent, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonButton } from "@ionic/angular/standalone";
 
 const routes: Routes = [
-	{
-		path: '',
-		component: LoginComponent
-	}
+    {
+        path: '',
+        component: LoginComponent
+    }
 ];
 
 @NgModule({
-	declarations: [ LoginComponent ],
-	imports: [
-		CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-		IonicModule,
-		RouterModule.forChild(routes),
-		TranslateModule
-	]
+    declarations: [LoginComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forChild(routes),
+        TranslateModule,
+        IonContent,
+        IonGrid,
+        IonRow,
+        IonCol,
+        IonItem,
+        IonLabel,
+        IonInput,
+        IonButton
+    ]
 })
-export class LoginModule {}
+export class LoginModule { }

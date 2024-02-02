@@ -18,6 +18,7 @@
                   "login.username" | translate
                 }}</ion-label>
                 <ion-input
+                  aria-label="username"
                   type="text"
                   formControlName="username"
                   [ngClass]="{ 'is-invalid': submitted && f.username.errors }"
@@ -36,6 +37,7 @@
                   "login.password" | translate
                 }}</ion-label>
                 <ion-input
+                  aria-label="password"
                   type="password"
                   formControlName="password"
                   [ngClass]="{ 'is-invalid': submitted && f.password.errors }"

@@ -35,6 +35,7 @@
       <ion-item id="type-input1">
         <ion-label floating translate>type.type</ion-label>
         <ion-input
+          aria-label="nom"
           type="text"
           placeholder="{{ 'type.type' | translate }}"
           formControlName="nom"
@@ -59,7 +60,7 @@
       ion-button
       color="primary"
       block
-      (click)="saveType(type)"
+      (click)="saveType()"
     >
       {{'general.save' | translate }}
     </ion-button>
@@ -69,7 +70,7 @@
       ion-button
       color="danger"
       block
-      (click)="deleteType(type)"
+      (click)="deleteType()"
     >
       {{'general.suppress' | translate }}
     </ion-button>
