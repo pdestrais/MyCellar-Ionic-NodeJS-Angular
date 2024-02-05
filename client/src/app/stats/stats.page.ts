@@ -7,6 +7,10 @@ import * as d3 from "d3";
 import * as d3scale from "d3-scale";
 import * as d3shape from "d3-shape";
 import * as d3select from "d3-selection";
+import { Store, select } from "@ngrx/store";
+import { AppState } from "../state/app.state";
+import * as VinSelectors from "../state/vin/vin.selectors";
+import * as VinActions from "../state/vin/vin.actions";
 
 @Component({
   selector: "app-stats",
@@ -32,7 +36,8 @@ export class StatsPage implements OnInit {
     public router: Router,
     private pouch: PouchdbService,
     private translate: TranslateService,
-    private zone: NgZone
+    private zone: NgZone,
+    private store: Store<AppState>
   ) {
     this.fromOptions = [
       { value: 0, display: this.translate.instant("stats.now") },
@@ -48,9 +53,15 @@ export class StatsPage implements OnInit {
   }
 
   ngOnInit() {
-    this.pouch.getDocsOfType("vin").then((vins) => {
-      this.vins = vins;
+    this.store.dispatch(VinActions.loadVins());
+    this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
+      this.vins = Array.from(wineList.values());
+      console.log("[Stats]" + this.vins.length + " wines loaded");
     });
+
+    // this.pouch.getDocsOfType("vin").then((vins) => {
+    //   this.vins = vins;
+    // });
   }
 
   draw() {
@@ -196,6 +207,7 @@ export class StatsPage implements OnInit {
     tooltip
       .append("div") // NEW
       .attr("class", "percent"); // NEW
+    tooltip.style("display", "none"); // NEW
     var path = svg
       .selectAll("path")
       .data(pie(this.dataset))
@@ -207,7 +219,7 @@ export class StatsPage implements OnInit {
       });
     this.colors = color.domain();
     var _self = this;
-    path.on("mouseover", function (d: any) {
+    path.on("mouseover", function (event: any, d: any) {
       // NEW
       var total = d3.sum(
         _self.dataset.map(function (d: any) {
@@ -216,13 +228,21 @@ export class StatsPage implements OnInit {
         })
       ); // NEW
       var percent = Math.round((1000 * d.data.count) / total) / 10; // NEW
-      tooltip.select(".label").html(d.data.label); // NEW
-      tooltip.select(".count").html(d.data.count); // NEW
-      tooltip.select(".percent").html(percent + "%"); // NEW
+      tooltip.select(".label").html("Wine : " + d.data.label); // NEW
+      tooltip.select(".count").html("# : " + d.data.count); // NEW
+      tooltip.select(".percent").html("% : " + percent + "%"); // NEW
+      // tooltip.select(".label").html(d.data.label); // NEW
+      // tooltip.select(".count").html(d.data.count); // NEW
+      // tooltip.select(".percent").html(percent + "%"); // NEW
+      // console.log("mouseover");
+      // console.log(
+      //   "onmouse event X, Y : " + event.offsetX + "," + event.offsetY
+      // );
+      tooltip.style("top", event.offsetY + "px");
+      tooltip.style("left", event.offsetX + "px");
       tooltip.style("display", "block");
     }); // NEW
-    path.on("mouseout", function () {
-      // NEW
+    path.on("mouseleave", function () {
       tooltip.style("display", "none"); // NEW
     }); // NEW
     console.log("adapt table style");
