@@ -5,15 +5,11 @@ import {
   MenuController,
 } from "@ionic/angular/standalone";
 import { PouchdbService } from "../services/pouchdb.service";
-import { filter, debounce } from "rxjs/operators";
 import { NgZone } from "@angular/core";
 import { VinModel } from "../models/cellar.model";
-import dayjs from "dayjs";
 
 import * as Debugger from "debug";
 import Debug from "debug";
-
-import { interval } from "rxjs";
 
 import { Store, select } from "@ngrx/store";
 import { Observable, pipe } from "rxjs";
@@ -52,7 +48,8 @@ export class HomePage implements OnInit {
   public dashboard: boolean = true;
   public winesForDrinkList: VinModel[] = [];
   public winesForDrinkList$;
-  public filteredWines$!: Observable<VinModel[]>;
+  public filteredWines$: Observable<VinModel[]> = new Observable<VinModel[]>();
+  private searchString: string = "";
 
   constructor(
     private dataService: PouchdbService,
@@ -107,7 +104,7 @@ export class HomePage implements OnInit {
     this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
       this.wines = Array.from(wineList.values());
       this.loading = false;
-      console.log("adding " + this.wines.length + " wines to home page");
+      debug("[HomePage]Loading " + this.wines.length + " wines to home page");
     });
     let maturityTypes = ["ARTD", "RTD", "NRTD", "NotRTD"];
     maturityTypes.map((v) => {
@@ -116,35 +113,7 @@ export class HomePage implements OnInit {
       });
     });
 
-    //this.store.dispatch(VinActions.loadVins());
-    /*this.store
-          .select(VinSelectors.getAllVins)
-          .subscribe((wineList) => (this.wines = Array.from(wineList.values())));
-    */
-    // Most of the time, we just have to load the notes data
-    //this.getAllWines();
-    // but sometime we have to load the notes data after the synchronizatioin with a remote db is finished or when database service hooks have been applied
-    /*  this.dataService.dbEvents$
-          .pipe(
-            filter(
-              (event) =>
-                event.eventType == "dbReplicationCompleted" ||
-                event.eventType == "docDelete" ||
-                event.eventType == "docUpdate" ||
-                event.eventType == "docInsert" ||
-                event.eventType == "winesReadyToLoad"
-            ),
-            debounce(() => interval(100))
-          )
-          .subscribe((event) => {
-            this.getAllWines();
-            debug(
-              "[ngOnInit - observed event message]" +
-                JSON.stringify(event) +
-                " - loading wines"
-            );
-          });
-    */ // and sometime, there is no synchronization defined
+    // and sometime, there is no synchronization defined
     let result = window.localStorage.getItem("myCellar.remoteDBURL");
     if (!result || !result.startsWith("http")) {
       debug("[ngOnInit] no remote db initialized, using local database");
@@ -185,6 +154,9 @@ export class HomePage implements OnInit {
 
   onInStockChange() {
     this.isInStock = !this.isInStock;
+    this.filteredWines$ = this.store.select(
+      VinSelectors.getFilteredWines(this.searchString, this.isInStock)
+    );
   }
 
   cancelSearch() {
@@ -194,12 +166,18 @@ export class HomePage implements OnInit {
   }
 
   setFilteredItems(event) {
+    this.searchString = event.target.value.toLowerCase();
     this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines(
-        event.target.value.toLowerCase(),
-        this.isInStock
-      )
+      VinSelectors.getFilteredWines(this.searchString, this.isInStock)
     );
+    // this.store
+    //   .pipe(
+    //     select(VinSelectors.getFilteredWines(this.searchString, this.isInStock))
+    //   )
+    //   .subscribe((searchResult) => {
+    //     let res = Array.from(searchResult.values());
+    //     res.map((value) => console.log(value));
+    //   });
   }
 
   goToVin(params) {

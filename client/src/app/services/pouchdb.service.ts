@@ -189,6 +189,7 @@ export class PouchdbService {
   // if a docClass is given and if the _id doesn't exist (this is a new document), the doc _id will be formed using the docClass
   // This will allow quick and easy retrival of doc types using only the doc's primary key (_id)
   // returns a promise or an the error object.
+
   public saveDoc(doc, docClass?) {
     debug(
       "[saveDoc]saving document: " +
@@ -286,6 +287,10 @@ export class PouchdbService {
     }
   }
 
+  public saveDoc$(doc, docClass?): Observable<any> {
+    return from(this.saveDoc(doc, docClass));
+  }
+
   public getDoc(id: string) {
     debug("[getDoc]id : " + id);
     return this.db
@@ -309,6 +314,10 @@ export class PouchdbService {
         throwError(error);
       });
  */
+  }
+
+  public deleteDoc$(doc): Observable<any> {
+    return from(this.deleteDoc(doc));
   }
 
   public fetch(startKey?: string, endKey?: string) {

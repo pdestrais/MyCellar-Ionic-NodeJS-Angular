@@ -104,16 +104,11 @@
   <div *ngIf="loading" class="spinner-container">
     <ion-spinner></ion-spinner>
   </div>
-  <form id="search-form2">
-    <ion-item id="search-radio1">
-      <ion-label> {{ 'search.inStock' | translate }} </ion-label>
-      <ion-toggle
-        aria-label="isInStock"
-        [checked]="isInStock"
-        (ionChange)="onInStockChange()"
-      ></ion-toggle>
-    </ion-item>
-  </form>
+  <ion-item id="search-radio1">
+    <ion-toggle checked="isInStock" (ionChange)="onInStockChange()"
+      >{{ 'search.inStock' | translate }}</ion-toggle
+    >
+  </ion-item>
 
   <ion-list>
     <ion-item
@@ -137,5 +132,4 @@
       <!-- <ion-icon name="arrow-dropright" slot="end"></ion-icon> -->
     </ion-item>
   </ion-list>
-  <div># wines : {{wines.length}}</div>
 </ion-content>

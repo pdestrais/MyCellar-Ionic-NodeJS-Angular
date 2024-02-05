@@ -43,38 +43,63 @@ export class VinEffects {
   );
 
   // Run this code when the createVin action is dispatched
-  saveVin$ = createEffect(
+  // saveVin$ = createEffect(
+  //   () =>
+  //     this.actions$.pipe(
+  //       ofType(VinAction.createVin),
+  //       exhaustMap((action) => {
+  //         //        this.lastSavedWine = action.vin;
+
+  //         // Quelque chose ne va pas avec ce code. Probablement le of(...)
+  //         return of(
+  //           this.pouchService.saveDoc(Object.assign({}, action.vin), "vin")
+  //         ).pipe(
+  //           map((result: IResult) => {
+  //             console.log(
+  //               "Wine created with id : " + result.id + " & rev : " + result.rev
+  //             );
+  //             // result.id et .rev sont undefined.
+  //             return VinAction.createVinSuccess({
+  //               vin: { ...action.vin, _id: result.id, _rev: result.rev },
+  //               source: "internal",
+  //             });
+  //           }),
+  //           catchError((error) => of(VinAction.createVinFailure({ error })))
+  //         );
+  //       })
+  //     ),
+
+  //   // Most effects dispatch another action, but this one is just a "fire and forget" effect
+  //   { dispatch: true }
+  // );
+
+  // Run this code when the createVin action is dispatched
+  saveVinNew$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(VinAction.createVin),
-        switchMap((action) => {
-          //        this.lastSavedWine = action.vin;
-          return of(
-            this.pouchService.saveDoc(Object.assign({}, action.vin), "vin")
-          ).pipe(
+        exhaustMap((action) =>
+          // Quelque chose ne va pas avec ce code. Probablement le of(...)
+
+          this.pouchService.saveDoc$(Object.assign({}, action.vin), "vin").pipe(
             map((result: IResult) => {
+              debug(
+                "[saveVin Effect]ts: " +
+                  window.performance.now() +
+                  "\n - New Wine created with id : " +
+                  result.id +
+                  " & rev : " +
+                  result.rev
+              );
+              // result.id et .rev sont undefined.
               return VinAction.createVinSuccess({
                 vin: { ...action.vin, _id: result.id, _rev: result.rev },
                 source: "internal",
               });
             }),
             catchError((error) => of(VinAction.createVinFailure({ error })))
-          );
-        })
-        /*        exhaustMap((action) =>
-          from(
-            this.pouchService.saveDoc(Object.assign({}, action.vin), "vin")
-          ).pipe(
-            // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((vin: VinModel) => {
-              console.log("[saveVin$ Effect]" + JSON.stringify(vin));
-              VinAction.createVinSuccess({ vin: vin });
-            }),
-            // Or... if it errors return a new failure action containing the error
-            catchError((error) => of(VinAction.createVinFailure({ error })))
           )
         )
-*/
       ),
 
     // Most effects dispatch another action, but this one is just a "fire and forget" effect
@@ -87,14 +112,20 @@ export class VinEffects {
       this.actions$.pipe(
         ofType(VinAction.deleteVin),
         exhaustMap((action) =>
-          of(this.pouchService.deleteDoc(action.vin)).pipe(
+          this.pouchService.deleteDoc$(action.vin).pipe(
             // Take the returned value and return a new success action containing the saved wine (with it's id)
-            map((deleteResult: IResult) =>
-              VinAction.deleteVinSuccess({
+            map((deleteResult: IResult) => {
+              debug(
+                "[deleteVin Effect]ts: " +
+                  window.performance.now() +
+                  "\n - Wine deleted with id : " +
+                  action.vin._id
+              );
+              return VinAction.deleteVinSuccess({
                 result: deleteResult,
                 source: "internal",
-              })
-            ),
+              });
+            }),
             // Or... if it errors return a new failure action containing the error
             catchError((error) => of(VinAction.deleteVinFailure({ error })))
           )
