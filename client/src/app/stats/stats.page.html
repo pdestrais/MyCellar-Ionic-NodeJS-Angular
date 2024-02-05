@@ -3,29 +3,41 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>
-      {{'page.stats' | translate }}
-    </ion-title>
+    <ion-title> {{'page.stats' | translate }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h4 id="stats-heading2" style="color:#000000;" translate>
+  <h4 id="stats-heading2" style="color: #000000" translate>
     stats.consumption
   </h4>
   <form id="stats-form5">
     <ion-item id="stats-from">
-      <ion-label translate>stats.from</ion-label>
-      <ion-select [(ngModel)]="from" interface="popover" name="end">
-        <ion-select-option *ngFor="let option of fromOptions" [value]="option.value">
+      <ion-select
+        label="{{'stats.from' | translate }}"
+        [(ngModel)]="from"
+        interface="popover"
+        name="end"
+      >
+        <ion-select-option
+          *ngFor="let option of fromOptions"
+          [value]="option.value"
+        >
           {{option.display | translate }}
         </ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item id="stats-to">
-      <ion-label translate>stats.to</ion-label>
-      <ion-select [(ngModel)]="to" interface="popover" name="start">
-        <ion-select-option *ngFor="let option of toOptions" [value]="option.value">
+      <ion-select
+        label="{{'stats.to' | translate }}"
+        [(ngModel)]="to"
+        interface="popover"
+        name="start"
+      >
+        <ion-select-option
+          *ngFor="let option of toOptions"
+          [value]="option.value"
+        >
           {{option.display | translate }}
         </ion-select-option>
       </ion-select>
@@ -54,5 +66,4 @@
       </tbody>
     </table>
   </div>
-
 </ion-content>

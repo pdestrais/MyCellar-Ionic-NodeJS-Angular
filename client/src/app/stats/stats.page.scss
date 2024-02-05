@@ -21,9 +21,9 @@ rect {
   left: 130px;
   padding: 10px;
   position: absolute;
-  text-align: center;
+  text-align: left;
   top: 95px;
-  width: 80px;
+  width: auto;
   z-index: 9;
 }
 
@@ -52,10 +52,10 @@ rect {
   background: 0;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#006699', endColorstr='#00557F');
   background-color: rgb(33, 150, 253);
-  color: #FFF;
+  color: #fff;
   font-size: 15px;
   font-weight: 700;
-  border-left: 1px solid #0070A8;
+  border-left: 1px solid #0070a8;
 }
 
 .statTable table thead th:first-child {
@@ -63,10 +63,10 @@ rect {
 }
 
 .statTable table tbody td {
-  color: #00496B;
-  border-left: 1px solid #E1EEF4;
+  color: #00496b;
+  border-left: 1px solid #e1eef4;
   font-size: 12px;
-  border-bottom: 1px solid #E1EEF4;
+  border-bottom: 1px solid #e1eef4;
   font-weight: 400;
 }
 
