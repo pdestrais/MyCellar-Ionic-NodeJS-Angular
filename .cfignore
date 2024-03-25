@@ -1,11 +1,12 @@
-node_modules/
-*.DS_Store
+node*modules/
+*.DS*Store
 README.md
 .github/
 .git/
 .gitignore
 logs
 *.log
+\*.txt
 
 client/.sourcemaps
 client/hooks

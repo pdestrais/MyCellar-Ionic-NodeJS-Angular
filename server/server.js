@@ -174,7 +174,9 @@ app.get("/api/user/:username", (request, response) => {
   };
 
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbProtocol
+      ? process.env.dbProtocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -249,7 +251,9 @@ app.get(
       });
 
     axios({
-      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      url: process.env.dbprotocol
+        ? process.env.dbprotocol
+        : "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
       method: "get",
       auth: {
         username: process.env.dbHostServiceUsername,
@@ -353,7 +357,9 @@ app.get(
       });
 
     axios({
-      url: "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      url: process.env.dbprotocol
+        ? process.env.dbprotocol
+        : "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
       method: "get",
       auth: {
         username: process.env.dbHostServiceUsername,
@@ -393,15 +399,16 @@ app.get(
               .then((upsertRes) => {
                 // create user table
                 var createUserTableReq = {
-                  url:
-                    "https://" +
-                    process.env.dbHostServiceUsername +
-                    ":" +
-                    process.env.dbHostServicePassword +
-                    "@" +
-                    process.env.dbHost +
-                    "/cellar$" +
-                    res.data.username,
+                  url: process.env.dbprotocol
+                    ? process.env.dbprotocol
+                    : "https://" +
+                      process.env.dbHostServiceUsername +
+                      ":" +
+                      process.env.dbHostServicePassword +
+                      "@" +
+                      process.env.dbHost +
+                      "/cellar$" +
+                      res.data.username,
                   method: "put",
                   auth: {
                     username: process.env.dbHostServiceUsername,
@@ -613,7 +620,9 @@ app.post("/api/createUserMngmtRequest", function (request, response, next) {
     JSON.stringify(reqData)
   );
   axios({
-    url: "https://" + process.env.dbHost + "/user-mngt-app",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/user-mngt-app",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -795,7 +804,9 @@ app.post("/api/upsertUserData", function (request, response, next) {
   };
 
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -870,11 +881,12 @@ app.post("/api/upsertUserData", function (request, response, next) {
             JSON.stringify(reqData)
           );
           axios({
-            url:
-              "https://" +
-              process.env.dbHost +
-              "/app-users/" +
-              res.data.docs[0]._id,
+            url: process.env.dbprotocol
+              ? process.env.dbprotocol
+              : "https://" +
+                process.env.dbHost +
+                "/app-users/" +
+                res.data.docs[0]._id,
             method: "PUT",
             auth: {
               username: process.env.dbHostServiceUsername,
@@ -933,7 +945,9 @@ app.post("/api/upsertUserData", function (request, response, next) {
             JSON.stringify(reqData)
           );
           axios({
-            url: "https://" + process.env.dbHost + "/app-users",
+            url: process.env.dbprotocol
+              ? process.env.dbprotocol
+              : "https://" + process.env.dbHost + "/app-users",
             method: "POST",
             auth: {
               username: process.env.dbHostServiceUsername,
@@ -1011,7 +1025,9 @@ app.post("/api/processSignupRequest", function (request, response, next) {
   };
 
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -1036,7 +1052,9 @@ app.post("/api/processSignupRequest", function (request, response, next) {
       } else {
         // prepare create entry into user request table
         var createUserReq = {
-          url: "https://" + process.env.dbHost + "/user-mngt-app/",
+          url: process.env.dbprotocol
+            ? process.env.dbprotocol
+            : "https://" + process.env.dbHost + "/user-mngt-app/",
           method: "post",
           auth: {
             username: process.env.dbHostServiceUsername,
@@ -1166,7 +1184,9 @@ app.post("/api/login", function (request, response, next) {
 
   console.log("login using cloudant db : " + process.env.dbHost);
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -1315,7 +1335,9 @@ app.post("/api/resetPassword", function (request, response, next) {
   };
 
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,
@@ -1333,7 +1355,9 @@ app.post("/api/resetPassword", function (request, response, next) {
         let user = res.data.docs[0];
         // prepare create user request
         var createUserReq = {
-          url: "https://" + process.env.dbHost + "/user-mngt-app/",
+          url: process.env.dbprotocol
+            ? process.env.dbprotocol
+            : "https://" + process.env.dbHost + "/user-mngt-app/",
           method: "post",
           auth: {
             username: process.env.dbHostServiceUsername,
@@ -1493,7 +1517,9 @@ app.post("/api/changePassword", function (request, response, next) {
   };
 
   axios({
-    url: "https://" + process.env.dbHost + "/app-users/_find",
+    url: process.env.dbprotocol
+      ? process.env.dbprotocol
+      : "https://" + process.env.dbHost + "/app-users/_find",
     method: "post",
     auth: {
       username: process.env.dbHostServiceUsername,

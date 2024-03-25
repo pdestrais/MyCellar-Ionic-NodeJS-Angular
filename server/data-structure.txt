@@ -1,0 +1,14 @@
+--- user database ---
+app-users
+    username
+    password
+    salt
+    dbServer
+    dbUser
+    dbPassword
+    status
+
+
+--- user management (request, approval, ...) database ---
+user-mngt-app   
+    
