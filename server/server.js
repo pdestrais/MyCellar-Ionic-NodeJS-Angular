@@ -27,7 +27,8 @@ var crypto = require("crypto");
 var https = require("https");
 var dotenv = require("dotenv").config();
 var jsrender = require("jsrender");
-var nodemailer = require("nodemailer");
+const Mailjet = require("node-mailjet");
+// Nodemailer should disappear
 var environment = require("../package.json");
 const json = require("body-parser/lib/types/json");
 const fs = require("fs");
@@ -40,6 +41,16 @@ console.info("\n ", CONFIG);
 const length = 128;
 const digest = "sha256";
 const gmail = "";
+
+const cloudantDBhostURL = process.env.dbProtocol + "://" + process.env.dbHost;
+const cloudantDBAuth = {
+  username: process.env.dbHostServiceUsername,
+  password: process.env.dbHostServicePassword,
+};
+
+let getNodeJSServerURL = (request) => {
+  return request.protocol + "://" + request.get("host");
+};
 
 let handleError = (caller, error, response) => {
   if (error.response) {
@@ -174,14 +185,9 @@ app.get("/api/user/:username", (request, response) => {
   };
 
   axios({
-    url: process.env.dbProtocol
-      ? process.env.dbProtocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -219,7 +225,6 @@ app.get("/api/ping", function (request, response, next) {
     environment: {
       dbHost: process.env.dbHost,
       dbHostServiceUsername: process.env.dbHostServiceUsername,
-      secret: process.env.secret,
       mailUserId: process.env.mailUserId,
     },
     backendVersion: environment.version,
@@ -237,8 +242,6 @@ app.get(
       JSON.stringify(request.params)
     );
 
-    const serverUrl = request.protocol + "://" + request.get("host");
-
     // fetch request from user-mngmt table correponding to received id
     var reqID = request.params.id;
     if (!reqID)
@@ -251,14 +254,9 @@ app.get(
       });
 
     axios({
-      url: process.env.dbprotocol
-        ? process.env.dbprotocol
-        : "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
       method: "get",
-      auth: {
-        username: process.env.dbHostServiceUsername,
-        password: process.env.dbHostServicePassword,
-      },
+      auth: cloudantDBAuth,
       headers: {
         "Content-Type": "application/json",
       },
@@ -270,10 +268,7 @@ app.get(
             // send mail to user to confirm his registration
 
             var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+              url: getNodeJSServerURL(request) + "/api/sendEMail",
               method: "POST",
               data: {
                 to: res.data.email,
@@ -284,13 +279,9 @@ app.get(
                   text2:
                     "Before having you on board, please confirm you email address.",
                   url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver +
-                        "/api/processUserRequestConfirmation/" +
-                        res.data._id
-                      : (process.env.apiserver || serverUrl) +
-                        "/api/processUserRequestConfirmation/" +
-                        res.data._id,
+                    getNodeJSServerURL(request) +
+                    "/api/processUserRequestConfirmation/" +
+                    res.data._id,
                 },
                 template: "confirmEmailTmpl.html",
               },
@@ -357,14 +348,9 @@ app.get(
       });
 
     axios({
-      url: process.env.dbprotocol
-        ? process.env.dbprotocol
-        : "https://" + process.env.dbHost + "/user-mngt-app/" + reqID,
+      url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
       method: "get",
-      auth: {
-        username: process.env.dbHostServiceUsername,
-        password: process.env.dbHostServicePassword,
-      },
+      auth: cloudantDBAuth,
       headers: {
         "Content-Type": "application/json",
       },
@@ -375,11 +361,7 @@ app.get(
             // if request is for new registration
 
             var upsertUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) +
-                    "/api/upsertUserData",
+              url: getNodeJSServerURL(request) + "/api/upsertUserData",
               method: "post",
               data: {
                 username: res.data.username,
@@ -399,28 +381,21 @@ app.get(
               .then((upsertRes) => {
                 // create user table
                 var createUserTableReq = {
-                  url: process.env.dbprotocol
-                    ? process.env.dbprotocol
-                    : "https://" +
-                      process.env.dbHostServiceUsername +
-                      ":" +
-                      process.env.dbHostServicePassword +
-                      "@" +
-                      process.env.dbHost +
-                      "/cellar$" +
-                      res.data.username,
+                  url:
+                    process.env.dbprotocol +
+                    process.env.dbHostServiceUsername +
+                    ":" +
+                    process.env.dbHostServicePassword +
+                    "@" +
+                    process.env.dbHost +
+                    "/cellar$" +
+                    res.data.username,
                   method: "put",
-                  auth: {
-                    username: process.env.dbHostServiceUsername,
-                    password: process.env.dbHostServicePassword,
-                  },
+                  auth: cloudantDBAuth,
                 };
                 // send mail
                 var sendMailReq = {
-                  url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver + "/api/sendEMail"
-                      : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+                  url: getNodeJSServerURL(request) + "/api/sendEMail",
                   method: "POST",
                   data: {
                     to: res.data.email,
@@ -432,7 +407,7 @@ app.get(
                       text3: "Please log on using the following credentials : ",
                       username: res.data.username,
                       pwd: newPwd,
-                      url: process.env.apiserver || serverUrl,
+                      url: getNodeJSServerURL(request),
                       text4:
                         "You will be asked to immediately change your password after the first login.",
                     },
@@ -478,11 +453,7 @@ app.get(
             // request is for password reset
             // Upsert user with newly generated password
             var upsertUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) +
-                    "/api/upsertUserData",
+              url: getNodeJSServerURL(request) + "/api/upsertUserData",
               method: "post",
               data: {
                 username: res.data.username,
@@ -493,10 +464,7 @@ app.get(
             };
             // send mail
             var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+              url: getNodeJSServerURL(request) + "/api/sendEMail",
               method: "POST",
               data: {
                 to: res.data.email,
@@ -508,7 +476,7 @@ app.get(
                   text3: "Please use now the following credentials : ",
                   username: res.data.username,
                   pwd: newPwd,
-                  url: process.env.apiserver || serverUrl,
+                  url: getNodeJSServerURL(request),
                   text4:
                     "You will be asked to immediately change your password after the next login.",
                 },
@@ -620,14 +588,9 @@ app.post("/api/createUserMngmtRequest", function (request, response, next) {
     JSON.stringify(reqData)
   );
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/user-mngt-app",
+    url: cloudantDBhostURL + "/user-mngt-app",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(reqData)),
@@ -677,19 +640,20 @@ app.post("/api/sendEMail", function (request, response, next) {
     });
   }
 
-  let transporter = nodemailer.createTransport({
-    host: "smtp.scarlet.be",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.mailUserId,
-      pass: process.env.mailUserPwd,
-    },
-  });
+  console.log("APIKEY : " + process.env.MJ_APIKEY_PUBLIC);
+  console.log("SECRETKEY : " + process.env.MJ_APIKEY_PRIVATE);
+  const mailjet = Mailjet.apiConnect(
+    process.env.MJ_APIKEY_PUBLIC,
+    process.env.MJ_APIKEY_PRIVATE,
+    {
+      config: {},
+      options: {},
+    }
+  );
 
   let message = {};
 
-  if (!request.body.template) {
+  /*   if (!request.body.template) {
     message = {
       from: process.env.emailAdmin,
       to: request.body.to,
@@ -708,10 +672,47 @@ app.post("/api/sendEMail", function (request, response, next) {
       html: htmlMessage,
     };
   }
+ */
+  console.log("[sendEMail]mail message : " + JSON.stringify(request.body));
 
-  console.log("[sendEMail]mail message : " + JSON.stringify(message));
-
-  transporter.sendMail(message, function (err, res) {
+  const sendRequest = mailjet.post("send", { version: "v3.1" }).request({
+    Messages: [
+      {
+        From: {
+          Email: process.env.emailAdmin,
+          Name: "MyCellar Admin",
+        },
+        To: [
+          {
+            Email: request.body.to,
+            Name: "Requestor",
+          },
+        ],
+        Subject: request.body.subject,
+        TextPart: !request.body.template ? request.body.message : "",
+        HTMLPart: !request.body.template
+          ? ""
+          : jsrender.renderFile(
+              "./server/templates/" + request.body.template,
+              request.body.message
+            ),
+      },
+    ],
+  });
+  sendRequest
+    .then((result) => {
+      console.log(result.body);
+      console.log("mail smtp send message call returned without error");
+      response.send({
+        result: "OK",
+      });
+    })
+    .catch((err) => {
+      console.log("mail smtp send message call error returned");
+      console.log("status code :" + err.statusCode);
+      response.status(500).send(err.statusCode);
+    });
+  /*   transporter.sendMail(message, function (err, res) {
     if (err != null) {
       console.log("mail smtp send message call error returned");
       response.status(500).send(err);
@@ -723,6 +724,7 @@ app.post("/api/sendEMail", function (request, response, next) {
     }
     console.log("send() callback returned: err:", err, "; res:", res);
   });
+ */
 });
 
 /* Private endpoint to insert or update user data (including password) in the user table.
@@ -804,14 +806,9 @@ app.post("/api/upsertUserData", function (request, response, next) {
   };
 
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -881,17 +878,9 @@ app.post("/api/upsertUserData", function (request, response, next) {
             JSON.stringify(reqData)
           );
           axios({
-            url: process.env.dbprotocol
-              ? process.env.dbprotocol
-              : "https://" +
-                process.env.dbHost +
-                "/app-users/" +
-                res.data.docs[0]._id,
+            url: cloudantDBhostURL + "/app-users/" + res.data.docs[0]._id,
             method: "PUT",
-            auth: {
-              username: process.env.dbHostServiceUsername,
-              password: process.env.dbHostServicePassword,
-            },
+            auth: cloudantDBAuth,
             headers: {
               "Content-Type": "application/json",
               "Content-Length": Buffer.byteLength(JSON.stringify(reqData)),
@@ -945,14 +934,9 @@ app.post("/api/upsertUserData", function (request, response, next) {
             JSON.stringify(reqData)
           );
           axios({
-            url: process.env.dbprotocol
-              ? process.env.dbprotocol
-              : "https://" + process.env.dbHost + "/app-users",
+            url: cloudantDBhostURL + "/app-users",
             method: "POST",
-            auth: {
-              username: process.env.dbHostServiceUsername,
-              password: process.env.dbHostServicePassword,
-            },
+            auth: cloudantDBAuth,
             headers: {
               "Content-Type": "application/json",
               "Content-Length": Buffer.byteLength(JSON.stringify(reqData)),
@@ -1008,8 +992,12 @@ app.post("/api/processSignupRequest", function (request, response, next) {
       message: "No email or username",
     });
   }
-  const serverUrl = request.protocol + "://" + request.get("host");
-
+  console.log(
+    "request host : " +
+      request.get("host") +
+      " - request protocol : " +
+      request.protocol
+  );
   // Check that user doesn't already exists before creating a new one
   var selector = {
     selector: {
@@ -1025,14 +1013,9 @@ app.post("/api/processSignupRequest", function (request, response, next) {
   };
 
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -1052,14 +1035,9 @@ app.post("/api/processSignupRequest", function (request, response, next) {
       } else {
         // prepare create entry into user request table
         var createUserReq = {
-          url: process.env.dbprotocol
-            ? process.env.dbprotocol
-            : "https://" + process.env.dbHost + "/user-mngt-app/",
+          url: cloudantDBhostURL + "/user-mngt-app/",
           method: "post",
-          auth: {
-            username: process.env.dbHostServiceUsername,
-            password: process.env.dbHostServicePassword,
-          },
+          auth: cloudantDBAuth,
           headers: {
             "Content-Type": "application/json",
             "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -1080,10 +1058,7 @@ app.post("/api/processSignupRequest", function (request, response, next) {
           .then((createUserReqResponse) => {
             // prepare sending mail
             var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "/api/sendEMail",
+              url: getNodeJSServerURL(request) + "/api/sendEMail",
               method: "POST",
               data: {
                 to: process.env.emailAdmin,
@@ -1100,13 +1075,9 @@ app.post("/api/processSignupRequest", function (request, response, next) {
                   phone: request.body.phone || "",
                   address: request.body.address || "",
                   url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver +
-                        "/api/approveUserSignupRequest/" +
-                        createUserReqResponse.data.id
-                      : (process.env.apiserver || serverUrl) +
-                        "/api/approveUserSignupRequest/" +
-                        createUserReqResponse.data.id,
+                    getNodeJSServerURL(request) +
+                    "/api/approveUserSignupRequest/" +
+                    createUserReqResponse.data.id,
                 },
                 template: "approveReqTmpl.html",
               },
@@ -1184,14 +1155,9 @@ app.post("/api/login", function (request, response, next) {
 
   console.log("login using cloudant db : " + process.env.dbHost);
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -1335,14 +1301,9 @@ app.post("/api/resetPassword", function (request, response, next) {
   };
 
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(query)),
@@ -1355,14 +1316,9 @@ app.post("/api/resetPassword", function (request, response, next) {
         let user = res.data.docs[0];
         // prepare create user request
         var createUserReq = {
-          url: process.env.dbprotocol
-            ? process.env.dbprotocol
-            : "https://" + process.env.dbHost + "/user-mngt-app/",
+          url: cloudantDBhostURL + "/user-mngt-app/",
           method: "post",
-          auth: {
-            username: process.env.dbHostServiceUsername,
-            password: process.env.dbHostServicePassword,
-          },
+          auth: cloudantDBAuth,
           headers: {
             "Content-Type": "application/json",
           },
@@ -1380,10 +1336,7 @@ app.post("/api/resetPassword", function (request, response, next) {
             // if user-request succesfully created, send mail and update user's state in users db
             // prepare sending mail to user
             var sendMailReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/sendEMail"
-                  : (process.env.apiserver || serverUrl) + "api/sendEMail",
+              url: getNodeJSServerURL(request) + "api/sendEMail",
               method: "POST",
               data: {
                 to: user.email,
@@ -1394,23 +1347,16 @@ app.post("/api/resetPassword", function (request, response, next) {
                   text2:
                     "For security reasons, we want to check that you are the originator of this request.",
                   url:
-                    process.env.environment == "dev"
-                      ? process.env.apiserver +
-                        "/api/processUserRequestConfirmation/" +
-                        userRequest.data.id
-                      : (process.env.apiserver || serverUrl) +
-                        "/api/processUserRequestConfirmation/" +
-                        userRequest.data.id,
+                    getNodeJSServerURL(request) +
+                    "/api/processUserRequestConfirmation/" +
+                    userRequest.data.id,
                 },
                 template: "confirmEmailTmpl.html",
               },
             };
             // prepare user state update
             var updateUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) + "api/upsertUserData",
+              url: getNodeJSServerURL(request) + "api/upsertUserData",
               method: "POST",
               data: {
                 action: "update",
@@ -1517,14 +1463,9 @@ app.post("/api/changePassword", function (request, response, next) {
   };
 
   axios({
-    url: process.env.dbprotocol
-      ? process.env.dbprotocol
-      : "https://" + process.env.dbHost + "/app-users/_find",
+    url: cloudantDBhostURL + "/app-users/_find",
     method: "post",
-    auth: {
-      username: process.env.dbHostServiceUsername,
-      password: process.env.dbHostServicePassword,
-    },
+    auth: cloudantDBAuth,
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(JSON.stringify(selector)),
@@ -1573,11 +1514,7 @@ app.post("/api/changePassword", function (request, response, next) {
           } else {
             // Update user 's data state to "standard" and change password
             var upsertUserDataReq = {
-              url:
-                process.env.environment == "dev"
-                  ? process.env.apiserver + "/api/upsertUserData"
-                  : (process.env.apiserver || serverUrl) +
-                    "/api/upsertUserData",
+              url: getNodeJSServerURL(request) + "/api/upsertUserData",
               method: "post",
               data: {
                 username: request.body.username,
@@ -1642,10 +1579,7 @@ app.post("/api/updateUserData", function (request, response, next) {
   }
 
   var upsertUserDataReq = {
-    url:
-      process.env.environment == "dev"
-        ? process.env.apiserver + "/api/upsertUserData"
-        : (process.env.apiserver || serverUrl) + "/api/upsertUserData",
+    url: getNodeJSServerURL(request) + "/api/upsertUserData",
     method: "post",
     data: {
       username: request.body.username,
