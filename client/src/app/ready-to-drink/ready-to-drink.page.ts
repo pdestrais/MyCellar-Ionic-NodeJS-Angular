@@ -14,6 +14,7 @@ const debug = Debugger("app:readytodrink");
     selector: "app-ready-to-drink",
     templateUrl: "./ready-to-drink.page.html",
     styleUrls: ["./ready-to-drink.page.scss"],
+    standalone: false
 })
 export class ReadyToDrinkPage implements OnInit {
     public wines: Array<VinModel> = [];

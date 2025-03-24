@@ -7,6 +7,7 @@ import { star } from "ionicons/icons";
     selector: "app-breadcrumb",
     templateUrl: "./breadcrumb.component.html",
     styleUrls: ["./breadcrumb.component.scss"],
+    standalone: false
 })
 export class BreadcrumbComponent implements OnInit {
     @Input() breadcrumb: Array<any> = [];

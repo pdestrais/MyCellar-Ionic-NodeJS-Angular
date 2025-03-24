@@ -23,9 +23,10 @@ import { caretForwardOutline } from "ionicons/icons";
 const debug = Debugger("app:region");
 
 @Component({
-  selector: "app-region",
-  templateUrl: "./region.page.html",
-  styleUrls: ["./region.page.scss"],
+    selector: "app-region",
+    templateUrl: "./region.page.html",
+    styleUrls: ["./region.page.scss"],
+    standalone: false
 })
 export class RegionPage implements OnInit {
   public origine: OrigineModel = new OrigineModel({

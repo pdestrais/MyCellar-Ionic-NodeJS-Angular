@@ -5,6 +5,7 @@ import vintageData from "../../assets/data/vintage-table.json";
     selector: "app-vintage",
     templateUrl: "./vintage.component.html",
     styleUrls: ["./vintage.component.scss"],
+    standalone: false
 })
 export class VintageComponent implements OnInit {
     public appellationList: Array<string> = [];

@@ -14,6 +14,7 @@ const debug = Debugger("app:resetpwd");
     selector: "app-resetpwd",
     templateUrl: "./resetpwd.component.html",
     styleUrls: ["./resetpwd.component.scss"],
+    standalone: false
 })
 export class ResetpwdComponent implements OnInit {
     resetpwdForm!: FormGroup;

@@ -14,6 +14,7 @@ const viewerCanvasHeight: number = 426;
     selector: "app-viewer",
     templateUrl: "./viewer.component.html",
     styleUrls: ["./viewer.component.scss"],
+    standalone: false
 })
 export class ViewerComponent implements OnInit {
     @Input() fileOrBlob!: File | Blob; // image is a File or Blob. This component can process both

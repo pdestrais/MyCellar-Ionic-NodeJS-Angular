@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
     selector: 'app-rapport',
     templateUrl: './rapport.page.html',
     styleUrls: ['./rapport.page.scss'],
+    standalone: false
 })
 export class RapportPage implements OnInit {
 

@@ -25,8 +25,9 @@ import { IonRouterLinkWithHref } from "@ionic/angular/standalone";
 const debug = Debugger("app:login");
 
 @Component({
-  templateUrl: "login.component.html",
-  styleUrls: ["login.component.scss"],
+    templateUrl: "login.component.html",
+    styleUrls: ["login.component.scss"],
+    standalone: false
 })
 export class LoginComponent implements OnInit {
   public loginForm!: FormGroup;

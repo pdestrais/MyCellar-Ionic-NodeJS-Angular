@@ -23,9 +23,10 @@ import { caretForwardOutline } from "ionicons/icons";
 const debug = Debugger("app:type");
 
 @Component({
-  selector: "app-type",
-  templateUrl: "./type.page.html",
-  styleUrls: ["./type.page.scss"],
+    selector: "app-type",
+    templateUrl: "./type.page.html",
+    styleUrls: ["./type.page.scss"],
+    standalone: false
 })
 export class TypePage implements OnInit {
   public type: TypeModel = new TypeModel({

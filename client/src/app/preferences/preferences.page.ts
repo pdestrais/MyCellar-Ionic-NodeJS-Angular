@@ -9,6 +9,7 @@ const debug = Debugger("app:preferences");
     selector: "app-preferences",
     templateUrl: "./preferences.page.html",
     styleUrls: ["./preferences.page.scss"],
+    standalone: false
 })
 export class PreferencesPage implements OnInit {
     public language: string = "en";

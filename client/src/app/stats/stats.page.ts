@@ -13,10 +13,11 @@ import * as VinSelectors from "../state/vin/vin.selectors";
 import * as VinActions from "../state/vin/vin.actions";
 
 @Component({
-  selector: "app-stats",
-  templateUrl: "./stats.page.html",
-  styleUrls: ["./stats.page.scss"],
-  encapsulation: ViewEncapsulation.None,
+    selector: "app-stats",
+    templateUrl: "./stats.page.html",
+    styleUrls: ["./stats.page.scss"],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class StatsPage implements OnInit {
   private total: number = 0;

@@ -24,6 +24,7 @@ const debug = Debugger("app:root");
     selector: "app-root",
     templateUrl: "app.component.html",
     styleUrls: ["./app.component.scss"],
+    standalone: false
 })
 export class AppComponent {
     public appMenuItems: Array<any> = [];

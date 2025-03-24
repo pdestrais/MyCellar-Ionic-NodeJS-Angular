@@ -73,9 +73,10 @@ interface Option {
 }
 
 @Component({
-  selector: "app-vin",
-  templateUrl: "./vin.page.html",
-  styleUrls: ["./vin.page.scss"],
+    selector: "app-vin",
+    templateUrl: "./vin.page.html",
+    styleUrls: ["./vin.page.scss"],
+    standalone: false
 })
 export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public nbreAvantUpdate: number = 0;
@@ -1073,7 +1074,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 }
 
 @Component({
-  template: `
+    template: `
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
@@ -1107,6 +1108,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       <ion-button expand="full" (click)="dismiss()">Close</ion-button>
     </ion-content>
   `,
+    standalone: false
 })
 export class ModalPage {
   @Input()

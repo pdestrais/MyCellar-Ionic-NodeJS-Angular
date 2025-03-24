@@ -25,6 +25,7 @@ const debug = Debugger("app:appellation");
     selector: "app-appellation",
     templateUrl: "./appellation.page.html",
     styleUrls: ["./appellation.page.scss"],
+    standalone: false
 })
 export class AppellationPage implements OnInit {
     public appellation: AppellationModel = new AppellationModel({

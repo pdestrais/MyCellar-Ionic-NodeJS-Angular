@@ -5,6 +5,7 @@ import { environment } from "../../environments/environment";
     selector: "app-about",
     templateUrl: "./about.page.html",
     styleUrls: ["./about.page.scss"],
+    standalone: false
 })
 export class AboutPage implements OnInit {
     public appInfo: any = {

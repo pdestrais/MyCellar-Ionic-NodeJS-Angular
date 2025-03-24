@@ -38,6 +38,7 @@ const confirmPwdValidator: ValidatorFn = (
     selector: "app-changepwd",
     templateUrl: "./changepwd.component.html",
     styleUrls: ["./changepwd.component.scss"],
+    standalone: false
 })
 export class ChangepwdComponent implements OnInit {
     public changepwdForm!: FormGroup;
