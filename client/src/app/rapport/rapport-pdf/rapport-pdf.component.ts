@@ -8,6 +8,7 @@ import * as d3 from "d3";
     selector: "app-rapport-pdf",
     templateUrl: "./rapport-pdf.component.html",
     styleUrls: ["./rapport-pdf.component.scss"],
+    standalone: false
 })
 export class RapportPdfComponent implements OnInit {
     private doc: jsPDF;

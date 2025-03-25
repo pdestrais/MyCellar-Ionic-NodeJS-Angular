@@ -12,6 +12,7 @@ const debug = Debugger("app:rapport:types");
     selector: "app-types",
     templateUrl: "./types.component.html",
     styleUrls: ["./types.component.scss"],
+    standalone: false
 })
 export class TypesComponent implements OnInit {
     public typeView: string = "";

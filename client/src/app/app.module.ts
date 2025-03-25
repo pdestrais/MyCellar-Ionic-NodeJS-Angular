@@ -21,7 +21,7 @@ import {
 // import ngx-translate and the http loader
 import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
@@ -37,51 +37,44 @@ import { TypeEffects } from "./state/type/type.effects";
 import { AppellationEffects } from "./state/appellation/appellation.effects";
 import { reducers } from "./state/app.state";
 
-@NgModule({
-  declarations: [AppComponent, MultiLevelSideMenuComponent],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    // configure the ngx-translate imports
-    HttpClientModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: createTranslateLoader,
-        deps: [HttpClient],
-      },
-    }),
-    ServiceWorkerModule.register("ngsw-worker.js", {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the app is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: "registerWhenStable:30000",
-    }),
-    StoreModule.forRoot(reducers, {}),
-    EffectsModule.forRoot([
-      VinEffects,
-      OrigineEffects,
-      TypeEffects,
-      AppellationEffects,
-    ]),
-    IonApp,
-    IonSplitPane,
-    IonMenu,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonRouterOutlet,
-    IonBadge,
-    IonIcon,
-    IonList,
-  ],
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
-  ],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent, MultiLevelSideMenuComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: createTranslateLoader,
+                deps: [HttpClient],
+            },
+        }),
+        ServiceWorkerModule.register("ngsw-worker.js", {
+            enabled: environment.production,
+            // Register the ServiceWorker as soon as the app is stable
+            // or after 30 seconds (whichever comes first).
+            registrationStrategy: "registerWhenStable:30000",
+        }),
+        StoreModule.forRoot(reducers, {}),
+        EffectsModule.forRoot([
+            VinEffects,
+            OrigineEffects,
+            TypeEffects,
+            AppellationEffects,
+        ]),
+        IonApp,
+        IonSplitPane,
+        IonMenu,
+        IonHeader,
+        IonToolbar,
+        IonTitle,
+        IonContent,
+        IonRouterOutlet,
+        IonBadge,
+        IonIcon,
+        IonList], providers: [
+        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+        provideIonicAngular(),
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}
 
 // required for AOT compilation

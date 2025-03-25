@@ -12,6 +12,7 @@ const debug = Debugger("app:rapport:years");
     selector: "app-origines",
     templateUrl: "./origines.component.html",
     styleUrls: ["./origines.component.scss"],
+    standalone: false
 })
 export class OriginesComponent implements OnInit {
     public typeView: string = "";

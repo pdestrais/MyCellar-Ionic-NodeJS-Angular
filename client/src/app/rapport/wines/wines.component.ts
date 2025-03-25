@@ -12,6 +12,7 @@ const debug = Debugger("app:rapport:wines");
     selector: "app-wines",
     templateUrl: "./wines.component.html",
     styleUrls: ["./wines.component.scss"],
+    standalone: false
 })
 export class WinesComponent implements OnInit {
     private typeView: string = "";

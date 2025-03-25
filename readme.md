@@ -87,3 +87,11 @@ To test with electron, launch electron from the project's 'client' directory :
       ```console
             ./createPushDockerImageToIBMCloud.sh
       ```
+
+    - To release on google appengine
+
+      After login into google cloud using gcloud CLI, issue the following command :
+
+      ```console
+          gcloud app deploy --project <PROJECT_ID>
+      ```

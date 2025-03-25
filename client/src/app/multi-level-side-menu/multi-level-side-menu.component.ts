@@ -81,10 +81,11 @@ class InnerMenuOptionModel {
 }
 
 @Component({
-  selector: "app-multi-level-side-menu",
-  templateUrl: "./multi-level-side-menu.component.html",
-  styleUrls: ["./multi-level-side-menu.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: "app-multi-level-side-menu",
+    templateUrl: "./multi-level-side-menu.component.html",
+    styleUrls: ["./multi-level-side-menu.component.scss"],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class MultiLevelSideMenuComponent {
   // Main inputs

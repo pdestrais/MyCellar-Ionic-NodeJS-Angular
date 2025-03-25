@@ -7,6 +7,7 @@ import { caretForwardOutline } from "ionicons/icons";
     selector: "app-element-list",
     templateUrl: "./element-list.component.html",
     styleUrls: ["./element-list.component.scss"],
+    standalone: false
 })
 export class ElementListComponent implements OnInit {
     @Input() elementList: Array<any> = [];

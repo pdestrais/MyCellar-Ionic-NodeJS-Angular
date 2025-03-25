@@ -14,16 +14,17 @@ import {
 } from "@angular/forms";
 
 @Component({
-  selector: "ngx-star-rating",
-  templateUrl: "ngx-star-rating.component.html",
-  styleUrls: ["ngx-star-rating.component.scss"],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => NgxStarRatingComponent),
-      multi: true,
-    },
-  ],
+    selector: "ngx-star-rating",
+    templateUrl: "ngx-star-rating.component.html",
+    styleUrls: ["ngx-star-rating.component.scss"],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => NgxStarRatingComponent),
+            multi: true,
+        },
+    ],
+    standalone: false
 })
 export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
   onChange;
