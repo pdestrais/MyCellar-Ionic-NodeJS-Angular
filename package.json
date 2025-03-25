@@ -2,10 +2,10 @@
   "name": "mycellar",
   "main": "server.js",
   "description": "NodeJS serving an ionic app",
-  "version": "4.3.0",
+  "version": "4.4.4",
   "private": false,
   "engines": {
-    "node": "18.*"
+    "node": "22.*"
   },
   "scripts": {
     "start": "node server/server.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pdestrais/mycellar-ionic4-nodejs"
+    "url": "https://github.com/pdestrais/MyCellar-Ionic-NodeJS-Angular"
   },
   "dependencies": {
     "axios": "^0.21.2",
