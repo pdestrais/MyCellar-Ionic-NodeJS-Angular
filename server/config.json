@@ -2,12 +2,13 @@
   "useHmac": false,
   "bucketName": "mycellar-bucket-001",
   "serviceCredential": {
-    "apikey": "ARQJMOjV5OJP1bAHjzhq-N57vAbCOi2Lp-nVsYFgW1Hw",
+    "apikey": "NGbggsDaiQ9tK-d1a9Jl9j34tjDHMeza_IWmyULGOQEB",
     "endpoints": "https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints",
-    "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba:resource-key:20525bb0-fe26-4fff-9b11-bbcec37cd6ae",
-    "iam_apikey_name": "mycellar-bucket-001",
+    "iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:cloud-object-storage:global:a/e40530b57ce04985b091e72d472ae407:2f0837c2-f2d8-4032-a913-ee4474f11453:resource-key:f16c6af0-8d3e-4b0b-ad82-5dbb2ea1de35",
+    "iam_apikey_id": "ApiKey-5c35adcb-768a-49cc-b106-94b4105a42a8",
+    "iam_apikey_name": "mycellarcredntials",
     "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Writer",
-    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/3e8a8cfb211e2685ddb8db1f8acacca2::serviceid:ServiceId-5281cbc2-e105-4011-b3eb-26932a969f45",
-    "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/3e8a8cfb211e2685ddb8db1f8acacca2:741d5680-c2fc-422f-a1f4-a82f9d7f8aba::"
+    "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/e40530b57ce04985b091e72d472ae407::serviceid:ServiceId-32d5fd6f-5262-473b-994d-a830a99fa98c",
+    "resource_instance_id": "crn:v1:bluemix:public:cloud-object-storage:global:a/e40530b57ce04985b091e72d472ae407:2f0837c2-f2d8-4032-a913-ee4474f11453::"
   }
 }

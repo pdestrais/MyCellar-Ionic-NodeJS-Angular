@@ -1,11 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import {
-  AlertController,
-  NavController,
-  MenuController,
-} from "@ionic/angular/standalone";
-import { PouchdbService } from "../services/pouchdb.service";
-import { NgZone } from "@angular/core";
+import { Component, computed, effect, OnInit, signal } from "@angular/core";
+import { AlertController, NavController, MenuController } from "@ionic/angular/standalone";
 import { VinModel } from "../models/cellar.model";
 
 import * as Debugger from "debug";
@@ -20,47 +14,67 @@ import * as AppellationActions from "../state/appellation/appellation.actions";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import { AppState } from "../state/app.state";
 import { addIcons } from "ionicons";
-import { arrowBackOutline, searchCircle, searchOutline } from "ionicons/icons";
-import { IonRouterLink } from "@ionic/angular/standalone";
+import { arrowBackOutline, searchOutline } from "ionicons/icons";
 
 const debug = Debug("app:home");
 
 @Component({
-    selector: "app-home",
-    templateUrl: "home.page.html",
-    styleUrls: ["home.page.scss"],
-    standalone: false
+  selector: "app-home",
+  templateUrl: "home.page.html",
+  styleUrls: ["home.page.scss"],
+  standalone: false,
 })
 export class HomePage implements OnInit {
-  public wines: Array<VinModel> = [];
-  public isInStock: boolean = true;
-  public loading: boolean = true;
+  wines = signal<VinModel[]>([]);
+  loading = signal<boolean>(true);
+  isInStock = signal<boolean>(true);
+  searchString = signal<string>("");
+  // filteredWines2 = computed<VinModel[]>(() => {
+  //   if (this.searchString() == "") {
+  //     return [];
+  //   } else {
+  //     if (this.isInStock()) {
+  //       return this.wines().filter(
+  //         (wine) =>
+  //           wine.nom.toLowerCase().includes(this.searchString()) && wine.nbreBouteillesReste > 0
+  //       );
+  //     } else {
+  //       return this.wines().filter((wine) => wine.nom.toLowerCase().includes(this.searchString()));
+  //     }
+  //   }
+  // });
+  filteredWines = computed<VinModel[]>(() =>
+    this.store.selectSignal(VinSelectors.getFilteredWines(this.searchString(), this.isInStock()))()
+  );
+  dashboardSelectedMaturity = signal<string>("");
+  maturityWinesList = computed<VinModel[]>(() => {
+    console.log("entering maturityWinesList signal compute");
+    if (this.dashboardSelectedMaturity() != "" && this.wines().length != 0) {
+      return this.store.selectSignal(
+        VinSelectors.getWinesMaturity(this.dashboardSelectedMaturity())
+      )();
+    } else {
+      return [];
+    }
+  });
   public selectedWine!: VinModel;
   /* AlertReadyToDrink (ARTD), ReadyToDrink (RTD), NealrlyReadyToDrink (NearlyRTD), Not Ready To Drink (NotRTD) */
-  public RTDList: Array<VinModel> = [];
-  public NotRTDList: Array<VinModel> = [];
-  public NearlyRTDList: Array<VinModel> = [];
-  public ARTDList: Array<VinModel> = [];
-  public nbrARTD: number = 0;
-  public nbrRTD: number = 0;
-  public nbrNearlyRTD: number = 0;
-  public nbrNotRTD: number = 0;
-  public details: boolean = false;
-  public dashboard: boolean = true;
-  public winesForDrinkList: VinModel[] = [];
-  public winesForDrinkList$;
-  public filteredWines$: Observable<VinModel[]> = new Observable<VinModel[]>();
-  private searchString: string = "";
+  nbrARTD = signal<number>(0);
+  nbrRTD = signal<number>(0);
+  nbrNRTD = signal<number>(0);
+  nbrNotRTD = signal<number>(0);
 
   constructor(
-    private dataService: PouchdbService,
     private alertCtrl: AlertController,
-    private menuCtrl: MenuController,
     private navCtrl: NavController,
-    private zone: NgZone,
     private store: Store<AppState>
   ) {
     addIcons({ arrowBackOutline, searchOutline });
+    // effect(() => {
+    //   console.log(`fileteredWines length is : ${this.filteredWines().length}`);
+    //   console.log(`maturityWinesList length is : ${this.maturityWinesList().length}`);
+    //   console.log(`dashboardSelectedMaturity is : ${this.dashboardSelectedMaturity()}`);
+    // });
   }
 
   async alertNoRemoteDB() {
@@ -93,7 +107,6 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     debug("[ngOnInit] entering method");
-    this.loading = true;
     this.store.dispatch(VinActions.loadVins());
     // not need in home page but I'm loading the type, origine and appellation information in the state so that it's ready to use in other modules
     this.store.dispatch(TypeActions.loadTypes());
@@ -103,15 +116,13 @@ export class HomePage implements OnInit {
       return { ...vinState, status: "noop", source: "" };
     });
     this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
-      this.wines = Array.from(wineList.values());
-      this.loading = false;
+      this.wines.set(Array.from(wineList.values()));
+      this.nbrARTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("ARTD"))().length);
+      this.nbrRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("RTD"))().length);
+      this.nbrNRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NRTD"))().length);
+      this.nbrNotRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NotRTD"))().length);
+      this.loading.set(false);
       debug("[HomePage]Loading " + this.wines.length + " wines to home page");
-    });
-    let maturityTypes = ["ARTD", "RTD", "NRTD", "NotRTD"];
-    maturityTypes.map((v) => {
-      this.store.select(VinSelectors.getWinesMaturity(v)).subscribe((list) => {
-        this["nbr" + v] = list.length;
-      });
     });
 
     // and sometime, there is no synchronization defined
@@ -123,62 +134,8 @@ export class HomePage implements OnInit {
     }
   }
 
-  showWinesToDrink(selection: number) {
-    this.dashboard = false;
-    switch (selection) {
-      case 1:
-        this.winesForDrinkList$ = this.store.select(
-          VinSelectors.getWinesMaturity("ARTD")
-        );
-        break;
-      case 2:
-        this.winesForDrinkList$ = this.store.select(
-          VinSelectors.getWinesMaturity("RTD")
-        );
-        break;
-      case 3:
-        this.winesForDrinkList$ = this.store.select(
-          VinSelectors.getWinesMaturity("NRTD")
-        );
-        break;
-      case 4:
-        this.winesForDrinkList$ = this.store.select(
-          VinSelectors.getWinesMaturity("NotRTD")
-        );
-        break;
-    }
-  }
-
-  backToDashboard() {
-    this.dashboard = !this.dashboard;
-  }
-
-  onInStockChange() {
-    this.isInStock = !this.isInStock;
-    this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines(this.searchString, this.isInStock)
-    );
-  }
-
   cancelSearch() {
-    this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines("", this.isInStock)
-    );
-  }
-
-  setFilteredItems(event) {
-    this.searchString = event.target.value.toLowerCase();
-    this.filteredWines$ = this.store.select(
-      VinSelectors.getFilteredWines(this.searchString, this.isInStock)
-    );
-    // this.store
-    //   .pipe(
-    //     select(VinSelectors.getFilteredWines(this.searchString, this.isInStock))
-    //   )
-    //   .subscribe((searchResult) => {
-    //     let res = Array.from(searchResult.values());
-    //     res.map((value) => console.log(value));
-    //   });
+    this.searchString.set("");
   }
 
   goToVin(params) {

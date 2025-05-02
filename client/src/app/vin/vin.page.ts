@@ -16,6 +16,7 @@ import {
   Input,
   ElementRef,
   ViewChild,
+  signal, computed, inject
 } from "@angular/core";
 import {
   NavController,
@@ -79,13 +80,17 @@ interface Option {
     standalone: false
 })
 export class VinPage implements OnInit, OnDestroy, AfterViewInit {
+  store = inject(Store);
+
   public nbreAvantUpdate: number = 0;
   public newWine: boolean = true;
   public vin: VinModel;
   public vinsMap!: Map<string, VinModel>;
-  public origines: Array<any> = [];
-  public appellations: Array<any> = [];
-  public types: Array<any> = [];
+
+  types = computed<TypeModel[]>(() => this.store.selectSignal(TypeSelectors.getAllTypesArraySorted)());
+  origines = computed<OrigineModel[]>(() => this.store.selectSignal(OrigineSelectors.getAllOriginesArraySorted)());
+  appellations = computed<AppellationModel[]>(() => this.store.selectSignal(AppellationSelectors.getAllAppellationsArraySorted)());
+
   public comment: string = "";
   public errors!: Array<any>;
   public vinForm: FormGroup;
@@ -110,6 +115,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   public types$!: Observable<Array<TypeModel>>;
   public origines$!: Observable<Array<OrigineModel>>;
   public appellations$!: Observable<Array<AppellationModel>>;
+  //types = signal
 
   /**
    * 'plug into' DOM canvas element using @ViewChild
@@ -134,7 +140,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private store: Store<AppState>
+    //    private store: Store<AppState>
   ) {
     // Initializing vin object & form
     this.vin = new VinModel({
@@ -227,15 +233,15 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     debug("[Vin.ngOnInit]called");
     let paramId = this.route.snapshot.params["id"];
     // loading from the state the types, origines and appellations
-    this.types$ = this.store
-      .select(TypeSelectors.getAllTypesArraySorted)
-      .pipe(takeUntil(this.unsubscribe$));
-    this.origines$ = this.store
-      .select(OrigineSelectors.getAllOriginesArraySorted)
-      .pipe(takeUntil(this.unsubscribe$));
-    this.appellations$ = this.store
-      .select(AppellationSelectors.getAllAppellationsArraySorted)
-      .pipe(takeUntil(this.unsubscribe$));
+    // this.types$ = this.store
+    //   .select(TypeSelectors.getAllTypesArraySorted)
+    //   .pipe(takeUntil(this.unsubscribe$));
+    // this.origines$ = this.store
+    //   .select(OrigineSelectors.getAllOriginesArraySorted)
+    //   .pipe(takeUntil(this.unsubscribe$));
+    // this.appellations$ = this.store
+    //   .select(AppellationSelectors.getAllAppellationsArraySorted)
+    //   .pipe(takeUntil(this.unsubscribe$));
     // Now loading selected wine from the state
     this.store
       .select<VinModel | undefined>(VinSelectors.getWine(paramId))
