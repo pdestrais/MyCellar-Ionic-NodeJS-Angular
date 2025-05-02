@@ -19,12 +19,8 @@
       >
       </ion-input>
     </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.nom.valid  && (vinForm.controls.nom.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.name' | translate }} {{"general.required" | translate }}
-      </p>
+    <ion-item *ngIf="!vinForm.controls.nom.valid  && (vinForm.controls.nom.dirty || submitted)">
+      <p class="invalid">{{'wine.name' | translate }} {{"general.required" | translate }}</p>
     </ion-item>
 
     <ion-item>
@@ -40,18 +36,14 @@
       >
       </ion-input>
     </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.annee.valid  && (vinForm.controls.annee.dirty || submitted)"
-    >
+    <ion-item *ngIf="!vinForm.controls.annee.valid  && (vinForm.controls.annee.dirty || submitted)">
       <p class="invalid">
-        {{'wine.year' | translate }} {{"general.required" | translate }}
-        {{'general.or' | translate }} {{'wine.minmax' | translate }}
+        {{'wine.year' | translate }} {{"general.required" | translate }} {{'general.or' | translate
+        }} {{'wine.minmax' | translate }}
       </p>
     </ion-item>
     <ion-item *ngIf="vinForm.hasError('double')">
-      <p [class.invalid]="vinForm.hasError('double')">
-        {{ 'wine.double' | translate }}
-      </p>
+      <p [class.invalid]="vinForm.hasError('double')">{{ 'wine.double' | translate }}</p>
     </ion-item>
 
     <ion-item>
@@ -63,26 +55,18 @@
         interface="popover"
         placeholder="{{'wine.selectType' | translate }}"
       >
-        <ion-select-option
-          *ngFor="let typeEl of types$ | async"
-          [value]="typeEl"
-        >
-          {{typeEl.nom | translate }}
-        </ion-select-option>
+        @for(type of types(); track type) {
+        <ion-select-option [value]="type"> {{type.nom | translate }} </ion-select-option>
+
+        }
       </ion-select>
     </ion-item>
-    <ion-item
-      *ngIf="!vinForm.controls.type.valid  && (vinForm.controls.type.dirty || submitted)"
-    >
-      <p class="invalid">
-        {{'wine.type' | translate }} {{"general.required" | translate }}
-      </p>
+    <ion-item *ngIf="!vinForm.controls.type.valid  && (vinForm.controls.type.dirty || submitted)">
+      <p class="invalid">{{'wine.type' | translate }} {{"general.required" | translate }}</p>
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.origin' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.origin' | translate }} </ion-label>
       <ion-select
         aria-label="origine"
         formControlName="origine"
@@ -90,26 +74,21 @@
         interface="popover"
         placeholder="{{'wine.selectOrigin' | translate }}"
       >
-        <ion-select-option
-          *ngFor="let origineEl of origines$ | async"
-          [value]="origineEl"
-        >
-          {{origineEl.pays}} - {{ origineEl.region }}
+        @for(origine of origines(); track origine) {
+        <ion-select-option [value]="origine">
+          {{origine.pays}} - {{ origine.region }}
         </ion-select-option>
+        }
       </ion-select>
     </ion-item>
     <ion-item
       *ngIf="!vinForm.controls.origine.valid  && (vinForm.controls.origine.dirty || submitted)"
     >
-      <p class="invalid">
-        {{'wine.origine' | translate }} {{"general.required" | translate }}
-      </p>
+      <p class="invalid">{{'wine.origine' | translate }} {{"general.required" | translate }}</p>
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.appellation' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.appellation' | translate }} </ion-label>
       <ion-select
         aria-label="appellation"
         formControlName="appellation"
@@ -117,26 +96,21 @@
         interface="popover"
         placeholder="{{'wine.selectAppellation' | translate }}"
       >
-        <ion-select-option
-          *ngFor="let appellation of appellations$ | async"
-          [value]="appellation"
-        >
+        @for(appellation of appellations(); track appellation) {
+        <ion-select-option [value]="appellation">
           {{appellation.courte}} - {{ appellation.longue }}
         </ion-select-option>
+        }
       </ion-select>
     </ion-item>
     <ion-item
       *ngIf="!vinForm.controls.appellation.valid  && (vinForm.controls.appellation.dirty || submitted)"
     >
-      <p class="invalid">
-        {{'wine.appellation' | translate }} {{"general.required" | translate }}
-      </p>
+      <p class="invalid">{{'wine.appellation' | translate }} {{"general.required" | translate }}</p>
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.bottlesPurchase' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.bottlesPurchase' | translate }} </ion-label>
       <ion-input
         aria-label="btlesachat"
         type="number"
@@ -151,8 +125,7 @@
       *ngIf="!vinForm.controls.nbreBouteillesAchat.valid  && (vinForm.controls.nbreBouteillesAchat.dirty || submitted)"
     >
       <p class="invalid">
-        {{'wine.bottlesPurchase' | translate }} {{"general.required" | translate
-        }}
+        {{'wine.bottlesPurchase' | translate }} {{"general.required" | translate }}
       </p>
     </ion-item>
 
@@ -160,9 +133,7 @@
       <ion-row class="ion-align-items-center">
         <ion-col size="8" id="mincol">
           <ion-item>
-            <ion-label position="floating">
-              {{'wine.bottlesLeft' | translate }}
-            </ion-label>
+            <ion-label position="floating"> {{'wine.bottlesLeft' | translate }} </ion-label>
             <ion-input
               aria-label="btlsreste"
               type="number"
@@ -177,31 +148,18 @@
             *ngIf="!vinForm.controls.nbreBouteillesReste.valid  && (vinForm.controls.nbreBouteillesReste.dirty || submitted)"
           >
             <p class="invalid">
-              {{'wine.bottlesLeft' | translate }} {{"general.required" |
-              translate }}
+              {{'wine.bottlesLeft' | translate }} {{"general.required" | translate }}
             </p>
           </ion-item>
         </ion-col>
         <ion-col size="2" class="ion-margin-top">
-          <ion-button
-            size="small"
-            color="medium"
-            expand="block"
-            (click)="adjustQuantityLeft(1)"
-          >
-            <ion-icon slot="icon-only" name="arrow-up-circle-outline">
-            </ion-icon>
+          <ion-button size="small" color="medium" expand="block" (click)="adjustQuantityLeft(1)">
+            <ion-icon slot="icon-only" name="arrow-up-circle-outline"> </ion-icon>
           </ion-button>
         </ion-col>
         <ion-col size="2" class="ion-margin-top">
-          <ion-button
-            size="small"
-            color="medium"
-            expand="block"
-            (click)="adjustQuantityLeft(-1)"
-          >
-            <ion-icon slot="icon-only" name="arrow-down-circle-outline">
-            </ion-icon>
+          <ion-button size="small" color="medium" expand="block" (click)="adjustQuantityLeft(-1)">
+            <ion-icon slot="icon-only" name="arrow-down-circle-outline"> </ion-icon>
           </ion-button>
         </ion-col>
       </ion-row>
@@ -221,9 +179,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.purchaseDate' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.purchaseDate' | translate }} </ion-label>
       <ion-input
         aria-label="dateachat"
         type="date"
@@ -243,9 +199,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.location' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.location' | translate }} </ion-label>
       <ion-input
         aria-label="localisation"
         type="text"
@@ -259,15 +213,11 @@
     <ion-item
       *ngIf="!vinForm.controls.localisation.valid  && (vinForm.controls.localisation.dirty || submitted)"
     >
-      <p class="invalid">
-        {{'wine.location' | translate }} {{"general.required" | translate }}
-      </p>
+      <p class="invalid">{{'wine.location' | translate }} {{"general.required" | translate }}</p>
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.contains' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.contains' | translate }} </ion-label>
       <ion-input
         aria-label="contenance"
         type="text"
@@ -278,9 +228,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">
-        {{'wine.apogee' | translate }}
-      </ion-label>
+      <ion-label position="floating"> {{'wine.apogee' | translate }} </ion-label>
       <ion-input
         aria-label="apogee"
         type="text"
@@ -294,9 +242,7 @@
     <ion-item
       *ngIf="!vinForm.controls.apogee.valid  && (vinForm.controls.apogee.dirty || submitted)"
     >
-      <p class="invalid">
-        {{'wine.apogee' | translate }} {{"wine.apogeeFormat" | translate }}
-      </p>
+      <p class="invalid">{{'wine.apogee' | translate }} {{"wine.apogeeFormat" | translate }}</p>
     </ion-item>
 
     <ion-item>
@@ -314,9 +260,7 @@
       <div class="container2">
         <div>
           <ion-item>
-            <ion-label position="floating">
-              {{'wine.GWSScore' | translate }}
-            </ion-label>
+            <ion-label position="floating"> {{'wine.GWSScore' | translate }} </ion-label>
             <ion-input
               aria-label="gwsscore"
               type="number"
@@ -335,15 +279,10 @@
       </div>
       <div class="container2">
         <div class="divlabel">
-          <ion-label position="floating">
-            {{'wine.rating' | translate }}
-          </ion-label>
+          <ion-label position="floating"> {{'wine.rating' | translate }} </ion-label>
         </div>
         <div class="divinput">
-          <ngx-star-rating
-            formControlName="rating"
-            [id]="'rating'"
-          ></ngx-star-rating>
+          <ngx-star-rating formControlName="rating" [id]="'rating'"></ngx-star-rating>
         </div>
       </div>
     </div>
@@ -384,20 +323,10 @@
   >
     {{'general.save' | translate }}
   </ion-button>
-  <ion-button
-    id="vin-button3"
-    color="secondary"
-    expand="full"
-    (click)="addComment()"
-  >
+  <ion-button id="vin-button3" color="secondary" expand="full" (click)="addComment()">
     {{'general.add' | translate }} {{'wine.comment' | translate }}
   </ion-button>
-  <ion-button
-    id="vin-button2"
-    color="danger"
-    expand="full"
-    (click)="deleteVin()"
-  >
+  <ion-button id="vin-button2" color="danger" expand="full" (click)="deleteVin()">
     {{'general.suppress' | translate }}
   </ion-button>
 </ion-content>

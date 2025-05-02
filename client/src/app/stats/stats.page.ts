@@ -35,7 +35,6 @@ export class StatsPage implements OnInit {
 
   constructor(
     public router: Router,
-    private pouch: PouchdbService,
     private translate: TranslateService,
     private zone: NgZone,
     private store: Store<AppState>
@@ -59,10 +58,6 @@ export class StatsPage implements OnInit {
       this.vins = Array.from(wineList.values());
       console.log("[Stats]" + this.vins.length + " wines loaded");
     });
-
-    // this.pouch.getDocsOfType("vin").then((vins) => {
-    //   this.vins = vins;
-    // });
   }
 
   draw() {
@@ -232,13 +227,6 @@ export class StatsPage implements OnInit {
       tooltip.select(".label").html("Wine : " + d.data.label); // NEW
       tooltip.select(".count").html("# : " + d.data.count); // NEW
       tooltip.select(".percent").html("% : " + percent + "%"); // NEW
-      // tooltip.select(".label").html(d.data.label); // NEW
-      // tooltip.select(".count").html(d.data.count); // NEW
-      // tooltip.select(".percent").html(percent + "%"); // NEW
-      // console.log("mouseover");
-      // console.log(
-      //   "onmouse event X, Y : " + event.offsetX + "," + event.offsetY
-      // );
       tooltip.style("top", event.offsetY + "px");
       tooltip.style("left", event.offsetX + "px");
       tooltip.style("display", "block");

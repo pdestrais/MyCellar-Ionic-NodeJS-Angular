@@ -1,6 +1,4 @@
-import { PreferencesPage } from "./preferences/preferences.page";
 import { MenuService } from "./services/menu.service";
-import { PouchdbService } from "./services/pouchdb.service";
 import { Component } from "@angular/core";
 
 import { Platform, MenuController } from "@ionic/angular/standalone";
@@ -8,7 +6,6 @@ import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
 import { filter, map } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { timeout } from "q";
 
 import { SideMenuSettings } from "./multi-level-side-menu/models/side-menu-settings";
 import { SideMenuOption } from "./multi-level-side-menu/models/side-menu-option";

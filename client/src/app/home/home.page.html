@@ -10,20 +10,18 @@
 <ion-content class="ion-padding">
   <div class="container">
     <h3>{{'search.winesReadyness' | translate }}</h3>
-    <ion-button
-      *ngIf="!dashboard"
-      fill="outline"
-      size="small"
-      (click)="backToDashboard()"
-    >
+    @if(dashboardSelectedMaturity()!='') {
+    <ion-button fill="outline" size="small" (click)="this.dashboardSelectedMaturity.set('')">
       {{'general.back' | translate }}
       <ion-icon slot="end" name="arrow-back-outline"></ion-icon>
     </ion-button>
+    }
   </div>
 
-  <ion-list *ngIf="!dashboard">
+  @if(dashboardSelectedMaturity()!='') {
+  <ion-list>
+    @for(wineToDrink of maturityWinesList(); track wineToDrink){
     <ion-item
-      *ngFor="let wineToDrink of winesForDrinkList$ | async"
       [routerLink]="['/vin', wineToDrink._id]"
       routerDirection="root"
       class="condensed"
@@ -47,37 +45,55 @@
         >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
       >
     </ion-item>
+    }
   </ion-list>
-
-  <div class="container1" *ngIf="dashboard">
-    <div class="container2" id="ARTD" (click)="showWinesToDrink(1)">
+  } 
+  @if(dashboardSelectedMaturity()=='') {
+  <div class="container1">
+    <div
+      class="container2"
+      id="ARTD"
+      (click)="dashboardSelectedMaturity.set('ARTD')"
+    >
       <div>
         <img
           src="assets/icons/ARTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>
-      <div class="bigText">{{nbrARTD}}</div>
+      <div class="bigText">{{nbrARTD()}}</div>
     </div>
-    <div class="container2" id="RTD" (click)="showWinesToDrink(2)">
+    <div
+      class="container2"
+      id="RTD"
+      (click)="dashboardSelectedMaturity.set('RTD')"
+    >
       <div>
         <img
           src="assets/icons/RTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>
-      <div class="bigText">{{nbrRTD}}</div>
+      <div class="bigText">{{nbrRTD()}}</div>
     </div>
-    <div class="container2" id="NRTD" (click)="showWinesToDrink(3)">
+    <div
+      class="container2"
+      id="NRTD"
+      (click)="dashboardSelectedMaturity.set('NRTD')"
+    >
       <div>
         <img
           src="assets/icons/NRTD.png"
           sizes="(max-width: 800px) 100px, 20px"
         />
       </div>
-      <div class="bigText">{{nbrNearlyRTD}}</div>
+      <div class="bigText">{{nbrNRTD()}}</div>
     </div>
-    <div class="container2" id="NotRTD" (click)="showWinesToDrink(4)">
+    <div
+      class="container2"
+      id="NotRTD"
+      (click)="dashboardSelectedMaturity.set('NotRTD')"
+    >
       <div>
         <img
           src="assets/icons/NotRTD.png"
@@ -85,10 +101,11 @@
         />
       </div>
       <div>
-        <div class="bigText">{{nbrNotRTD}}</div>
+        <div class="bigText">{{nbrNotRTD()}}</div>
       </div>
     </div>
   </div>
+  }
 
   <h3>{{'search.search' | translate }}</h3>
 
@@ -98,38 +115,40 @@
       show-clear-button="focus"
       search-icon="search-outline"
       [debounce]="300"
-      (ionInput)="setFilteredItems($event)"
+      (ionInput)="this.searchString.set($event.target.value?.toLowerCase() || '')"
     ></ion-searchbar>
   </div>
-  <div *ngIf="loading" class="spinner-container">
+  @if(loading()){
+  <div class="spinner-container">
     <ion-spinner></ion-spinner>
   </div>
+  }
   <ion-item id="search-radio1">
-    <ion-toggle checked="isInStock" (ionChange)="onInStockChange()"
+    <ion-toggle
+      checked="isInStock()"
+      (ionChange)="this.isInStock.set(!this.isInStock())"
       >{{ 'search.inStock' | translate }}</ion-toggle
     >
   </ion-item>
 
   <ion-list>
-    <ion-item
-      *ngFor="let item of filteredWines$ | async"
-      [routerLink]="['/vin', item._id]"
-      routerDirection="root"
-      ><ion-label>{{item.annee}} - {{item.nom}}</ion-label>
+    @for(item of filteredWines(); track item){
+    <ion-item [routerLink]="['/vin', item._id]" routerDirection="root">
+      <ion-label>{{item.annee}} - {{item.nom}}</ion-label>
+      @if(item.type.nom=='Rouge'){
       <ion-icon
-        *ngIf="item.type.nom=='Rouge'"
         slot="start"
         size="small"
         src="assets/icons/Rouge.svg"
       ></ion-icon>
+      } @if(item.type.nom=='Blanc'){
       <ion-icon
-        *ngIf="item.type.nom=='Blanc'"
         slot="start"
         size="small"
         src="assets/icons/Blanc.svg"
-      ></ion-icon>
-
-      <!-- <ion-icon name="arrow-dropright" slot="end"></ion-icon> -->
-    </ion-item>
+      ></ion-icon
+      >} </ion-item
+    >}
+    <!-- <ion-icon name="arrow-dropright" slot="end"></ion-icon> -->
   </ion-list>
 </ion-content>
