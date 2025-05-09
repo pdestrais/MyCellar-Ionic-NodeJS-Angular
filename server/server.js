@@ -57,31 +57,18 @@ let handleError = (caller, error, response) => {
     // The request was made and the server responded with a status code that falls out of the range of 2xx
     //console.log("[NodeJS - /register /create cloudant db]Something went wrong - data : " + error.response.data);
     console.log(
-      "[NodeJS - /" +
-        caller +
-        " api]Something went wrong - status : " +
-        error.response.status
+      "[NodeJS - /" + caller + " api]Something went wrong - status : " + error.response.status
     );
     //console.log("[NodeJS - /register /create cloudant db]Something went wrong - status : " + error.response.headers);
     response.status(error.response.status).send(error.response.data);
   } else if (error.request) {
     // The request was made but no response was received `error.request` is an instance of XMLHttpRequest in the browser and an instance of
     // http.ClientRequest in node.js
-    console.log(
-      "[NodeJS - /" +
-        caller +
-        " api]Something went wrong - request : " +
-        error.request
-    );
+    console.log("[NodeJS - /" + caller + " api]Something went wrong - request : " + error.request);
     response.status(500).send(error.request);
   } else {
     // Something happened in setting up the request that triggered an Error
-    console.log(
-      "[NodeJS - /" +
-        caller +
-        " api]Something went wrong - message : " +
-        error.message
-    );
+    console.log("[NodeJS - /" + caller + " api]Something went wrong - message : " + error.message);
     response.status(500).send(error.message);
   }
 };
@@ -107,53 +94,8 @@ app.use(compression());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "DELETE, PUT");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
-});
-
-/* Endpoint to fetch data from Global WIne Score web site. */
-app.get("/api/GWS/:appellation/:wine/:year", function (request, response) {
-  var appellation = request.params.appellation;
-  var wine = request.params.wine;
-  var year = request.params.year;
-  console.log(
-    "[NodeJS - /api/GWS]invoked with param : " +
-      appellation +
-      "/" +
-      wine +
-      "/" +
-      year
-  );
-
-  var GWSUrl =
-    "https://www.globalwinescore.com/wine-score/" +
-    wine +
-    "-" +
-    appellation +
-    "/" +
-    year;
-  var GWScore = {
-    score: 0,
-  };
-  console.log("[NodeJS - /api/GWS]" + GWSUrl);
-  var _self = this;
-  axios
-    .get(GWSUrl)
-    .then((res) => {
-      var root = HTMLParser.parse(res.data);
-      let score = root.querySelector("h2.score");
-      let firstNode = score.firstChild;
-      let rawScoreTxt = firstNode.rawText;
-      if (rawScoreTxt.search("not enough data") == -1)
-        GWScore.score = parseFloat(rawScoreTxt.trim());
-
-      console.log("[NodeJS - /api/GWS]response : " + JSON.stringify(GWScore));
-      response.send(GWScore);
-    })
-    .catch((error) => handleError("GWS", error, response));
 });
 
 /*Endpoint to get User details from username */
@@ -234,86 +176,77 @@ app.get("/api/ping", function (request, response, next) {
 
 // endpoint to the administrator to approval the request for a new signup to the application
 // It will send registration confirmation on email address
-app.get(
-  "/api/approveUserSignupRequest/:id",
-  function (request, response, next) {
-    console.log(
-      "[approveUserSignupRequest]api called with parameter : ",
-      JSON.stringify(request.params)
-    );
+app.get("/api/approveUserSignupRequest/:id", function (request, response, next) {
+  console.log(
+    "[approveUserSignupRequest]api called with parameter : ",
+    JSON.stringify(request.params)
+  );
 
-    // fetch request from user-mngmt table correponding to received id
-    var reqID = request.params.id;
-    if (!reqID)
-      return response.status(401).send({
-        code: "NoRegistrationIDParameter",
-        type: "business",
-        subtype: "missing request parameter",
-        resource: "/api/approveUserSignupRequest",
-        message: "missing registrationID parameter",
-      });
+  // fetch request from user-mngmt table correponding to received id
+  var reqID = request.params.id;
+  if (!reqID)
+    return response.status(401).send({
+      code: "NoRegistrationIDParameter",
+      type: "business",
+      subtype: "missing request parameter",
+      resource: "/api/approveUserSignupRequest",
+      message: "missing registrationID parameter",
+    });
 
-    axios({
-      url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
-      method: "get",
-      auth: cloudantDBAuth,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.data) {
-          if (res.data.type == "registration") {
-            // if request is for new registration
-            // send mail to user to confirm his registration
+  axios({
+    url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
+    method: "get",
+    auth: cloudantDBAuth,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (res.data) {
+        if (res.data.type == "registration") {
+          // if request is for new registration
+          // send mail to user to confirm his registration
 
-            var sendMailReq = {
-              url: getNodeJSServerURL(request) + "/api/sendEMail",
-              method: "POST",
-              data: {
-                to: res.data.email,
-                subject: "Confirm your registration request",
-                message: {
-                  title: "Email confirmation",
-                  text1: "Thank you for signin up to get a myCellar account !!",
-                  text2:
-                    "Before having you on board, please confirm you email address.",
-                  url:
-                    getNodeJSServerURL(request) +
-                    "/api/processUserRequestConfirmation/" +
-                    res.data._id,
-                },
-                template: "confirmEmailTmpl.html",
+          var sendMailReq = {
+            url: getNodeJSServerURL(request) + "/api/sendEMail",
+            method: "POST",
+            data: {
+              to: res.data.email,
+              subject: "Confirm your registration request",
+              message: {
+                title: "Email confirmation",
+                text1: "Thank you for signin up to get a myCellar account !!",
+                text2: "Before having you on board, please confirm you email address.",
+                url:
+                  getNodeJSServerURL(request) +
+                  "/api/processUserRequestConfirmation/" +
+                  res.data._id,
               },
-            };
-            axios(sendMailReq)
-              .then((sendMailReqResponse) => {
-                return response.status(200).send({
-                  code: "OK",
-                  message:
-                    "User " + res.data.username + " request approval done",
-                  translateKey: "approveRegistrationRequestDONE",
-                });
-              })
-              .catch((error) =>
-                handleError("approveUserSignupRequest", error, response)
-              );
-          } else {
-            return response.status(401).send({
-              code: "NoRegistrationRequestFound",
-              type: "business",
-              subtype: "No data found",
-              resource: "/api/approveUserSignupRequest",
-              message: "No registration request found",
-            });
-          }
+              template: "confirmEmailTmpl.html",
+            },
+          };
+          axios(sendMailReq)
+            .then((sendMailReqResponse) => {
+              return response.status(200).send({
+                code: "OK",
+                message: "User " + res.data.username + " request approval done",
+                translateKey: "approveRegistrationRequestDONE",
+              });
+            })
+            .catch((error) => handleError("approveUserSignupRequest", error, response));
+        } else {
+          return response.status(401).send({
+            code: "NoRegistrationRequestFound",
+            type: "business",
+            subtype: "No data found",
+            resource: "/api/approveUserSignupRequest",
+            message: "No registration request found",
+          });
         }
-      })
-      .catch((error) =>
-        handleError("approveUserSignupRequest", error, response)
-      );
-  }
-);
+      }
+    })
+    .catch((error) => handleError("approveUserSignupRequest", error, response));
+});
 
 // endpoint to finalize the request for a new signup to the application
 // It will
@@ -323,207 +256,187 @@ app.get(
 //    4. send mail to user with newly generated password
 // request path contains the user request id :
 // TODO change name into something more generic like : processRequestConfirmation
-app.get(
-  "/api/processUserRequestConfirmation/:id",
-  function (request, response, next) {
-    console.log(
-      "[processUserRequestConfirmation]api called with parameter : ",
-      JSON.stringify(request.params)
-    );
+app.get("/api/processUserRequestConfirmation/:id", function (request, response, next) {
+  console.log(
+    "[processUserRequestConfirmation]api called with parameter : ",
+    JSON.stringify(request.params)
+  );
 
-    const serverUrl = request.protocol + "://" + request.get("host");
+  const serverUrl = request.protocol + "://" + request.get("host");
 
-    // Generate password
-    var newPwd = Math.random().toString(36).slice(-8);
+  // Generate password
+  var newPwd = Math.random().toString(36).slice(-8);
 
-    // fetch request from user-mngmt table correponding to received id
-    var reqID = request.params.id;
-    if (!reqID)
-      return response.status(401).send({
-        code: "NoRegistrationIDParameter",
-        type: "business",
-        subtype: "missing request parameter",
-        resource: "/api/processUserRequestConfirmation",
-        message: "missing registrationID parameter",
-      });
+  // fetch request from user-mngmt table correponding to received id
+  var reqID = request.params.id;
+  if (!reqID)
+    return response.status(401).send({
+      code: "NoRegistrationIDParameter",
+      type: "business",
+      subtype: "missing request parameter",
+      resource: "/api/processUserRequestConfirmation",
+      message: "missing registrationID parameter",
+    });
 
-    axios({
-      url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
-      method: "get",
-      auth: cloudantDBAuth,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.data) {
-          if (res.data.type == "registration") {
-            // if request is for new registration
+  axios({
+    url: cloudantDBhostURL + "/user-mngt-app/" + reqID,
+    method: "get",
+    auth: cloudantDBAuth,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (res.data) {
+        if (res.data.type == "registration") {
+          // if request is for new registration
 
-            var upsertUserDataReq = {
-              url: getNodeJSServerURL(request) + "/api/upsertUserData",
-              method: "post",
-              data: {
-                username: res.data.username,
-                action: "create",
-                password: newPwd,
-                lastname: res.data.lastname || "",
-                firstname: res.data.firstname || "",
-                address: res.data.address || "",
-                email: res.data.email || "",
-                phone: res.data.phone || "",
-                state: "registrationConfirmed",
-                app: "mycellar",
-              },
-            };
+          var upsertUserDataReq = {
+            url: getNodeJSServerURL(request) + "/api/upsertUserData",
+            method: "post",
+            data: {
+              username: res.data.username,
+              action: "create",
+              password: newPwd,
+              lastname: res.data.lastname || "",
+              firstname: res.data.firstname || "",
+              address: res.data.address || "",
+              email: res.data.email || "",
+              phone: res.data.phone || "",
+              state: "registrationConfirmed",
+              app: "mycellar",
+            },
+          };
 
-            axios(upsertUserDataReq)
-              .then((upsertRes) => {
-                // create user table
-                var createUserTableReq = {
-                  url:
-                    process.env.dbprotocol +
-                    process.env.dbHostServiceUsername +
-                    ":" +
-                    process.env.dbHostServicePassword +
-                    "@" +
-                    process.env.dbHost +
-                    "/cellar$" +
-                    res.data.username,
-                  method: "put",
-                  auth: cloudantDBAuth,
-                };
-                // send mail
-                var sendMailReq = {
-                  url: getNodeJSServerURL(request) + "/api/sendEMail",
-                  method: "POST",
-                  data: {
-                    to: res.data.email,
-                    subject: "Registration confirmed",
-                    message: {
-                      title: "Registration confirmed",
-                      text1: "Your registration is now confirmed.",
-                      text2: "You can start using the myCellar application.",
-                      text3: "Please log on using the following credentials : ",
-                      username: res.data.username,
-                      pwd: newPwd,
-                      url: getNodeJSServerURL(request),
-                      text4:
-                        "You will be asked to immediately change your password after the first login.",
-                    },
-                    template: "confirmRegistrationTmpl.html",
+          axios(upsertUserDataReq)
+            .then((upsertRes) => {
+              // create user table
+              var createUserTableReq = {
+                url:
+                  process.env.dbprotocol +
+                  process.env.dbHostServiceUsername +
+                  ":" +
+                  process.env.dbHostServicePassword +
+                  "@" +
+                  process.env.dbHost +
+                  "/cellar$" +
+                  res.data.username,
+                method: "put",
+                auth: cloudantDBAuth,
+              };
+              // send mail
+              var sendMailReq = {
+                url: getNodeJSServerURL(request) + "/api/sendEMail",
+                method: "POST",
+                data: {
+                  to: res.data.email,
+                  subject: "Registration confirmed",
+                  message: {
+                    title: "Registration confirmed",
+                    text1: "Your registration is now confirmed.",
+                    text2: "You can start using the myCellar application.",
+                    text3: "Please log on using the following credentials : ",
+                    username: res.data.username,
+                    pwd: newPwd,
+                    url: getNodeJSServerURL(request),
+                    text4:
+                      "You will be asked to immediately change your password after the first login.",
                   },
-                };
+                  template: "confirmRegistrationTmpl.html",
+                },
+              };
 
-                axios
-                  .all([axios(createUserTableReq), axios(sendMailReq)])
-                  .then(
-                    axios.spread((firstResponse, secondResponse) => {
-                      console.log(
-                        JSON.stringify(firstResponse.data),
-                        JSON.stringify(secondResponse.data)
-                      );
-                      let htmlToReturn = jsrender.renderFile(
-                        "./server/templates/confirmRegistrationTmpl.html",
-                        sendMailReq.data.message
-                      );
-                      console.log(
-                        "[processUserRequestConfirmation]api returns : " +
-                          htmlToReturn
-                      );
-                      return response.status(200).send(htmlToReturn);
-                    })
-                  )
-                  .catch((error) =>
-                    handleError(
-                      "processUserRequestConfirmation (combined)",
-                      error,
-                      response
+              axios
+                .all([axios(createUserTableReq), axios(sendMailReq)])
+                .then(
+                  axios.spread((firstResponse, secondResponse) => {
+                    console.log(
+                      JSON.stringify(firstResponse.data),
+                      JSON.stringify(secondResponse.data)
+                    );
+                    let htmlToReturn = jsrender.renderFile(
+                      "./server/templates/confirmRegistrationTmpl.html",
+                      sendMailReq.data.message
+                    );
+                    console.log("[processUserRequestConfirmation]api returns : " + htmlToReturn);
+                    return response.status(200).send(htmlToReturn);
+                  })
+                )
+                .catch((error) =>
+                  handleError("processUserRequestConfirmation (combined)", error, response)
+                );
+            })
+            .catch((error) =>
+              handleError("processUserRequestConfirmation (combined)", error, response)
+            );
+        } else {
+          // request is for password reset
+          // Upsert user with newly generated password
+          var upsertUserDataReq = {
+            url: getNodeJSServerURL(request) + "/api/upsertUserData",
+            method: "post",
+            data: {
+              username: res.data.username,
+              action: "update",
+              password: newPwd,
+              state: "resetPasswordConfirmed",
+            },
+          };
+          // send mail
+          var sendMailReq = {
+            url: getNodeJSServerURL(request) + "/api/sendEMail",
+            method: "POST",
+            data: {
+              to: res.data.email,
+              subject: "Password reset confirmed",
+              message: {
+                title: "Password reset confirmed",
+                text1: "Your password has now been reset.",
+                text2: "You can log back in the myCellar application again.",
+                text3: "Please use now the following credentials : ",
+                username: res.data.username,
+                pwd: newPwd,
+                url: getNodeJSServerURL(request),
+                text4:
+                  "You will be asked to immediately change your password after the next login.",
+              },
+              template: "confirmRegistrationTmpl.html",
+            },
+          };
+          axios
+            .all([axios(upsertUserDataReq), axios(sendMailReq)])
+            .then(
+              axios.spread((firstResponse, secondResponse) => {
+                console.log(
+                  JSON.stringify(firstResponse.data),
+                  JSON.stringify(secondResponse.data)
+                );
+                return response
+                  .status(200)
+                  .send(
+                    jsrender.renderFile(
+                      "./server/templates/confirmRegistrationTmpl.html",
+                      sendMailReq.data.message
                     )
                   );
               })
-              .catch((error) =>
-                handleError(
-                  "processUserRequestConfirmation (combined)",
-                  error,
-                  response
-                )
-              );
-          } else {
-            // request is for password reset
-            // Upsert user with newly generated password
-            var upsertUserDataReq = {
-              url: getNodeJSServerURL(request) + "/api/upsertUserData",
-              method: "post",
-              data: {
-                username: res.data.username,
-                action: "update",
-                password: newPwd,
-                state: "resetPasswordConfirmed",
-              },
-            };
-            // send mail
-            var sendMailReq = {
-              url: getNodeJSServerURL(request) + "/api/sendEMail",
-              method: "POST",
-              data: {
-                to: res.data.email,
-                subject: "Password reset confirmed",
-                message: {
-                  title: "Password reset confirmed",
-                  text1: "Your password has now been reset.",
-                  text2: "You can log back in the myCellar application again.",
-                  text3: "Please use now the following credentials : ",
-                  username: res.data.username,
-                  pwd: newPwd,
-                  url: getNodeJSServerURL(request),
-                  text4:
-                    "You will be asked to immediately change your password after the next login.",
-                },
-                template: "confirmRegistrationTmpl.html",
-              },
-            };
-            axios
-              .all([axios(upsertUserDataReq), axios(sendMailReq)])
-              .then(
-                axios.spread((firstResponse, secondResponse) => {
-                  console.log(
-                    JSON.stringify(firstResponse.data),
-                    JSON.stringify(secondResponse.data)
-                  );
-                  return response
-                    .status(200)
-                    .send(
-                      jsrender.renderFile(
-                        "./server/templates/confirmRegistrationTmpl.html",
-                        sendMailReq.data.message
-                      )
-                    );
-                })
-              )
-              .catch((error) =>
-                handleError(
-                  "processUserRequestConfirmation (combined)",
-                  error,
-                  response
-                )
-              );
-          }
-        } else {
-          return response.status(401).send({
-            code: "NoRegistrationRequestFound",
-            type: "business",
-            subtype: "No data found",
-            resource: "/api/processUserRequestConfirmation",
-            message: "No registration request found",
-          });
+            )
+            .catch((error) =>
+              handleError("processUserRequestConfirmation (combined)", error, response)
+            );
         }
-      })
-      .catch((error) =>
-        handleError("processUserRequestConfirmation", error, response)
-      );
-  }
-);
+      } else {
+        return response.status(401).send({
+          code: "NoRegistrationRequestFound",
+          type: "business",
+          subtype: "No data found",
+          resource: "/api/processUserRequestConfirmation",
+          message: "No registration request found",
+        });
+      }
+    })
+    .catch((error) => handleError("processUserRequestConfirmation", error, response));
+});
 
 /* Private endpoint to create user requests (registration or password reset) in user management table. 
     Request body :
@@ -543,8 +456,7 @@ app.get(
 app.post("/api/createUserMngmtRequest", function (request, response, next) {
   if (
     !request.body.hasOwnProperty("type") ||
-    (request.body.type != "registration" &&
-      request.body.type != "passwordReset")
+    (request.body.type != "registration" && request.body.type != "passwordReset")
   ) {
     return response.status(400).send({
       code: "NoOrInvalidType",
@@ -583,10 +495,7 @@ app.post("/api/createUserMngmtRequest", function (request, response, next) {
     email: request.body.email,
     requestDate: new Date().toISOString(),
   };
-  console.log(
-    "/createUserMngmtRequest user request data:",
-    JSON.stringify(reqData)
-  );
+  console.log("/createUserMngmtRequest user request data:", JSON.stringify(reqData));
   axios({
     url: cloudantDBhostURL + "/user-mngt-app",
     method: "post",
@@ -642,14 +551,10 @@ app.post("/api/sendEMail", function (request, response, next) {
 
   console.log("APIKEY : " + process.env.MJ_APIKEY_PUBLIC);
   console.log("SECRETKEY : " + process.env.MJ_APIKEY_PRIVATE);
-  const mailjet = Mailjet.apiConnect(
-    process.env.MJ_APIKEY_PUBLIC,
-    process.env.MJ_APIKEY_PRIVATE,
-    {
-      config: {},
-      options: {},
-    }
-  );
+  const mailjet = Mailjet.apiConnect(process.env.MJ_APIKEY_PUBLIC, process.env.MJ_APIKEY_PRIVATE, {
+    config: {},
+    options: {},
+  });
 
   let message = {};
 
@@ -778,10 +683,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
   }
 
   // if action is "update" then we should at least receive a username
-  if (
-    !request.body.action == "update" &&
-    !request.body.hasOwnProperty("username")
-  ) {
+  if (!request.body.action == "update" && !request.body.hasOwnProperty("username")) {
     return response.status(400).send({
       code: "NoUsernameInUpdate",
       type: "technical",
@@ -824,8 +726,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
             type: "technical",
             subtype: "data duplication",
             resource: "/api/upsertUserData",
-            message:
-              "Impossible to create because this username already exists",
+            message: "Impossible to create because this username already exists",
           });
         } else {
           // this is an update
@@ -852,13 +753,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
             const salt = crypto.randomBytes(128).toString("base64");
             var hashedPw;
             try {
-              hashedPw = crypto.pbkdf2Sync(
-                request.body.password,
-                salt,
-                10000,
-                length,
-                digest
-              );
+              hashedPw = crypto.pbkdf2Sync(request.body.password, salt, 10000, length, digest);
             } catch (err) {
               return response.status(500).json({
                 error: err,
@@ -873,10 +768,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
             reqData.password = res.data.docs[0].password;
           }
 
-          console.log(
-            "/upsertUserData update reqData:",
-            JSON.stringify(reqData)
-          );
+          console.log("/upsertUserData update reqData:", JSON.stringify(reqData));
           axios({
             url: cloudantDBhostURL + "/app-users/" + res.data.docs[0]._id,
             method: "PUT",
@@ -929,10 +821,7 @@ app.post("/api/upsertUserData", function (request, response, next) {
           reqData.salt = salt;
           reqData.password = hashedPw.toString("hex");
 
-          console.log(
-            "/upsertUserData create reqData:",
-            JSON.stringify(reqData)
-          );
+          console.log("/upsertUserData create reqData:", JSON.stringify(reqData));
           axios({
             url: cloudantDBhostURL + "/app-users",
             method: "POST",
@@ -976,14 +865,8 @@ app.post("/api/upsertUserData", function (request, response, next) {
 //    address: request.body.address || "",
 //    phone: request.body.phone || ""
 app.post("/api/processSignupRequest", function (request, response, next) {
-  console.log(
-    "[processSignupRequest]api called with body : ",
-    JSON.stringify(request.body)
-  );
-  if (
-    !request.body.hasOwnProperty("email") ||
-    !request.body.hasOwnProperty("username")
-  ) {
+  console.log("[processSignupRequest]api called with body : ", JSON.stringify(request.body));
+  if (!request.body.hasOwnProperty("email") || !request.body.hasOwnProperty("username")) {
     return response.status(400).send({
       code: "NoEmailOrUsername",
       type: "business",
@@ -993,10 +876,7 @@ app.post("/api/processSignupRequest", function (request, response, next) {
     });
   }
   console.log(
-    "request host : " +
-      request.get("host") +
-      " - request protocol : " +
-      request.protocol
+    "request host : " + request.get("host") + " - request protocol : " + request.protocol
   );
   // Check that user doesn't already exists before creating a new one
   var selector = {
@@ -1066,8 +946,7 @@ app.post("/api/processSignupRequest", function (request, response, next) {
                 message: {
                   title: "Approval user signup request",
                   text1: "Hi Philippe",
-                  text2:
-                    "You received a new signup request. The user's data are : ",
+                  text2: "You received a new signup request. The user's data are : ",
                   name: request.body.lastName || "",
                   firstname: request.body.firstName || "",
                   username: request.body.username,
@@ -1091,22 +970,12 @@ app.post("/api/processSignupRequest", function (request, response, next) {
                   registrationID: createUserReqResponse.data.id,
                 });
               })
-              .catch((error) =>
-                handleError("processSignupRequest/sendMail", error, response)
-              );
+              .catch((error) => handleError("processSignupRequest/sendMail", error, response));
           })
-          .catch((error) =>
-            handleError(
-              "processSignupRequest/createUserRequest",
-              error,
-              response
-            )
-          );
+          .catch((error) => handleError("processSignupRequest/createUserRequest", error, response));
       }
     })
-    .catch((error) =>
-      handleError("processSignupRequest/Find user", error, response)
-    );
+    .catch((error) => handleError("processSignupRequest/Find user", error, response));
 });
 
 // login method
@@ -1191,13 +1060,7 @@ app.post("/api/login", function (request, response, next) {
           // verify that the password stored in the database corresponds to the given password
           var hash;
           try {
-            hash = crypto.pbkdf2Sync(
-              request.body.password,
-              user.salt,
-              10000,
-              length,
-              digest
-            );
+            hash = crypto.pbkdf2Sync(request.body.password, user.salt, 10000, length, digest);
           } catch (e) {
             return response.status(500).send({
               error: e,
@@ -1222,10 +1085,7 @@ app.post("/api/login", function (request, response, next) {
             );
             user.token = token;
             delete user.salt;
-            if (
-              user.state == "resetPasswordConfirmed" ||
-              user.state == "registrationConfirmed"
-            ) {
+            if (user.state == "resetPasswordConfirmed" || user.state == "registrationConfirmed") {
               // After the user confirmed his request to register or to reset password from the mail he got in his mail box, we send back a special field "action" with value "changePassword" that will be checked in the client, to force the user to set a new password
               return response.status(200).send({
                 code: "changePassword",
@@ -1269,10 +1129,7 @@ app.post("/api/login", function (request, response, next) {
 // request body () :
 // - username (mandatory)
 app.post("/api/resetPassword", function (request, response, next) {
-  console.log(
-    "[resetPassword]api called with body : ",
-    JSON.stringify(request.body)
-  );
+  console.log("[resetPassword]api called with body : ", JSON.stringify(request.body));
 
   const serverUrl = request.protocol + "://" + request.get("host");
 
@@ -1375,18 +1232,13 @@ app.post("/api/resetPassword", function (request, response, next) {
                   );
                   return response.status(200).send({
                     code: "OK",
-                    message:
-                      "User " +
-                      request.body.username +
-                      "  password reset received",
+                    message: "User " + request.body.username + "  password reset received",
                     translateKey: "pwdResetRequestOK",
                     registrationID: userRequest.data.id,
                   });
                 })
               )
-              .catch((error) =>
-                handleError("resetPassword (combined)", error, response)
-              );
+              .catch((error) => handleError("resetPassword (combined)", error, response));
           })
           .catch((error) => handleError("changePassword", error, response));
       } else {
@@ -1411,10 +1263,7 @@ app.post("/api/resetPassword", function (request, response, next) {
 // - Error
 // - {message, translateKey}
 app.post("/api/changePassword", function (request, response, next) {
-  console.log(
-    "[changePassword]api called with body : ",
-    JSON.stringify(request.body)
-  );
+  console.log("[changePassword]api called with body : ", JSON.stringify(request.body));
 
   const serverUrl = request.protocol + "://" + request.get("host");
 
@@ -1487,13 +1336,7 @@ app.post("/api/changePassword", function (request, response, next) {
         // verify that the password stored in the database corresponds to the given password
         var hash;
         try {
-          hash = crypto.pbkdf2Sync(
-            request.body.oldPassword,
-            user.salt,
-            10000,
-            length,
-            digest
-          );
+          hash = crypto.pbkdf2Sync(request.body.oldPassword, user.salt, 10000, length, digest);
         } catch (e) {
           return response.status(500).send({
             error: e,
@@ -1561,10 +1404,7 @@ app.post("/api/changePassword", function (request, response, next) {
 // - Error
 // - {message "update user data successfull", translateKey}
 app.post("/api/updateUserData", function (request, response, next) {
-  console.log(
-    "[updateUserData]api called with body : ",
-    JSON.stringify(request.body)
-  );
+  console.log("[updateUserData]api called with body : ", JSON.stringify(request.body));
 
   const serverUrl = request.protocol + "://" + request.get("host");
 
@@ -1613,104 +1453,100 @@ app.post("/api/updateUserData", function (request, response, next) {
 // returns either :
 // - Error
 // - {message "save photo successfull", translateKey}
-app.post(
-  "/api/photo",
-  upload.single("image"),
-  async (request, response, next) => {
-    console.log("[savePhoto]api called");
+app.post("/api/photo", upload.single("image"), async (request, response, next) => {
+  console.log("[savePhoto]api called");
 
-    if (!request.body.user) {
-      return response.status(400).send({
-        code: "NoName",
-        type: "technical",
-        subtype: "missing request parameters",
-        resource: "/api/savePhoto",
-        message: "No username",
-      });
-    }
-
-    if (!request.body.name) {
-      return response.status(400).send({
-        code: "NoName",
-        type: "technical",
-        subtype: "missing request parameters",
-        resource: "/api/savePhoto",
-        message: "No name",
-      });
-    }
-
-    if (!request.file) {
-      return response.status(400).send({
-        code: "NoBlob",
-        type: "technical",
-        subtype: "missing request parameters",
-        resource: "/api/savePhoto",
-        message: "No image",
-      });
-    }
-
-    let image = request.file;
-    let name = request.body.user + "/" + request.body.name;
-
-    try {
-      /* Extract the serviceCredential and bucketName from the config.js file
-       * The service credential can be created in the COS UI's Service Credential Pane
-       */
-      const { serviceCredential } = CONFIG;
-      const { bucketName } = CONFIG;
-
-      /* Create the S3 Client using the IBM-COS-SDK - https://www.npmjs.com/package/ibm-cos-sdk
-       * We will use a default endpoint to initially find the bucket endpoint
-       *
-       * COS Operations can be done using an IAM APIKey or HMAC Credentials.
-       * We will create the S3 client differently based on what we use.
-       */
-      let s3;
-      if (!CONFIG.useHmac) {
-        s3 = await getS3(defaultEndpoint, serviceCredential);
-      } else {
-        s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
-      }
-      console.log("got s3 client");
-
-      /* Fetch the Extended bucket Info for the selected bucket.
-       * This call will give us the bucket's Location
-       */
-      const data = await listBuckets(s3, bucketName);
-      const bucket = data.Buckets[0];
-      console.log("got bucket");
-
-      /* Fetch all the available endpoints in Cloud Object Storage
-       * We need to find the correct endpoint to use based on our bucjket's location
-       */
-      const endpoints = await getEndpoints(serviceCredential.endpoints);
-      console.log("got endpoints");
-
-      /* Find the correct endpoint and set it to the S3 Client
-       * We can skip these steps and directly assign the correct endpoint if we know it
-       */
-      s3.endpoint = findBucketEndpoint(bucket, endpoints);
-
-      /* Upload Objects into the selected bucket
-       */
-      await putImage(s3, bucketName, name, image);
-      //await putObjects(s3, bucketName, request.body.name, request.body.blob);
-
-      console.info("\nphoto saved succesfully in IBM COS");
-      return response.status(200).send({
-        code: "OK",
-        message: "save photo successfull",
-        translateKey: "savePhotoOK",
-      });
-    } catch (err) {
-      console.error("Found an error in S3 putObjet operation");
-      console.error("statusCode: ", err.statusCode);
-      console.error("message: ", err.message);
-      console.error("stack: ", err.stack);
-      handleError("savePhoto", err, response);
-    }
+  if (!request.body.user) {
+    return response.status(400).send({
+      code: "NoName",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/savePhoto",
+      message: "No username",
+    });
   }
-);
+
+  if (!request.body.name) {
+    return response.status(400).send({
+      code: "NoName",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/savePhoto",
+      message: "No name",
+    });
+  }
+
+  if (!request.file) {
+    return response.status(400).send({
+      code: "NoBlob",
+      type: "technical",
+      subtype: "missing request parameters",
+      resource: "/api/savePhoto",
+      message: "No image",
+    });
+  }
+
+  let image = request.file;
+  let name = request.body.user + "/" + request.body.name;
+
+  try {
+    /* Extract the serviceCredential and bucketName from the config.js file
+     * The service credential can be created in the COS UI's Service Credential Pane
+     */
+    const { serviceCredential } = CONFIG;
+    const { bucketName } = CONFIG;
+
+    /* Create the S3 Client using the IBM-COS-SDK - https://www.npmjs.com/package/ibm-cos-sdk
+     * We will use a default endpoint to initially find the bucket endpoint
+     *
+     * COS Operations can be done using an IAM APIKey or HMAC Credentials.
+     * We will create the S3 client differently based on what we use.
+     */
+    let s3;
+    if (!CONFIG.useHmac) {
+      s3 = await getS3(defaultEndpoint, serviceCredential);
+    } else {
+      s3 = await getS3Hmac(defaultEndpoint, serviceCredential);
+    }
+    console.log("got s3 client");
+
+    /* Fetch the Extended bucket Info for the selected bucket.
+     * This call will give us the bucket's Location
+     */
+    const data = await listBuckets(s3, bucketName);
+    const bucket = data.Buckets[0];
+    console.log("got bucket");
+
+    /* Fetch all the available endpoints in Cloud Object Storage
+     * We need to find the correct endpoint to use based on our bucjket's location
+     */
+    const endpoints = await getEndpoints(serviceCredential.endpoints);
+    console.log("got endpoints");
+
+    /* Find the correct endpoint and set it to the S3 Client
+     * We can skip these steps and directly assign the correct endpoint if we know it
+     */
+    s3.endpoint = findBucketEndpoint(bucket, endpoints);
+
+    /* Upload Objects into the selected bucket
+     */
+    await putImage(s3, bucketName, name, image);
+    //await putObjects(s3, bucketName, request.body.name, request.body.blob);
+
+    console.info("\nphoto saved succesfully in IBM COS");
+    return response.status(200).send({
+      code: "OK",
+      message: "save photo successfull",
+      translateKey: "savePhotoOK",
+    });
+  } catch (err) {
+    console.error("Found an error in S3 putObjet operation");
+    console.error("statusCode: ", err.statusCode);
+    console.error("message: ", err.message);
+    console.error("stack: ", err.stack);
+    handleError("savePhoto", err, response);
+  }
+});
 
 // getPhoto method
 // request parameter :
@@ -1912,7 +1748,5 @@ app.get("*", function (request, response) {
 
 var port = process.env.PORT || 8080;
 app.listen(port, function () {
-  console.log(
-    "To view your app, open this link in your browser on port : " + port
-  );
+  console.log("To view your app, open this link in your browser on port : " + port);
 });

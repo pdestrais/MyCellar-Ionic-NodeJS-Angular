@@ -74,10 +74,10 @@ interface Option {
 }
 
 @Component({
-    selector: "app-vin",
-    templateUrl: "./vin.page.html",
-    styleUrls: ["./vin.page.scss"],
-    standalone: false
+  selector: "app-vin",
+  templateUrl: "./vin.page.html",
+  styleUrls: ["./vin.page.scss"],
+  standalone: false
 })
 export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   store = inject(Store);
@@ -105,10 +105,10 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     data: File | Blob;
     name: string;
   } = {
-    contentType: "image/jpeg",
-    data: new File([], "Photo file"),
-    name: "",
-  };
+      contentType: "image/jpeg",
+      data: new File([], "Photo file"),
+      name: "",
+    };
   public dirtyPhoto: boolean = false;
   private vinMapState$!: Observable<Map<string, VinModel>>;
   private unsubscribe$ = new Subject<void>();
@@ -334,11 +334,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         tap((vinState) =>
           debug(
             "[ngOnInit]handle vinState Changes - ts " +
-              window.performance.now() +
-              "\nvinState : " +
-              JSON.stringify(vinState) +
-              "\neventLog : " +
-              JSON.stringify(vinState.eventLog)
+            window.performance.now() +
+            "\nvinState : " +
+            JSON.stringify(vinState) +
+            "\neventLog : " +
+            JSON.stringify(vinState.eventLog)
           )
         )
       )
@@ -347,11 +347,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           case "saved":
             debug(
               "[ngOnInit] handling change to 'saved' status - ts " +
-                window.performance.now() +
-                "\nvinState : " +
-                JSON.stringify(vinState) +
-                "\neventLog : " +
-                JSON.stringify(vinState.eventLog)
+              window.performance.now() +
+              "\nvinState : " +
+              JSON.stringify(vinState) +
+              "\neventLog : " +
+              JSON.stringify(vinState.eventLog)
             );
 
             // if we get an event that a wine is saved. We need to check it's id and
@@ -381,7 +381,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
               );
               debug(
                 "[ngInit](II) FilteredEventLog : " +
-                  JSON.stringify(filteredEventLog)
+                JSON.stringify(filteredEventLog)
               );
               if (filteredEventLog.length == 2) {
                 debug(
@@ -390,11 +390,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 this.store.dispatch(VinActions.setStatusToLoaded());
               } else if (
                 vinState.eventLog[vinState.eventLog.length - 1].id ==
-                  vinState.currentWine.id &&
+                vinState.currentWine.id &&
                 vinState.eventLog[vinState.eventLog.length - 1].rev ==
-                  vinState.currentWine.rev &&
+                vinState.currentWine.rev &&
                 vinState.eventLog[vinState.eventLog.length - 1].action ==
-                  "create" &&
+                "create" &&
                 this.vinForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
               ) {
                 // Event showing concurrent editing on the same wine that was saved somewhere else
@@ -457,9 +457,9 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
                 this.store.dispatch(VinActions.setStatusToLoaded());
               } else if (
                 vinState.eventLog[vinState.eventLog.length - 1].id ==
-                  vinState.currentWine.id &&
+                vinState.currentWine.id &&
                 vinState.eventLog[vinState.eventLog.length - 1].action ==
-                  "delete"
+                "delete"
               ) {
                 // Event showing concurrent editing on the same wine that was saved somewhere else
                 debug("[ngInit](II.C) Concurrent editing on the same wine");
@@ -577,7 +577,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         const { data } = await modal.onDidDismiss();
         debug(
           "[loadImageAndView]data from image preview modal : " +
-            JSON.stringify(data)
+          JSON.stringify(data)
         );
         if (data && data.choice != "") {
           switch (data.choice) {
@@ -678,6 +678,10 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       // now combine the loaded wine data with the new form data
       this.vin = { ...mutableWine, ...this.vinForm.value };
       this.vin.lastUpdated = new Date().toISOString();
+      //Some wines have no history field, we need to initialize it
+      if (!this.vin.history) {
+        this.vin.history = [];
+      }
       if (this.newWine) {
         this.vin.history = [];
         this.vin.history.push({
@@ -785,7 +789,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             (error) => {
               debug(
                 "[Vin.delete wine photo]http get error : " +
-                  JSON.stringify(error)
+                JSON.stringify(error)
               );
             }
           );
@@ -849,8 +853,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         duration: duration ? duration : 2000,
       });
@@ -862,8 +866,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         buttons: [
           {
@@ -922,54 +926,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     debug("[Vin.toNumber]" + attribute + " changed: " + this.vin[attribute]);
   }
 
-  public async getGWSScore() {
-    debug("[Vin.getGWSScore]called");
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant("wine.fetchGWSSCore"),
-    });
-    await loading.present();
-    //        if (platforms.indexOf("core")!=-1) {
-    // Create url
-    let prefix = window.location.origin + "/api/";
-    let url =
-      prefix +
-      "GWS/" +
-      this.cleanForUrl(this.vin.origine.region) +
-      "/" +
-      this.cleanForUrl(this.vin.nom) +
-      "/" +
-      this.vin.annee;
-    debug("[Vin.getGWSScore]url :" + url);
-    this.http.get(url).subscribe(
-      (GWscore: any) => {
-        loading.dismiss();
-        this.vinForm.patchValue({ GWSScore: GWscore.score });
-        this.presentToast(
-          this.translate.instant("wine.GWSScoreFound"),
-          "success",
-          null
-        );
-      },
-      (error) => {
-        debug("http get error : " + JSON.stringify(error.status));
-        loading.dismiss();
-        this.presentToast(
-          this.translate.instant("wine.GWSScoreNotFound", {
-            url:
-              "https://www.globalwinescore.com/wine-score/" +
-              this.cleanForUrl(this.vin.nom) +
-              "-" +
-              this.cleanForUrl(this.vin.origine.region) +
-              "/" +
-              this.vin.annee,
-          }),
-          "error",
-          null
-        );
-      }
-    );
-  }
-
   adjustQuantityLeft(q: number) {
     let ctrlLeft = this.vinForm.get("nbreBouteillesReste");
     let ctrlBought = this.vinForm.get("nbreBouteillesAchat");
@@ -990,21 +946,6 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       message: "getting GWS Score",
     });
     await loading.present();
-  }
-
-  private cleanForUrl(text: string) {
-    return text
-      .trim()
-      .toLowerCase()
-      .replace(/ /g, "-")
-      .replace(/'/g, "")
-      .replace(/â/g, "a")
-      .replace(/é/g, "e")
-      .replace(/è/g, "e")
-      .replace(/ê/g, "e")
-      .replace(/û/g, "u")
-      .replace(/ô/g, "o")
-      .replace(/î/g, "i");
   }
 
   // function called for each value change of wine name or year
@@ -1080,7 +1021,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 }
 
 @Component({
-    template: `
+  template: `
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
@@ -1114,13 +1055,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       <ion-button expand="full" (click)="dismiss()">Close</ion-button>
     </ion-content>
   `,
-    standalone: false
+  standalone: false
 })
 export class ModalPage {
   @Input()
   vin!: VinModel;
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController) { }
   dismiss() {
     this.modalCtrl.dismiss();
   }
