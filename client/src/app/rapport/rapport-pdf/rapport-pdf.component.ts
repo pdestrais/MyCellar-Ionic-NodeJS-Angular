@@ -33,15 +33,47 @@ export class RapportPdfComponent implements OnInit {
         var y = startY;
         var pageNum = 0;
 
-        this.pouch.getDocsOfType("vin").then((vins) => {
+        this.pouch.getDocsOfType("vin").then((vins: VinModel[]) => {
             this.vins = vins;
+            // Filter out wines with no remaining bottles as those should not be included in the report
+            this.vins = this.vins.filter((w) => w.nbreBouteillesReste != 0);
             this.vins.map((v) => {
                 v.origine.groupVal = v.origine.pays + " - " + v.origine.region;
+                // some years are integer, some are string, we need to convert them all to string, otherwize , this cause issues for the report
+                if (typeof v.annee === "number") {
+                    v.annee = "" + v.annee;
+                }
             });
+            // sort wines by v.origine.groupVal, then by v.annee, then by v.nom
+            this.vins.sort((a, b) => {
+                if ((a.origine.groupVal ?? "") < (b.origine.groupVal ?? "")) {
+                    return -1;
+                }
+                if ((a.origine.groupVal ?? "") > (b.origine.groupVal ?? "")) {
+                    return 1;
+                }
+                // groupVal must be equal, sort by annee
+                if (a.annee < b.annee) {
+                    return -1;
+                }
+                if (a.annee > b.annee) {
+                    return 1;
+                }
+                // annee must be equal, sort by nom
+                if (a.nom < b.nom) {
+                    return -1;
+                }
+                if (a.nom > b.nom) {
+                    return 1;
+                }
+                // names must be equal  
+                return 0;
+            });
+
             console.log("[Rapport - cellarToPDF]#wine loaded : " + this.vins.length);
             // first report dimension is wine type
             this.typesGrouping = d3.rollup(
-                this.vins.filter((w) => w.nbreBouteillesReste != 0),
+                this.vins,
                 (v) => d3.sum(v, (d) => d.nbreBouteillesReste),
                 (d) => d.type.nom
             );
@@ -71,7 +103,7 @@ export class RapportPdfComponent implements OnInit {
                 // second report dimension is wine origin
                 this.typesOrigineGrouping = d3.rollup(
                     this.vins.filter(
-                        (w) => w.nbreBouteillesReste != 0 && w.type.nom == itemTypeKey
+                        (w) => w.type.nom == itemTypeKey
                     ),
                     (v) => d3.sum(v, (d) => d.nbreBouteillesReste),
                     (d) => d.origine.groupVal
@@ -109,7 +141,6 @@ export class RapportPdfComponent implements OnInit {
                         this.typesOrigineYearGrouping = d3.rollups(
                             this.vins.filter(
                                 (w) =>
-                                    w.nbreBouteillesReste != 0 &&
                                     w.type.nom == itemTypeKey &&
                                     w.origine.groupVal == itemOrigineKey
                                 /* w.origine.pays + " - " + w.origine.region == itemOrigineKey */
@@ -119,7 +150,7 @@ export class RapportPdfComponent implements OnInit {
                         );
 
                         // sort by year
-                        this.typesOrigineYearGrouping.sort(function(a, b) {
+                        this.typesOrigineYearGrouping.sort(function (a, b) {
                             if (a.key < b.key) {
                                 return -1;
                             }
@@ -260,7 +291,7 @@ export class RapportPdfComponent implements OnInit {
         this.doc.text(
             "Contenu cave le " + reportDate.toLocaleDateString("fr-FR"),
             12,
-            0.7
+            1
         );
         this.doc.setLineWidth(0.05);
         this.doc.setDrawColor(50);
@@ -288,6 +319,6 @@ export class RapportPdfComponent implements OnInit {
         this.doc.setTextColor(0);
         //		doc.setFont("Verdana");
         this.doc.text(reportDate.toLocaleDateString("fr-FR"), 1, 20.3);
-        this.doc.text("page" + pgNum, 27, 20.3);
+        this.doc.text("page " + pgNum, 27, 20.3);
     }
 }

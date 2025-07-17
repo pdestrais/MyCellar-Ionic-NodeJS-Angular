@@ -2,12 +2,7 @@
   <form #form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <ion-grid>
       <ion-row color="primary" class="ion-justify-content-center">
-        <ion-col
-          class="ion-align-self-center"
-          size-md="6"
-          size-lg="5"
-          size-xs="12"
-        >
+        <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
           <div class="ion-text-center">
             <h3>Register for your account!</h3>
           </div>
@@ -17,59 +12,29 @@
                 "register.username" | translate
               }}</ion-label>
               <ion-input
-                aria-label="username"
                 type="text"
                 formControlName="username"
-                [ngClass]="{
-                  'is-invalid': !f.username.valid && f.username.dirty
-                }"
+                [ngClass]="{ 'is-invalid': !f.username.valid && f.username.dirty }"
               ></ion-input>
-              <div
-                *ngIf="
-                  !f.username.valid &&
-                  f.username.dirty &&
-                  f.username.errors?.required
-                "
-              >
+              <div *ngIf="!f.username.valid && f.username.dirty && f.username.errors?.required">
                 <p class="invalid">
-                  {{ "register.username" | translate }}
-                  {{ "general.required" | translate }}
+                  {{ "register.username" | translate }} {{ "general.required" | translate }}
                 </p>
               </div>
-              <div
-                *ngIf="
-                  !f.username.valid &&
-                  f.username.dirty &&
-                  f.username.errors?.whitespace
-                "
-              >
+              <div *ngIf="!f.username.valid && f.username.dirty && f.username.errors?.whitespace">
                 <p class="invalid">
                   {{ "register.username" | translate }}
                   {{ "general.containsWhitespace" | translate }}
                 </p>
               </div>
-              <div
-                *ngIf="
-                  !f.username.valid &&
-                  f.username.dirty &&
-                  f.username.errors?.pattern
-                "
-              >
+              <div *ngIf="!f.username.valid && f.username.dirty && f.username.errors?.pattern">
                 <p class="invalid">
-                  {{ "register.username" | translate }}
-                  {{ "general.underscore" | translate }}
+                  {{ "register.username" | translate }} {{ "general.underscore" | translate }}
                 </p>
               </div>
-              <div
-                *ngIf="
-                  !f.username.valid &&
-                  f.username.dirty &&
-                  f.username.errors?.minlength
-                "
-              >
+              <div *ngIf="!f.username.valid && f.username.dirty && f.username.errors?.minlength">
                 <p class="invalid">
-                  {{ "register.username" | translate }}
-                  {{ "general.minlength" | translate }}
+                  {{ "register.username" | translate }} {{ "general.minlength" | translate }}
                 </p>
               </div>
             </ion-item>
@@ -78,23 +43,13 @@
                 "register.firstname" | translate
               }}</ion-label>
               <ion-input
-                aria-label="firstname"
                 type="text"
                 formControlName="firstName"
-                [ngClass]="{
-                  'is-invalid': !f.firstName.valid && f.firstName.dirty
-                }"
+                [ngClass]="{ 'is-invalid': !f.firstName.valid && f.firstName.dirty }"
               ></ion-input>
-              <div
-                *ngIf="
-                  !f.firstName.valid &&
-                  f.firstName.dirty &&
-                  f.firstName.errors?.required
-                "
-              >
+              <div *ngIf="!f.firstName.valid && f.firstName.dirty && f.firstName.errors?.required">
                 <p class="invalid">
-                  {{ "register.firstName" | translate }}
-                  {{ "general.required" | translate }}
+                  {{ "register.firstName" | translate }} {{ "general.required" | translate }}
                 </p>
               </div>
             </ion-item>
@@ -103,66 +58,38 @@
                 "register.lastname" | translate
               }}</ion-label>
               <ion-input
-                aria-label="lastname"
                 type="text"
                 formControlName="lastName"
-                [ngClass]="{
-                  'is-invalid': !f.lastName.valid && f.lastName.dirty
-                }"
+                [ngClass]="{ 'is-invalid': !f.lastName.valid && f.lastName.dirty }"
               ></ion-input>
-              <div
-                *ngIf="
-                  !f.lastName.valid &&
-                  f.lastName.dirty &&
-                  f.lastName.errors?.required
-                "
-              >
+              <div *ngIf="!f.lastName.valid && f.lastName.dirty && f.lastName.errors?.required">
                 <p class="invalid">
-                  {{ "register.lastName" | translate }}
-                  {{ "general.required" | translate }}
+                  {{ "register.lastName" | translate }} {{ "general.required" | translate }}
                 </p>
               </div>
             </ion-item>
             <ion-item>
-              <ion-label
-                for="email"
-                position="floating"
-                placeholder="your@email.com"
-              >
+              <ion-label for="email" position="floating" placeholder="your@email.com">
                 {{ "register.email" | translate }}
               </ion-label>
               <ion-input
-                aria-label="email"
                 type="email"
                 formControlName="email"
                 [ngClass]="{ 'is-invalid': !f.email.valid && f.email.dirty }"
               >
               </ion-input>
-              <div
-                *ngIf="
-                  !f.email.valid && f.email.dirty && f.email.errors?.required
-                "
-              >
+              <div *ngIf="!f.email.valid && f.email.dirty && f.email.errors?.required">
                 <p class="invalid">
-                  {{ "register.email" | translate }}
-                  {{ "general.required" | translate }}
+                  {{ "register.email" | translate }} {{ "general.required" | translate }}
                 </p>
               </div>
-              <div
-                *ngIf="
-                  !f.email.valid && f.email.dirty && f.email.errors?.pattern
-                "
-              >
+              <div *ngIf="!f.email.valid && f.email.dirty && f.email.errors?.pattern">
                 <p class="invalid">{{ "register.validEmail" | translate }}</p>
               </div>
             </ion-item>
           </div>
           <div class="ion-padding">
-            <ion-button
-              size="large"
-              type="submit"
-              [disabled]="!registerForm.valid"
-              expand="block"
+            <ion-button size="large" type="submit" [disabled]="!registerForm.valid" expand="block"
               >Register</ion-button
             >
           </div>

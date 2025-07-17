@@ -3,12 +3,7 @@
     <form #form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <ion-grid>
         <ion-row color="primary" class="ion-justify-content-center">
-          <ion-col
-            class="ion-align-self-center"
-            size-md="6"
-            size-lg="5"
-            size-xs="12"
-          >
+          <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
             <div class="ion-text-center">
               <h3>{{ "login.title" | translate }}</h3>
             </div>
@@ -35,10 +30,7 @@
                 formControlName="password"
                 placeholder="Enter your password"
               ></ion-input>
-              <div
-                *ngIf="submitted && f.password.errors"
-                class="invalid-feedback"
-              >
+              <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
                 <div *ngIf="f.password.errors?.required">
                   {{ "login.passwordRequired" | translate }}
                 </div>
@@ -67,9 +59,7 @@
         <br /><br />
         <ion-row class="ion-justify-content-center">
           <div>
-            <a routerLink="/user-management/resetpwd">
-              {{ "login.forgotten" | translate }}</a
-            >
+            <a routerLink="/user-management/resetpwd"> {{ "login.forgotten" | translate }}</a>
           </div>
         </ion-row>
       </ion-grid>
