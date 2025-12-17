@@ -19,7 +19,7 @@ import {
 import { UserManagementService } from "../../services/user-management.service";
 import { PouchdbService } from "./../../services/pouchdb.service";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:changepwd");
 
 const confirmPwdValidator: ValidatorFn = (

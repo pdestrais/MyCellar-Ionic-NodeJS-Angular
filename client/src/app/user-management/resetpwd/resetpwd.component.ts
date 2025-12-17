@@ -7,7 +7,7 @@ import { first } from "rxjs/operators";
 import { ToastController } from "@ionic/angular/standalone";
 import { UserManagementService } from "../../services/user-management.service";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:resetpwd");
 
 @Component({

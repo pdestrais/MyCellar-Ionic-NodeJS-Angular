@@ -11,7 +11,7 @@ import {
   AlertController,
 } from "@ionic/angular/standalone";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
 import { environment } from "../../../environments/environment";
 
@@ -25,9 +25,9 @@ import { IonRouterLinkWithHref } from "@ionic/angular/standalone";
 const debug = Debugger("app:login");
 
 @Component({
-    templateUrl: "login.component.html",
-    styleUrls: ["login.component.scss"],
-    standalone: false
+  templateUrl: "login.component.html",
+  styleUrls: ["login.component.scss"],
+  standalone: false
 })
 export class LoginComponent implements OnInit {
   public loginForm!: FormGroup;
@@ -98,8 +98,8 @@ export class LoginComponent implements OnInit {
           } else {
             debug(
               "[onSubmit]user just logged in - returning to " +
-                this.returnUrl +
-                " after login"
+              this.returnUrl +
+              " after login"
             );
             /* let previousUser = JSON.parse(
                           localStorage.getItem("previousUser")
@@ -162,7 +162,7 @@ export class LoginComponent implements OnInit {
             this.dataService.remote = this.cloudantURL;
             debug(
               "[onSubmit]remote db resulting from login is : " +
-                this.dataService.remote
+              this.dataService.remote
             );
             localStorage.setItem(
               "myCellar.remoteDBURL",

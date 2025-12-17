@@ -6,7 +6,7 @@ describe('PouchdbService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: PouchdbService = TestBed.get(PouchdbService);
+    const service: PouchdbService = TestBed.inject(PouchdbService);
     expect(service).toBeTruthy();
   });
 });

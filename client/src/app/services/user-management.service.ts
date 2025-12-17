@@ -9,7 +9,7 @@ import { UserModel } from "../models/cellar.model";
 import * as jwt_decode from "jwt-decode";
 import { environment } from "../../environments/environment";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 
 const debug = Debugger("app:user-management.service");
 

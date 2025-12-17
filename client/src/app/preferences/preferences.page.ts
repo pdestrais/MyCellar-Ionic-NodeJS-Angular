@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from "@angular/core";
 import { Location } from "@angular/common";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
 const debug = Debugger("app:preferences");
 

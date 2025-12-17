@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { Router } from "@angular/router";
 import { IonAccordionGroup } from "@ionic/angular/standalone";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { IonRouterLink } from "@ionic/angular/standalone";
 
 const debug = Debugger("app:readytodrink");

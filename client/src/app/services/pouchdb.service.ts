@@ -1,10 +1,10 @@
 import { VinModel } from "./../models/cellar.model";
 import { Injectable } from "@angular/core";
-import * as PouchDB from "pouchdb/dist/pouchdb";
+import PouchDB from "pouchdb/dist/pouchdb";
 import { Subject, from, Observable, throwError } from "rxjs";
 import { filter, map } from "rxjs/operators";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:pouchdbService");
 
 type eventTypes =
@@ -71,7 +71,7 @@ export class PouchdbService {
           this.dbEvents$.next({ eventType: "dbSynchronized" });
           debug(
             "[syncLocalwithRemote]sync paused - replication completed - info :" +
-              JSON.stringify(info)
+            JSON.stringify(info)
           );
         })
         .on("failed", (error) => {
@@ -193,9 +193,9 @@ export class PouchdbService {
   public saveDoc(doc, docClass?) {
     debug(
       "[saveDoc]saving document: " +
-        JSON.stringify(doc) +
-        "with class: " +
-        docClass
+      JSON.stringify(doc) +
+      "with class: " +
+      docClass
     );
     let _self = this;
     let tmpDoc = doc;
@@ -207,9 +207,9 @@ export class PouchdbService {
           doc._rev = resultDoc._rev;
           debug(
             "[saveDoc]updating document id: " +
-              resultDoc._id +
-              ", rev: " +
-              resultDoc._rev
+            resultDoc._id +
+            ", rev: " +
+            resultDoc._rev
           );
           return _self.db.put(doc);
         })
@@ -226,7 +226,7 @@ export class PouchdbService {
             // We are creating a new document
             debug(
               "[saveDoc]creating new document with genererated id - doc: " +
-                JSON.stringify(doc)
+              JSON.stringify(doc)
             );
             return this.db
               .put(doc)
@@ -237,14 +237,14 @@ export class PouchdbService {
                 });
                 debug(
                   "[saveDoc]Document created succesfully with response : " +
-                    JSON.stringify(response)
+                  JSON.stringify(response)
                 );
                 return response;
               })
               .catch((err) => {
                 debug(
                   "[saveDoc]_1 Document NOT created succesfully with error : " +
-                    JSON.stringify(err)
+                  JSON.stringify(err)
                 );
                 console.error(err);
                 return err;
@@ -253,7 +253,7 @@ export class PouchdbService {
             console.error(err);
             debug(
               "[saveDoc]_2 Document NOT created succesfully with error : " +
-                JSON.stringify(err)
+              JSON.stringify(err)
             );
             return err;
           }
@@ -271,7 +271,7 @@ export class PouchdbService {
             this.dbEvents$.next({ doc: doc, eventType: "docInsert" });
             debug(
               "[saveDoc]Document created succesfully with POST with response : " +
-                JSON.stringify(response)
+              JSON.stringify(response)
             );
             return response;
           })
@@ -279,7 +279,7 @@ export class PouchdbService {
             console.error(err);
             debug(
               "[saveDoc]_3Document NOT created succesfully with error : " +
-                JSON.stringify(err)
+              JSON.stringify(err)
             );
             return err;
           });

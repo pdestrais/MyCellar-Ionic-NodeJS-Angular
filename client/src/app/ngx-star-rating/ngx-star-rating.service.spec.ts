@@ -6,7 +6,7 @@ describe('NgxStarRatingService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: NgxStarRatingService = TestBed.get(NgxStarRatingService);
+    const service: NgxStarRatingService = TestBed.inject(NgxStarRatingService);
     expect(service).toBeTruthy();
   });
 });

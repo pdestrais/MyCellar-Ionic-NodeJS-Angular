@@ -52,7 +52,7 @@ import loadImage from "blueimp-load-image/js/index";
 import pica from "pica/dist/pica.js";
 import { ViewerComponent } from "./viewer/viewer.component";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { AppState } from "../state/app.state";
 
 import { environment } from "../../environments/environment";

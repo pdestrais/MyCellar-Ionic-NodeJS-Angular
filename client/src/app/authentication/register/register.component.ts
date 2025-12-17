@@ -12,7 +12,7 @@ import {
 import { first } from "rxjs/operators";
 import { ToastController, AlertController } from "@ionic/angular/standalone";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:register");
 
 @Component({

@@ -16,17 +16,17 @@ import { AppState } from "../state/app.state";
 
 import { replacer } from "../util/util";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
 
 const debug = Debugger("app:region");
 
 @Component({
-    selector: "app-region",
-    templateUrl: "./region.page.html",
-    styleUrls: ["./region.page.scss"],
-    standalone: false
+  selector: "app-region",
+  templateUrl: "./region.page.html",
+  styleUrls: ["./region.page.scss"],
+  standalone: false
 })
 export class RegionPage implements OnInit {
   public origine: OrigineModel = new OrigineModel({
@@ -135,9 +135,9 @@ export class RegionPage implements OnInit {
           case "saved":
             debug(
               "[ngOnInit] handling change to 'saved' status - ts " +
-                window.performance.now() +
-                "\norigineState : " +
-                JSON.stringify(origineState, replacer)
+              window.performance.now() +
+              "\norigineState : " +
+              JSON.stringify(origineState, replacer)
             );
 
             // if we get an event that a wine is saved. We need to check it's id and
@@ -167,7 +167,7 @@ export class RegionPage implements OnInit {
               );
               debug(
                 "[ngInit](II) FilteredEventLog : " +
-                  JSON.stringify(filteredEventLog)
+                JSON.stringify(filteredEventLog)
               );
               if (filteredEventLog.length == 2) {
                 debug(
@@ -176,9 +176,9 @@ export class RegionPage implements OnInit {
                 this.store.dispatch(OrigineActions.setStatusToLoaded());
               } else if (
                 origineState.eventLog[origineState.eventLog.length - 1].id ==
-                  origineState.currentOrigine!.id &&
+                origineState.currentOrigine!.id &&
                 origineState.eventLog[origineState.eventLog.length - 1].rev ==
-                  origineState.currentOrigine!.rev &&
+                origineState.currentOrigine!.rev &&
                 origineState.eventLog[origineState.eventLog.length - 1]
                   .action == "create" &&
                 this.origineForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
@@ -202,8 +202,8 @@ export class RegionPage implements OnInit {
           case "error":
             this.presentToast(
               this.translate.instant("general.DBError") +
-                " " +
-                origineState.error,
+              " " +
+              origineState.error,
               "error",
               null,
               5000
@@ -245,7 +245,7 @@ export class RegionPage implements OnInit {
                 this.store.dispatch(OrigineActions.setStatusToLoaded());
               } else if (
                 origineState.eventLog[origineState.eventLog.length - 1].id ==
-                  origineState.currentOrigine!.id &&
+                origineState.currentOrigine!.id &&
                 origineState.eventLog[origineState.eventLog.length - 1]
                   .action == "delete"
               ) {
@@ -379,8 +379,8 @@ export class RegionPage implements OnInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         duration: duration ? duration : 2000,
       });
@@ -392,8 +392,8 @@ export class RegionPage implements OnInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         buttons: [
           {

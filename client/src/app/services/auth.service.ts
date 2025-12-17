@@ -8,7 +8,7 @@ import { UserModel } from "../models/cellar.model";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { environment } from "../../environments/environment";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 
 const debug = Debugger("app:authService");
 

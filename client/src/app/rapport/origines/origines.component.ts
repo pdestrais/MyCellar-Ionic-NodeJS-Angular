@@ -5,7 +5,7 @@ import { VinModel } from "../../models/cellar.model";
 
 import * as d3 from "d3";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:rapport:years");
 
 @Component({

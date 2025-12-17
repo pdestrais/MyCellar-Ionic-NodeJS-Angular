@@ -6,7 +6,7 @@ import { TypeModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { Store } from "@ngrx/store";
 import * as TypeSelectors from "../state/type/type.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
@@ -23,10 +23,10 @@ import { caretForwardOutline } from "ionicons/icons";
 const debug = Debugger("app:type");
 
 @Component({
-    selector: "app-type",
-    templateUrl: "./type.page.html",
-    styleUrls: ["./type.page.scss"],
-    standalone: false
+  selector: "app-type",
+  templateUrl: "./type.page.html",
+  styleUrls: ["./type.page.scss"],
+  standalone: false
 })
 export class TypePage implements OnInit {
   public type: TypeModel = new TypeModel({
@@ -78,9 +78,9 @@ export class TypePage implements OnInit {
         tap((typeState) =>
           debug(
             "[ngOnInit]called getAllTypesArraySorted selector - ts " +
-              window.performance.now() +
-              "\ntypeState : " +
-              JSON.stringify(typeState, replacer)
+            window.performance.now() +
+            "\ntypeState : " +
+            JSON.stringify(typeState, replacer)
           )
         )
       );
@@ -137,9 +137,9 @@ export class TypePage implements OnInit {
           case "saved":
             debug(
               "[ngOnInit] handling change to 'saved' status - ts " +
-                window.performance.now() +
-                "\ntypeState : " +
-                JSON.stringify(typeState, replacer)
+              window.performance.now() +
+              "\ntypeState : " +
+              JSON.stringify(typeState, replacer)
             );
 
             // if we get an event that a wine is saved. We need to check it's id and
@@ -169,7 +169,7 @@ export class TypePage implements OnInit {
               );
               debug(
                 "[ngInit](II) FilteredEventLog : " +
-                  JSON.stringify(filteredEventLog)
+                JSON.stringify(filteredEventLog)
               );
               if (filteredEventLog.length == 2) {
                 debug(
@@ -178,11 +178,11 @@ export class TypePage implements OnInit {
                 this.store.dispatch(TypeActions.setStatusToLoaded());
               } else if (
                 typeState.eventLog[typeState.eventLog.length - 1].id ==
-                  typeState.currentType.id &&
+                typeState.currentType.id &&
                 typeState.eventLog[typeState.eventLog.length - 1].rev ==
-                  typeState.currentType.rev &&
+                typeState.currentType.rev &&
                 typeState.eventLog[typeState.eventLog.length - 1].action ==
-                  "create" &&
+                "create" &&
                 this.typeForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
               ) {
                 // Event showing concurrent editing on the same wine that was saved somewhere else
@@ -245,9 +245,9 @@ export class TypePage implements OnInit {
                 this.store.dispatch(TypeActions.setStatusToLoaded());
               } else if (
                 typeState.eventLog[typeState.eventLog.length - 1].id ==
-                  typeState.currentType.id &&
+                typeState.currentType.id &&
                 typeState.eventLog[typeState.eventLog.length - 1].action ==
-                  "delete"
+                "delete"
               ) {
                 // Event showing concurrent editing on the same wine that was saved somewhere else
                 debug("[ngInit](II.C) Concurrent editing on the same wine");
@@ -371,8 +371,8 @@ export class TypePage implements OnInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         duration: duration ? duration : 2000,
       });
@@ -384,8 +384,8 @@ export class TypePage implements OnInit {
           type == "success"
             ? "secondary"
             : type == "warning"
-            ? "warning"
-            : "danger",
+              ? "warning"
+              : "danger",
         message: message,
         buttons: [
           {

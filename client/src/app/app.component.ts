@@ -14,7 +14,7 @@ import { MultiLevelSideMenuComponent } from "./multi-level-side-menu/multi-level
 import { AuthenticationService } from "./services/auth.service";
 import { UserModel } from "./models/cellar.model";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 const debug = Debugger("app:root");
 
 @Component({

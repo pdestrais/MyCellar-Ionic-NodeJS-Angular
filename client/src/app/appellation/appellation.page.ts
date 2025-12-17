@@ -6,7 +6,7 @@ import { AppellationModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
-import * as Debugger from "debug";
+import Debugger from "debug";
 import { Store } from "@ngrx/store";
 import * as AppellationSelectors from "../state/appellation/appellation.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
