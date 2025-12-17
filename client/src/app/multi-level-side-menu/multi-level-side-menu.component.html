@@ -1,7 +1,7 @@
 <ion-list class="ion-no-margin" no-lines>
-  <ng-template ngFor let-option [ngForOf]="collapsableItems" let-i="index">
+  @for (option of collapsableItems; track option; let i = $index) {
     <!-- It is a simple option -->
-    <ng-template [ngIf]="!option.suboptionsCount">
+    @if (!option.suboptionsCount) {
       <ion-item
         class="option"
         [ngClass]="
@@ -12,28 +12,31 @@
         (click)="select(option)"
         lines="full"
         tappable
-      >
-        <ion-icon
-          *ngIf="option.iconName"
-          [name]="option.iconName"
-          slot="start"
-          size="small"
         >
-        </ion-icon>
-        <ion-icon
-          *ngIf="option.iconSrc"
-          slot="start"
-          src="{{ option.iconSrc }}"
-        ></ion-icon>
+        @if (option.iconName) {
+          <ion-icon
+            [name]="option.iconName"
+            slot="start"
+            size="small"
+            >
+          </ion-icon>
+        }
+        @if (option.iconSrc) {
+          <ion-icon
+            slot="start"
+            src="{{ option.iconSrc }}"
+          ></ion-icon>
+        }
         {{ option.displayText }}
-        <ion-badge slot="end" *ngIf="option.badge | async as badgeNo">{{
-          badgeNo
-        }}</ion-badge>
+        @if (option.badge | async; as badgeNo) {
+          <ion-badge slot="end">{{
+            badgeNo
+          }}</ion-badge>
+        }
       </ion-item>
-    </ng-template>
-
+    }
     <!-- It has nested options -->
-    <ng-template [ngIf]="option.suboptionsCount">
+    @if (option.suboptionsCount) {
       <ion-list class="ion-no-margin" class="accordion-menu">
         <!-- Header -->
         <ion-item
@@ -47,7 +50,7 @@
           (click)="toggleItemOptions(option)"
           lines="full"
           tappable
-        >
+          >
           <ion-icon
             [class.rotate]="option.expanded"
             class="header-icon"
@@ -57,7 +60,6 @@
           ></ion-icon>
           {{ option.displayText }}
         </ion-item>
-
         <!-- Sub items -->
         <div
           [style.height]="
@@ -66,8 +68,8 @@
               : '0px'
           "
           class="options"
-        >
-          <ng-template ngFor let-item [ngForOf]="option.subOptions">
+          >
+          @for (item of option.subOptions; track item) {
             <ion-item
               class="sub-option"
               [style.padding-left]="subOptionIndentation + 'px'"
@@ -82,27 +84,31 @@
               (click)="select(item)"
               lines="full"
               tappable
-            >
-              <ion-icon
-                *ngIf="item.iconName"
-                [name]="item.iconName"
-                slot="start"
-                size="small"
-              ></ion-icon>
-              <ion-icon
-                *ngIf="item.iconSrc"
-                slot="start"
-                src="{{ item.iconSrc }}"
-                size="small"
-              ></ion-icon>
+              >
+              @if (item.iconName) {
+                <ion-icon
+                  [name]="item.iconName"
+                  slot="start"
+                  size="small"
+                ></ion-icon>
+              }
+              @if (item.iconSrc) {
+                <ion-icon
+                  slot="start"
+                  src="{{ item.iconSrc }}"
+                  size="small"
+                ></ion-icon>
+              }
               {{ item.displayText }}
-              <ion-badge item-right *ngIf="item.badge | async as badgeNo"
-                >{{ badgeNo }}
-              </ion-badge>
+              @if (item.badge | async; as badgeNo) {
+                <ion-badge item-right
+                  >{{ badgeNo }}
+                </ion-badge>
+              }
             </ion-item>
-          </ng-template>
+          }
         </div>
       </ion-list>
-    </ng-template>
-  </ng-template>
+    }
+  }
 </ion-list>

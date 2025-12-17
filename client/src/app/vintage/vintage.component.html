@@ -20,16 +20,17 @@
         interface="popover"
         placeholder="{{ 'vintage.selectPlaceholder' | translate }}"
         (ionChange)="appellationSelected($event)"
-      >
-        <ion-select-option
-          *ngFor="let appellation of appellationList"
-          [value]="appellation"
-          >{{ appellation }}</ion-select-option
         >
-      </ion-select>
-    </ion-item>
-    <div class="container-fluid" style="margin-top: 10px">
-      <!--       <div class="table-row header">
+        @for (appellation of appellationList; track appellation) {
+          <ion-select-option
+            [value]="appellation"
+            >{{ appellation }}</ion-select-option
+            >
+          }
+        </ion-select>
+      </ion-item>
+      <div class="container-fluid" style="margin-top: 10px">
+        <!--       <div class="table-row header">
         <div class="text">First Name</div>
         <div class="text">Last Name</div>
         <div class="text">Email</div>
@@ -39,37 +40,41 @@
         <div class="num">Avg</div>
         <div class="num">Last</div>
       </div>
- -->
+      -->
       <div class="table-row">
-        <div class="box" *ngFor="let rating of appellationDetails.ratings">
-          <div class="header">{{ rating.year }}</div>
-          <div class="content">
-            <div class="rating">{{ rating.vintageRating }}</div>
-            <div>
-              <img src="{{ rating.image }}" />
+        @for (rating of appellationDetails.ratings; track rating) {
+          <div class="box">
+            <div class="header">{{ rating.year }}</div>
+            <div class="content">
+              <div class="rating">{{ rating.vintageRating }}</div>
+              <div>
+                <img src="{{ rating.image }}" />
+              </div>
+              <div class="current">{{ rating.currentTastingRating }}</div>
             </div>
-            <div class="current">{{ rating.currentTastingRating }}</div>
           </div>
+        }
+      </div>
+    </div>
+    @if (appellationDetails.ratings) {
+      <div class="legend">
+        <h5>{{ "vintage.legend" | translate }}</h5>
+        <div>
+          <p>{{ "vintage.notesInBlue" | translate }}</p>
+          <p>{{ "vintage.notesInGreen" | translate }}</p>
+        </div>
+        <div>
+          <p>* : {{ "vintage.star" | translate }}</p>
+          <img src="assets/icons/NotRTD.png" />
+          <p>: {{ "vintage.hold" | translate }}</p>
+          <img src="assets/icons/NRTD.png" />
+          <p>: {{ "vintage.nearlyReady" | translate }}</p>
+          <img src="assets/icons/RTD.png" />
+          <p>: {{ "vintage.ready" | translate }}</p>
+          <img src="assets/icons/PastPeak.svg" />
+          <p>: {{ "vintage.decline" | translate }}</p>
         </div>
       </div>
-    </div>
-    <div class="legend" *ngIf="appellationDetails.ratings">
-      <h5>{{ "vintage.legend" | translate }}</h5>
-      <div>
-        <p>{{ "vintage.notesInBlue" | translate }}</p>
-        <p>{{ "vintage.notesInGreen" | translate }}</p>
-      </div>
-      <div>
-        <p>* : {{ "vintage.star" | translate }}</p>
-        <img src="assets/icons/NotRTD.png" />
-        <p>: {{ "vintage.hold" | translate }}</p>
-        <img src="assets/icons/NRTD.png" />
-        <p>: {{ "vintage.nearlyReady" | translate }}</p>
-        <img src="assets/icons/RTD.png" />
-        <p>: {{ "vintage.ready" | translate }}</p>
-        <img src="assets/icons/PastPeak.svg" />
-        <p>: {{ "vintage.decline" | translate }}</p>
-      </div>
-    </div>
+    }
   </ion-list>
 </ion-content>

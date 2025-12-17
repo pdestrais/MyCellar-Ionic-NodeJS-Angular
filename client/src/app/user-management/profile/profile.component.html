@@ -18,7 +18,7 @@
           size-md="6"
           size-lg="5"
           size-xs="12"
-        >
+          >
           <div class="ion-text-center">
             <h3>{{ "profile.title" | translate }}</h3>
           </div>
@@ -29,78 +29,83 @@
               }}</ion-label>
               <ion-label>{{ f.username.value }}</ion-label>
               <!--               <ion-input type="text" formControlName="username"
-                [ngClass]="{ 'is-invalid': !f.username.valid && (f.username.dirty || submitted) }"></ion-input>
-              <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
-                <p class="invalid"> {{"register.username" | translate }} {{"general.required" | translate }}</p>
-              </div>
- -->
-            </ion-item>
-            <ion-item>
-              <ion-label for="firstname" position="floating">{{
-                "register.firstname" | translate
-              }}</ion-label>
-              <ion-input
-                aria-label="firstname"
-                type="text"
-                formControlName="firstname"
-                [ngClass]="{ 'is-invalid': submitted && f.firstname.errors }"
-              ></ion-input>
+            [ngClass]="{ 'is-invalid': !f.username.valid && (f.username.dirty || submitted) }"></ion-input>
+            <div *ngIf="!f.username.valid  && (f.username.dirty || submitted)">
+              <p class="invalid"> {{"register.username" | translate }} {{"general.required" | translate }}</p>
+            </div>
+            -->
+          </ion-item>
+          <ion-item>
+            <ion-label for="firstname" position="floating">{{
+              "register.firstname" | translate
+            }}</ion-label>
+            <ion-input
+              aria-label="firstname"
+              type="text"
+              formControlName="firstname"
+              [ngClass]="{ 'is-invalid': submitted && f.firstname.errors }"
+            ></ion-input>
+            @if (!f.firstname.valid && (f.firstname.dirty || submitted)) {
               <div
-                *ngIf="!f.firstname.valid && (f.firstname.dirty || submitted)"
-              >
+                >
                 <p class="invalid">
                   {{ "register.firstName" | translate }}
                   {{ "general.required" | translate }}
                 </p>
               </div>
-            </ion-item>
-            <ion-item>
-              <ion-label for="lastname" position="floating">{{
-                "register.lastname" | translate
-              }}</ion-label>
-              <ion-input
-                aria-label="lastname"
-                type="text"
-                formControlName="lastname"
-                [ngClass]="{ 'is-invalid': submitted && f.lastname.errors }"
-              ></ion-input>
-              <div *ngIf="!f.lastname.valid && (f.lastname.dirty || submitted)">
+            }
+          </ion-item>
+          <ion-item>
+            <ion-label for="lastname" position="floating">{{
+              "register.lastname" | translate
+            }}</ion-label>
+            <ion-input
+              aria-label="lastname"
+              type="text"
+              formControlName="lastname"
+              [ngClass]="{ 'is-invalid': submitted && f.lastname.errors }"
+            ></ion-input>
+            @if (!f.lastname.valid && (f.lastname.dirty || submitted)) {
+              <div>
                 <p class="invalid">
                   {{ "register.lastName" | translate }}
                   {{ "general.required" | translate }}
                 </p>
               </div>
-            </ion-item>
-            <ion-item>
-              <ion-label
-                for="email"
-                position="floating"
-                placeholder="your@email.com"
+            }
+          </ion-item>
+          <ion-item>
+            <ion-label
+              for="email"
+              position="floating"
+              placeholder="your@email.com"
               >
-                {{ "register.email" | translate }}
-              </ion-label>
-              <ion-input
-                aria-label="email"
-                type="email"
-                formControlName="email"
-                [ngClass]="{ 'is-invalid': submitted && f.email.errors }"
+              {{ "register.email" | translate }}
+            </ion-label>
+            <ion-input
+              aria-label="email"
+              type="email"
+              formControlName="email"
+              [ngClass]="{ 'is-invalid': submitted && f.email.errors }"
               >
-              </ion-input>
-              <div *ngIf="!f.email.valid && (f.email.dirty || submitted)">
+            </ion-input>
+            @if (!f.email.valid && (f.email.dirty || submitted)) {
+              <div>
                 <p class="invalid">
                   {{ "register.email" | translate }}
                   {{ "general.required" | translate }}
                 </p>
               </div>
-            </ion-item>
-          </div>
-          <div class="ion-padding">
-            <ion-button
-              size="medium"
-              type="submit"
-              [disabled]="!profileForm.valid"
-              expand="block"
-              >{{ "profile.update" | translate }}</ion-button
+            }
+          </ion-item>
+        </div>
+        <div class="ion-padding">
+          <ion-button
+            size="medium"
+            type="submit"
+            [disabled]="!profileForm.valid"
+            expand="block"
+            >{{ "profile.update" | translate }}</ion-button
             >
           </div>
           <div class="ion-padding">
@@ -110,18 +115,18 @@
               [disabled]="!profileForm.valid"
               expand="block"
               >{{ "changepwd.title" | translate }}</ion-button
-            >
-          </div>
-          <div class="ion-padding">
-            <ion-back-button
-              color="primary"
-              defaultHref="home"
-              text="{{ 'general.back' | translate }}"
-              type="button"
-            ></ion-back-button>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </form>
-</ion-content>
+              >
+            </div>
+            <div class="ion-padding">
+              <ion-back-button
+                color="primary"
+                defaultHref="home"
+                text="{{ 'general.back' | translate }}"
+                type="button"
+              ></ion-back-button>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+  </ion-content>

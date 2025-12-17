@@ -15,7 +15,7 @@
         size-md="6"
         size-lg="5"
         size-xs="12"
-      >
+        >
         <ion-item-group>
           <ion-item-divider color="secondary">
             <ion-label>{{'config.language' | translate }}</ion-label>
@@ -26,13 +26,14 @@
               (ionChange)="languageChange($event)"
               name="langue"
               interface="popover"
-            >
-              <ion-select-option
-                *ngFor="let lang of supportedLanguages | keyvalue"
-                [value]="lang.key"
               >
-                {{lang.value | translate }}
-              </ion-select-option>
+              @for (lang of supportedLanguages | keyvalue; track lang) {
+                <ion-select-option
+                  [value]="lang.key"
+                  >
+                  {{lang.value | translate }}
+                </ion-select-option>
+              }
             </ion-select>
           </ion-item>
         </ion-item-group>
@@ -44,7 +45,7 @@
         size-md="6"
         size-lg="5"
         size-xs="12"
-      >
+        >
         <ion-item-group>
           <ion-item-divider color="secondary">
             <ion-label>{{'config.dbServerURL' | translate }}</ion-label>

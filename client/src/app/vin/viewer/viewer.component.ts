@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ElementRef, ViewChild } from "@angular/core";
-import { ModalController } from "@ionic/angular/standalone";
+import { CommonModule } from "@angular/common";
+import { ModalController, IonicModule } from "@ionic/angular";
 import loadImage from "blueimp-load-image/js/index";
 import Pica from "pica/dist/pica.js";
 import Debugger from "debug";
@@ -14,7 +15,8 @@ const viewerCanvasHeight: number = 426;
   selector: "app-viewer",
   templateUrl: "./viewer.component.html",
   styleUrls: ["./viewer.component.scss"],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, IonicModule],
 })
 export class ViewerComponent implements OnInit {
   @Input() fileOrBlob!: File | Blob; // image is a File or Blob. This component can process both

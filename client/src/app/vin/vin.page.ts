@@ -18,6 +18,10 @@ import {
   ViewChild,
   signal, computed, inject
 } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import {
   NavController,
   AlertController,
@@ -51,6 +55,7 @@ import { ActivatedRoute } from "@angular/router";
 import loadImage from "blueimp-load-image/js/index";
 import pica from "pica/dist/pica.js";
 import { ViewerComponent } from "./viewer/viewer.component";
+import { NgxStarRatingComponent } from "../ngx-star-rating/ngx-star-rating.component";
 
 import Debugger from "debug";
 import { AppState } from "../state/app.state";
@@ -77,7 +82,8 @@ interface Option {
   selector: "app-vin",
   templateUrl: "./vin.page.html",
   styleUrls: ["./vin.page.scss"],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, TranslateModule, ViewerComponent, NgxStarRatingComponent],
 })
 export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   store = inject(Store);
@@ -1021,6 +1027,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 }
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, IonicModule, TranslateModule],
   template: `
     <ion-header>
       <ion-toolbar>
@@ -1033,29 +1041,38 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <ion-card *ngFor="let event of vin.history">
-        <ion-card-header>
-          <div *ngIf="event.difference && event.difference != 0">
-            {{ "wine.addedExtractedOn" | translate }} : &nbsp; {{ event.date }}
-          </div>
-          <div *ngIf="event.comment">
-            {{ "wine.addedOn" | translate }} : &nbsp; {{ event.date }}
-          </div>
-        </ion-card-header>
-        <ion-card-content>
-          <div *ngIf="event.difference && event.difference != 0">
-            {{ "wine.difference" | translate }} :&nbsp;
-            <ion-badge item-end>{{ event.difference }}</ion-badge>
-          </div>
-          <div *ngIf="event.comment">
-            {{ "wine.comment" | translate }} : &nbsp; {{ event.comment }}
-          </div>
-        </ion-card-content>
-      </ion-card>
+      @for (event of vin.history; track event) {
+        <ion-card>
+          <ion-card-header>
+            @if (event.difference && event.difference != 0) {
+              <div>
+                {{ "wine.addedExtractedOn" | translate }} : &nbsp; {{ event.date }}
+              </div>
+            }
+            @if (event.comment) {
+              <div>
+                {{ "wine.addedOn" | translate }} : &nbsp; {{ event.date }}
+              </div>
+            }
+          </ion-card-header>
+          <ion-card-content>
+            @if (event.difference && event.difference != 0) {
+              <div>
+                {{ "wine.difference" | translate }} :&nbsp;
+                <ion-badge item-end>{{ event.difference }}</ion-badge>
+              </div>
+            }
+            @if (event.comment) {
+              <div>
+                {{ "wine.comment" | translate }} : &nbsp; {{ event.comment }}
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+      }
       <ion-button expand="full" (click)="dismiss()">Close</ion-button>
     </ion-content>
-  `,
-  standalone: false
+    `,
 })
 export class ModalPage {
   @Input()

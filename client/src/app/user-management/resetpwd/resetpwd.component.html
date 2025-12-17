@@ -18,7 +18,7 @@
           size-md="6"
           size-lg="5"
           size-xs="12"
-        >
+          >
           <div class="ion-text-center">
             <h3>{{ "resetpwd.title" | translate }}</h3>
           </div>
@@ -33,14 +33,17 @@
                 formControlName="username"
                 [ngClass]="{ 'is-invalid': submitted && f.username.errors }"
               ></ion-input>
-              <div
-                *ngIf="submitted && f.username.errors"
-                class="invalid-feedback"
-              >
-                <div *ngIf="f.username.errors.required">
-                  Username is required
+              @if (submitted && f.username.errors) {
+                <div
+                  class="invalid-feedback"
+                  >
+                  @if (f.username.errors.required) {
+                    <div>
+                      Username is required
+                    </div>
+                  }
                 </div>
-              </div>
+              }
             </ion-item>
           </div>
           <div class="ion-padding">
@@ -49,23 +52,23 @@
               type="submit"
               [disabled]="form.invalid"
               expand="block"
-            >
+              >
               {{ "resetpwd.title" | translate }}</ion-button
-            >
-          </div>
-          <div class="ion-padding">
-            <ion-back-button
-              color="primary"
-              defaultHref="home"
-              text="{{ 'general.back' | translate }}"
-              type="button"
-            ></ion-back-button>
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row class="ion-justify-content-center">
-        <div>{{ "resetpwd.text1" | translate }}</div>
-      </ion-row>
-    </ion-grid>
-  </form>
-</ion-content>
+              >
+            </div>
+            <div class="ion-padding">
+              <ion-back-button
+                color="primary"
+                defaultHref="home"
+                text="{{ 'general.back' | translate }}"
+                type="button"
+              ></ion-back-button>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row class="ion-justify-content-center">
+          <div>{{ "resetpwd.text1" | translate }}</div>
+        </ion-row>
+      </ion-grid>
+    </form>
+  </ion-content>

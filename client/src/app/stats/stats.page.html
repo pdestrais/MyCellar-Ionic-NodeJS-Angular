@@ -18,13 +18,14 @@
         [(ngModel)]="from"
         interface="popover"
         name="end"
-      >
-        <ion-select-option
-          *ngFor="let option of fromOptions"
-          [value]="option.value"
         >
-          {{option.display | translate }}
-        </ion-select-option>
+        @for (option of fromOptions; track option) {
+          <ion-select-option
+            [value]="option.value"
+            >
+            {{option.display | translate }}
+          </ion-select-option>
+        }
       </ion-select>
     </ion-item>
     <ion-item id="stats-to">
@@ -33,13 +34,14 @@
         [(ngModel)]="to"
         interface="popover"
         name="start"
-      >
-        <ion-select-option
-          *ngFor="let option of toOptions"
-          [value]="option.value"
         >
-          {{option.display | translate }}
-        </ion-select-option>
+        @for (option of toOptions; track option) {
+          <ion-select-option
+            [value]="option.value"
+            >
+            {{option.display | translate }}
+          </ion-select-option>
+        }
       </ion-select>
     </ion-item>
   </form>
@@ -48,22 +50,26 @@
   </ion-button>
   <div id="title"></div>
   <div id="chart"></div>
-  <div *ngIf="ready" class="statTable">
-    <table border="0" cellpadding="10">
-      <thead>
-        <tr>
-          <th></th>
-          <th>region</th>
-          <th>#</th>
-        </tr>
-      </thead>
-      <tbody id="chartTableBody">
-        <tr *ngFor="let d of dataset">
-          <td class="tabcolor"></td>
-          <td>{{d.label}}</td>
-          <td>{{d.count}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  @if (ready) {
+    <div class="statTable">
+      <table border="0" cellpadding="10">
+        <thead>
+          <tr>
+            <th></th>
+            <th>region</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody id="chartTableBody">
+          @for (d of dataset; track d) {
+            <tr>
+              <td class="tabcolor"></td>
+              <td>{{d.label}}</td>
+              <td>{{d.count}}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </ion-content>

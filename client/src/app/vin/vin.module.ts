@@ -6,28 +6,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { VinPage, ModalPage } from "./vin.page";
 import { ViewerComponent } from "./viewer/viewer.component";
 import { NgxStarRatingComponent } from "../ngx-star-rating/ngx-star-rating.component";
-import {
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonMenuButton,
-  IonTitle,
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonButton,
-  IonIcon,
-  IonCardContent,
-  IonBadge,
-  IonCardHeader,
-  IonCard,
-} from "@ionic/angular/standalone";
+import { IonicModule } from "@ionic/angular";
 
 const routes: Routes = [
   {
@@ -43,29 +22,13 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     TranslateModule,
-    IonHeader,
-    IonToolbar,
-    IonButtons,
-    IonMenuButton,
-    IonTitle,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonSelect,
-    IonSelectOption,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonButton,
-    IonIcon,
-    IonButton,
-    IonBadge,
-    IonCardContent,
-    IonCardHeader,
-    IonCard,
+    IonicModule,
+    VinPage,
+    ModalPage,
+    ViewerComponent,
+    NgxStarRatingComponent,
   ],
   providers: [],
-  declarations: [VinPage, ModalPage, ViewerComponent, NgxStarRatingComponent],
+  declarations: [],
 })
 export class VinPageModule {}

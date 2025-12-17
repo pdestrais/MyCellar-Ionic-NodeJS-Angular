@@ -313,7 +313,7 @@ app.get("/api/processUserRequestConfirmation/:id", function (request, response, 
               // create user table
               var createUserTableReq = {
                 url:
-                  process.env.dbprotocol +
+                  process.env.dbProtocol +
                   process.env.dbHostServiceUsername +
                   ":" +
                   process.env.dbHostServicePassword +
