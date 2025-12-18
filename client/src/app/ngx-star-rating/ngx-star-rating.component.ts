@@ -45,7 +45,7 @@ export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   rate(rate) {
     if (!this.disabled) {
@@ -66,7 +66,7 @@ export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
     this.propagateChange = fn;
   }
 
-  registerOnTouched(fn) {}
+  registerOnTouched(fn) { }
 
-  private propagateChange = (_: any) => {};
+  private propagateChange = (_: any) => { };
 }

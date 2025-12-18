@@ -31,4 +31,4 @@ const routes: Routes = [
   providers: [],
   declarations: [],
 })
-export class VinPageModule {}
+export class VinPageModule { }
