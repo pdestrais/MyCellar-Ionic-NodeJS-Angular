@@ -7,24 +7,27 @@ import {
   QueryList,
   ElementRef,
 } from "@angular/core";
+import { CommonModule } from "@angular/common";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   NG_VALIDATORS,
+  FormsModule,
 } from "@angular/forms";
 
 @Component({
-    selector: "ngx-star-rating",
-    templateUrl: "ngx-star-rating.component.html",
-    styleUrls: ["ngx-star-rating.component.scss"],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => NgxStarRatingComponent),
-            multi: true,
-        },
-    ],
-    standalone: false
+  selector: "ngx-star-rating",
+  templateUrl: "ngx-star-rating.component.html",
+  styleUrls: ["ngx-star-rating.component.scss"],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => NgxStarRatingComponent),
+      multi: true,
+    },
+  ],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
 })
 export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
   onChange;
@@ -42,7 +45,7 @@ export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   rate(rate) {
     if (!this.disabled) {
@@ -63,7 +66,7 @@ export class NgxStarRatingComponent implements OnInit, ControlValueAccessor {
     this.propagateChange = fn;
   }
 
-  registerOnTouched(fn) {}
+  registerOnTouched(fn) { }
 
-  private propagateChange = (_: any) => {};
+  private propagateChange = (_: any) => { };
 }

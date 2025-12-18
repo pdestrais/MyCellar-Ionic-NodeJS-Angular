@@ -9,168 +9,180 @@
 
 <ion-content class="ion-padding">
   <!--   <h5>{{'report.readyForDrinkingHeader' | translate }}</h5>
- -->
+  -->
   <ion-accordion-group value="WinesToDrinks">
     <ion-accordion value="ARTD">
       <ion-item slot="header">
         <ion-label
           >{{'readytodrink.winesToDrinkUrgently' | translate }}</ion-label
-        >
-      </ion-item>
-
-      <ion-list slot="content">
-        <ion-item
-          *ngFor="let wineToDrink of AlertRTDList"
-          [routerLink]="['/vin', wineToDrink._id]"
-          routerDirection="root"
-          class="condensed"
-        >
-          {{wineToDrink.nom}} [{{wineToDrink.annee}}]
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Rouge'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Rouge.svg"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Blanc'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Blanc.svg"
-          ></ion-icon>
-          <ion-badge class="limitMargin" slot="end"
-            >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
           >
         </ion-item>
-      </ion-list>
-    </ion-accordion>
-    <ion-accordion value="RTD">
-      <ion-item slot="header">
-        <ion-label>{{'readytodrink.winesReadyToDrink' | translate }}</ion-label>
-      </ion-item>
 
-      <ion-list slot="content">
-        <ion-item
-          *ngFor="let wineToDrink of RTDList"
-          [routerLink]="['/vin', wineToDrink._id]"
-          routerDirection="root"
-          class="condensed"
-        >
-          {{wineToDrink.nom}} [{{wineToDrink.annee}}]
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Rouge'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Rouge.svg"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Blanc'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Blanc.svg"
-          ></ion-icon>
-          <ion-badge class="limitMargin" slot="end"
-            >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
-          >
-        </ion-item>
-      </ion-list>
-    </ion-accordion>
+        <ion-list slot="content">
+          @for (wineToDrink of AlertRTDList; track wineToDrink) {
+            <ion-item
+              [routerLink]="['/vin', wineToDrink._id]"
+              routerDirection="root"
+              class="condensed"
+              >
+              {{wineToDrink.nom}} [{{wineToDrink.annee}}]
+              @if (wineToDrink.type.nom=='Rouge') {
+                <ion-icon
+                  class="limitMargin"
+                  slot="end"
+                  size="small"
+                  src="assets/icons/Rouge.svg"
+                ></ion-icon>
+              }
+              @if (wineToDrink.type.nom=='Blanc') {
+                <ion-icon
+                  class="limitMargin"
+                  slot="end"
+                  size="small"
+                  src="assets/icons/Blanc.svg"
+                ></ion-icon>
+              }
+              <ion-badge class="limitMargin" slot="end"
+                >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
+                >
+              </ion-item>
+            }
+          </ion-list>
+        </ion-accordion>
+        <ion-accordion value="RTD">
+          <ion-item slot="header">
+            <ion-label>{{'readytodrink.winesReadyToDrink' | translate }}</ion-label>
+          </ion-item>
 
-    <ion-accordion value="NRTD">
-      <ion-item slot="header">
-        <ion-label
-          >{{'readytodrink.winesNearlyReadyToDrink' | translate }}</ion-label
-        >
-      </ion-item>
+          <ion-list slot="content">
+            @for (wineToDrink of RTDList; track wineToDrink) {
+              <ion-item
+                [routerLink]="['/vin', wineToDrink._id]"
+                routerDirection="root"
+                class="condensed"
+                >
+                {{wineToDrink.nom}} [{{wineToDrink.annee}}]
+                @if (wineToDrink.type.nom=='Rouge') {
+                  <ion-icon
+                    class="limitMargin"
+                    slot="end"
+                    size="small"
+                    src="assets/icons/Rouge.svg"
+                  ></ion-icon>
+                }
+                @if (wineToDrink.type.nom=='Blanc') {
+                  <ion-icon
+                    class="limitMargin"
+                    slot="end"
+                    size="small"
+                    src="assets/icons/Blanc.svg"
+                  ></ion-icon>
+                }
+                <ion-badge class="limitMargin" slot="end"
+                  >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
+                  >
+                </ion-item>
+              }
+            </ion-list>
+          </ion-accordion>
 
-      <ion-list slot="content">
-        <ion-item
-          *ngFor="let wineToDrink of NearlyRTDList"
-          [routerLink]="['/vin', wineToDrink._id]"
-          routerDirection="root"
-          class="condensed"
-        >
-          {{wineToDrink.nom}} [{{wineToDrink.annee}}]
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Rouge'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Rouge.svg"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Blanc'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Blanc.svg"
-          ></ion-icon>
-          <ion-badge class="limitMargin" slot="end"
-            >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
-          >
-        </ion-item>
-      </ion-list>
-    </ion-accordion>
-    <ion-accordion value="NotRTD">
-      <ion-item slot="header">
-        <ion-label>{{'readytodrink.winesToHold' | translate }}</ion-label>
-      </ion-item>
+          <ion-accordion value="NRTD">
+            <ion-item slot="header">
+              <ion-label
+                >{{'readytodrink.winesNearlyReadyToDrink' | translate }}</ion-label
+                >
+              </ion-item>
 
-      <ion-list slot="content">
-        <ion-item
-          *ngFor="let wineToDrink of NotRTDList"
-          [routerLink]="['/vin', wineToDrink._id]"
-          routerDirection="root"
-          class="condensed"
-        >
-          {{wineToDrink.nom}} [{{wineToDrink.annee}}]
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Rouge'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Rouge.svg"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="wineToDrink.type.nom=='Blanc'"
-            class="limitMargin"
-            slot="end"
-            size="small"
-            src="assets/icons/Blanc.svg"
-          ></ion-icon>
-          <ion-badge class="limitMargin" slot="end"
-            >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
-          >
-        </ion-item>
-      </ion-list>
-    </ion-accordion>
-  </ion-accordion-group>
+              <ion-list slot="content">
+                @for (wineToDrink of NearlyRTDList; track wineToDrink) {
+                  <ion-item
+                    [routerLink]="['/vin', wineToDrink._id]"
+                    routerDirection="root"
+                    class="condensed"
+                    >
+                    {{wineToDrink.nom}} [{{wineToDrink.annee}}]
+                    @if (wineToDrink.type.nom=='Rouge') {
+                      <ion-icon
+                        class="limitMargin"
+                        slot="end"
+                        size="small"
+                        src="assets/icons/Rouge.svg"
+                      ></ion-icon>
+                    }
+                    @if (wineToDrink.type.nom=='Blanc') {
+                      <ion-icon
+                        class="limitMargin"
+                        slot="end"
+                        size="small"
+                        src="assets/icons/Blanc.svg"
+                      ></ion-icon>
+                    }
+                    <ion-badge class="limitMargin" slot="end"
+                      >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
+                      >
+                    </ion-item>
+                  }
+                </ion-list>
+              </ion-accordion>
+              <ion-accordion value="NotRTD">
+                <ion-item slot="header">
+                  <ion-label>{{'readytodrink.winesToHold' | translate }}</ion-label>
+                </ion-item>
 
-  <!--   <ion-grid>
-    <ion-row>
-      <ion-col *ngFor="let wine of readyToDrinkList">
-        <ion-card (click)="selectWine(wine)">
-          <ion-card-header color="{{wine.color}}">
-            {{wine.nom}} [{{wine.annee}}]
-          </ion-card-header>
-          <ion-card-content>
-            {{'wine.apogee' | translate }} : {{wine.apogee}}<br /><br />
+                <ion-list slot="content">
+                  @for (wineToDrink of NotRTDList; track wineToDrink) {
+                    <ion-item
+                      [routerLink]="['/vin', wineToDrink._id]"
+                      routerDirection="root"
+                      class="condensed"
+                      >
+                      {{wineToDrink.nom}} [{{wineToDrink.annee}}]
+                      @if (wineToDrink.type.nom=='Rouge') {
+                        <ion-icon
+                          class="limitMargin"
+                          slot="end"
+                          size="small"
+                          src="assets/icons/Rouge.svg"
+                        ></ion-icon>
+                      }
+                      @if (wineToDrink.type.nom=='Blanc') {
+                        <ion-icon
+                          class="limitMargin"
+                          slot="end"
+                          size="small"
+                          src="assets/icons/Blanc.svg"
+                        ></ion-icon>
+                      }
+                      <ion-badge class="limitMargin" slot="end"
+                        >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
+                        >
+                      </ion-item>
+                    }
+                  </ion-list>
+                </ion-accordion>
+              </ion-accordion-group>
 
-            {{'wine.type' | translate }} : {{wine.type.nom}}<br />
-            {{'wine.purchaseDate' | translate }} : {{wine.dateAchat}}<br />
-            {{'wine.price' | translate }} : {{wine.prixAchat}} -
-            {{'wine.location' | translate }} : {{wine.localisation}}
-            <br />
-            {{'wine.bottlesLeft' | translate }} :
-            <ion-badge slot="end">{{ wine.nbreBouteillesReste}}</ion-badge>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
- -->
-</ion-content>
+              <!--   <ion-grid>
+              <ion-row>
+                <ion-col *ngFor="let wine of readyToDrinkList">
+                  <ion-card (click)="selectWine(wine)">
+                    <ion-card-header color="{{wine.color}}">
+                      {{wine.nom}} [{{wine.annee}}]
+                    </ion-card-header>
+                    <ion-card-content>
+                      {{'wine.apogee' | translate }} : {{wine.apogee}}<br /><br />
+
+                      {{'wine.type' | translate }} : {{wine.type.nom}}<br />
+                      {{'wine.purchaseDate' | translate }} : {{wine.dateAchat}}<br />
+                      {{'wine.price' | translate }} : {{wine.prixAchat}} -
+                      {{'wine.location' | translate }} : {{wine.localisation}}
+                      <br />
+                      {{'wine.bottlesLeft' | translate }} :
+                      <ion-badge slot="end">{{ wine.nbreBouteillesReste}}</ion-badge>
+                    </ion-card-content>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            -->
+          </ion-content>

@@ -1,5 +1,9 @@
 import { Component, computed, effect, OnInit, signal } from "@angular/core";
-import { AlertController, NavController, MenuController } from "@ionic/angular/standalone";
+import { CommonModule } from "@angular/common";
+import { RouterModule } from "@angular/router";
+import { AlertController, NavController, MenuController } from "@ionic/angular";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import { VinModel } from "../models/cellar.model";
 
 import * as Debugger from "debug";
@@ -22,7 +26,8 @@ const debug = Debug("app:home");
   selector: "app-home",
   templateUrl: "home.page.html",
   styleUrls: ["home.page.scss"],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, IonicModule, RouterModule, TranslateModule],
 })
 export class HomePage implements OnInit {
   wines = signal<VinModel[]>([]);

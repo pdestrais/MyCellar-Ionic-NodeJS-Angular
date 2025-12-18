@@ -1,10 +1,11 @@
-<ion-chip
-  *ngFor="let bc of breadcrumb"
-  (click)="goBack(bc.backUrlTree)"
-  color="dark"
-  outline="true"
->
-  <ion-label color="dark">{{ bc.key }} ({{ bc.value }}) </ion-label>
-  <!-- <ion-icon name="arrow-dropright" slot="start"></ion-icon> -->
-  <ion-icon name="star" slot="chevron-forward-outline"></ion-icon>
-</ion-chip>
+@for (bc of breadcrumb; track bc) {
+  <ion-chip
+    (click)="goBack(bc.backUrlTree)"
+    color="dark"
+    outline="true"
+    >
+    <ion-label color="dark">{{ bc.key }} ({{ bc.value }}) </ion-label>
+    <!-- <ion-icon name="arrow-dropright" slot="start"></ion-icon> -->
+    <ion-icon name="star" slot="chevron-forward-outline"></ion-icon>
+  </ion-chip>
+}

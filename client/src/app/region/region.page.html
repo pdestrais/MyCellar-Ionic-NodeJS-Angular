@@ -8,29 +8,35 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div *ngIf="list">
-    <div *ngIf="origines$ | async">
-      <ion-list>
-        <ion-item
-          *ngFor="let origine of origines$ | async"
-          (click)="editOrigine(origine)"
-        >
-          {{ origine.pays }} - {{origine.region}}
-          <!-- <ion-button slot="end" fill="outline">Modify -->
-          <ion-icon
-            slot="end"
-            color="dark"
-            name="caret-forward-outline"
-          ></ion-icon>
-          <!-- </ion-button> -->
-        </ion-item>
-      </ion-list>
-    </div>
+  @if (list) {
+    <div>
+      @if (origines$ | async) {
+        <div>
+          <ion-list>
+            @for (origine of origines$ | async; track origine) {
+              <ion-item
+                (click)="editOrigine(origine)"
+                >
+                {{ origine.pays }} - {{origine.region}}
+                <!-- <ion-button slot="end" fill="outline">Modify -->
+                <ion-icon
+                  slot="end"
+                  color="dark"
+                  name="caret-forward-outline"
+                ></ion-icon>
+              <!-- </ion-button> -->
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+    }
     <ion-button expand="full" (click)="editOrigine(origine)">
       {{'general.add' | translate }} {{'origin.region' | translate }}
     </ion-button>
   </div>
-  <div *ngIf="!list">
+}
+@if (!list) {
+  <div>
     <form [formGroup]="origineForm" id="origine-form4">
       <ion-item id="origine-input1">
         <ion-label floating translate> origin.country</ion-label>
@@ -41,16 +47,17 @@
           formControlName="pays"
           class="ion-text-right"
           [class.invalid]="!origineForm.controls.pays.valid && (origineForm.controls.pays.dirty || submitted)"
-        >
+          >
         </ion-input>
       </ion-item>
-      <ion-item
-        *ngIf="!origineForm.controls.pays.valid  && (origineForm.controls.pays.dirty || submitted)"
-      >
-        <p class="invalid">
-          {{'origine.pays' | translate }} {{"general.required" | translate }}
-        </p>
-      </ion-item>
+      @if (!origineForm.controls.pays.valid  && (origineForm.controls.pays.dirty || submitted)) {
+        <ion-item
+          >
+          <p class="invalid">
+            {{'origine.pays' | translate }} {{"general.required" | translate }}
+          </p>
+        </ion-item>
+      }
       <ion-item id="origine-input2">
         <ion-label floating translate> origin.region</ion-label>
         <ion-input
@@ -60,15 +67,16 @@
           formControlName="region"
           class="ion-text-right"
           [class.invalid]="!origineForm.controls.region.valid && (origineForm.controls.region.dirty || submitted)"
-        >
+          >
         </ion-input>
       </ion-item>
-      <p
-        *ngIf="origineForm.hasError('double')"
-        [class.invalid]="origineForm.hasError('double')"
-      >
-        {{ 'origin.origineDouble' | translate }}
-      </p>
+      @if (origineForm.hasError('double')) {
+        <p
+          [class.invalid]="origineForm.hasError('double')"
+          >
+          {{ 'origin.origineDouble' | translate }}
+        </p>
+      }
       <ion-button
         [disabled]="!origineForm.valid"
         id="region-button5"
@@ -76,57 +84,64 @@
         color="primary"
         block
         (click)="saveOrigine()"
-      >
+        >
         <!--             <ion-button [disabled]="!origineForm.valid" id="region-button5" ion-button color="primary" block (click)="saveOrigine(origine)">
-   -->
+        -->
         {{'general.save' | translate }}
       </ion-button>
-      <ion-button
-        *ngIf="!newOrigine"
-        id="region-button5"
-        ion-button
-        color="danger"
-        block
-        (click)="deleteOrigine()"
-      >
-        {{'general.suppress' | translate }}
-      </ion-button>
+      @if (!newOrigine) {
+        <ion-button
+          id="region-button5"
+          ion-button
+          color="danger"
+          block
+          (click)="deleteOrigine()"
+          >
+          {{'general.suppress' | translate }}
+        </ion-button>
+      }
       <ion-button color="light" block [routerLink]="['/regions']">
         {{'general.cancel' | translate }}
       </ion-button>
     </form>
-    <ion-button
-      *ngIf="!showWines"
-      color="secondary"
-      fill="outline"
-      (click)="showWines = !showWines"
-    >
-      {{'origin.showWinesForOrigin' | translate }}
-    </ion-button>
-    <ion-button
-      *ngIf="showWines"
-      color="secondary"
-      fill="outline"
-      (click)="showWines = !showWines"
-    >
-      {{'origin.hideWinesForOrigin' | translate }}
-    </ion-button>
-    <div [ngClass]="'border'" *ngIf="showWines && (winesForOrigine$ | async)">
-      <ion-list>
-        <ion-item
-          *ngFor="let wine of winesForOrigine$ | async"
-          [routerLink]="['/vin', wine._id]"
+    @if (!showWines) {
+      <ion-button
+        color="secondary"
+        fill="outline"
+        (click)="showWines = !showWines"
         >
-          {{ wine.nom }} - {{wine.annee}} - {{wine.type.nom}}
-          <!-- <ion-button slot="end" fill="outline">Modify -->
-          <ion-icon
-            slot="end"
-            color="dark"
-            name="caret-forward-outline"
-          ></ion-icon>
-          <!-- </ion-button> -->
-        </ion-item>
+        {{'origin.showWinesForOrigin' | translate }}
+      </ion-button>
+    }
+    @if (showWines) {
+      <ion-button
+        color="secondary"
+        fill="outline"
+        (click)="showWines = !showWines"
+        >
+        {{'origin.hideWinesForOrigin' | translate }}
+      </ion-button>
+    }
+    @if (showWines && (winesForOrigine$ | async)) {
+      <div [ngClass]="'border'">
+        <ion-list>
+          @for (wine of winesForOrigine$ | async; track wine) {
+            <ion-item
+              [routerLink]="['/vin', wine._id]"
+              >
+              {{ wine.nom }} - {{wine.annee}} - {{wine.type.nom}}
+              <!-- <ion-button slot="end" fill="outline">Modify -->
+              <ion-icon
+                slot="end"
+                color="dark"
+                name="caret-forward-outline"
+              ></ion-icon>
+            <!-- </ion-button> -->
+          </ion-item>
+        }
       </ion-list>
     </div>
-  </div>
+  }
+</div>
+}
 </ion-content>

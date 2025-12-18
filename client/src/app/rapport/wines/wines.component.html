@@ -11,16 +11,20 @@
 
 <ion-content class="ion-padding">
   <app-breadcrumb [breadcrumb]="breadcrumb"></app-breadcrumb>
-  <div *ngIf="filteredWines && filteredWines.length>0">
-    <ion-card *ngFor="let wine of filteredWines" (click)="selectWine(wine)">
-      <ion-card-header>
-        {{wine.nom}}
-      </ion-card-header>
-      <ion-card-content>
-        {{'wine.price' | translate }} : {{wine.prixAchat}} - {{'wine.location' | translate }} : {{wine.localisation}}
-        <br> {{'wine.bottlesLeft' | translate }} :
-        <ion-badge item-end>{{ wine.nbreBouteillesReste}}</ion-badge>
-      </ion-card-content>
-    </ion-card>
-  </div>
-</ion-content>
+  @if (filteredWines && filteredWines.length>0) {
+    <div>
+      @for (wine of filteredWines; track wine) {
+        <ion-card (click)="selectWine(wine)">
+          <ion-card-header>
+            {{wine.nom}}
+          </ion-card-header>
+          <ion-card-content>
+            {{'wine.price' | translate }} : {{wine.prixAchat}} - {{'wine.location' | translate }} : {{wine.localisation}}
+            <br> {{'wine.bottlesLeft' | translate }} :
+              <ion-badge item-end>{{ wine.nbreBouteillesReste}}</ion-badge>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    }
+  </ion-content>

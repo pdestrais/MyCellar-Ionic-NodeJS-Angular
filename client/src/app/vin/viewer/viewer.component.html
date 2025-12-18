@@ -1,117 +1,122 @@
 <!-- <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button (click)="dismiss('cancel')">
-        <ion-icon slot="icon-only" name="arrow-round-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>
-      {{'page.wine' | translate }}
-    </ion-title>
-  </ion-toolbar>
+<ion-toolbar color="primary">
+  <ion-buttons slot="start">
+    <ion-button (click)="dismiss('cancel')">
+      <ion-icon slot="icon-only" name="arrow-round-back"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+  <ion-title>
+    {{'page.wine' | translate }}
+  </ion-title>
+</ion-toolbar>
 </ion-header>
- -->
+-->
 <div #modalContent class="inner-content">
   <!-- <ion-content> -->
 
   <div #canvasContainer class="container">
     <canvas #selectedPhoto></canvas>
     <div class="buttonContainer">
-      <ion-button
-        *ngIf="action == 'add' || action == 'replace'"
-        size="small"
-        fill="solid"
-        (click)="dismiss('keep')"
-      >
-        {{ "Keep" | translate }}
-      </ion-button>
+      @if (action == 'add' || action == 'replace') {
+        <ion-button
+          size="small"
+          fill="solid"
+          (click)="dismiss('keep')"
+          >
+          {{ "Keep" | translate }}
+        </ion-button>
+      }
       <ion-button
         color="secondary"
         size="small"
         fill="solid"
         (click)="dismiss('cancel')"
-      >
+        >
         {{ "Cancel" | translate }}
       </ion-button>
 
-      <input
-        *ngIf="action == 'modify'"
-        type="file"
-        accept="image/*"
-        id="uploadphoto"
-        (change)="loadPhoto()"
-        id="upload"
-        hidden
-      />
-      <label *ngIf="action == 'modify'" for="upload">REPLACE</label>
-
-      <!--       <div *ngIf="action == 'modify'">
-        <label for="uploadphoto" [ngClass]="'button'">{{
-          "Replace" | translate
-        }}</label>
+      @if (action == 'modify') {
         <input
-          #uploadphoto
           type="file"
           accept="image/*"
           id="uploadphoto"
           (change)="loadPhoto()"
+          id="upload"
+          hidden
+          />
+      }
+      @if (action == 'modify') {
+        <label for="upload">REPLACE</label>
+      }
+
+      <!--       <div *ngIf="action == 'modify'">
+      <label for="uploadphoto" [ngClass]="'button'">{{
+        "Replace" | translate
+      }}</label>
+      <input
+        #uploadphoto
+        type="file"
+        accept="image/*"
+        id="uploadphoto"
+        (change)="loadPhoto()"
         />
-      </div>
- -->
+    </div>
+    -->
+    @if (action == 'modify') {
       <ion-button
-        *ngIf="action == 'modify'"
         color="danger"
         size="small"
         fill="solid"
         (click)="dismiss('delete')"
-      >
+        >
         {{ "Delete" | translate }}
       </ion-button>
+    }
 
-      <!--       <button *ngIf="action == 'modify'">Button 1</button>
-      <button *ngIf="action == 'modify'">Button 2</button>
-      <button *ngIf="action == 'modify'">Button 3</button> -->
-    </div>
+    <!--       <button *ngIf="action == 'modify'">Button 1</button>
+    <button *ngIf="action == 'modify'">Button 2</button>
+    <button *ngIf="action == 'modify'">Button 3</button> -->
   </div>
+</div>
 
-  <!--   <ion-grid>
-    <ion-row>
-      <ion-col #canvasContainer>
-        <canvas #selectedPhoto></canvas>
-      </ion-col>
-    </ion-row>
-    <ion-row class="ion-justify-content-center" align-items-center>
-      <ion-col *ngIf="action == 'add' || action == 'replace'">
-        <ion-button fill="clear" (click)="dismiss('keep')">
-          {{ "Keep" | translate }}
-        </ion-button>
-      </ion-col>
-      <ion-col>
-        <ion-button color="secondary" fill="clear" (click)="dismiss('cancel')">
-          {{ "Cancel" | translate }}
-        </ion-button>
-      </ion-col>
-      <ion-col *ngIf="action == 'modify'">
-        <div class="ion-text-center">
-          <label for="uploadphoto" [ngClass]="'button button-outline'">{{
-            "Replace" | translate
-          }}</label>
-          <input
-            #uploadphoto
-            type="file"
-            accept="image/*"
-            id="uploadphoto"
-            (change)="loadPhoto()"
-          />
-        </div>
-      </ion-col>
-      <ion-col *ngIf="action == 'modify'">
-        <ion-button color="danger" fill="clear" (click)="dismiss('delete')">
-          {{ "Delete" | translate }}
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
- -->
-  <!-- </ion-content> -->
+<!--   <ion-grid>
+<ion-row>
+  <ion-col #canvasContainer>
+    <canvas #selectedPhoto></canvas>
+  </ion-col>
+</ion-row>
+<ion-row class="ion-justify-content-center" align-items-center>
+  <ion-col *ngIf="action == 'add' || action == 'replace'">
+    <ion-button fill="clear" (click)="dismiss('keep')">
+      {{ "Keep" | translate }}
+    </ion-button>
+  </ion-col>
+  <ion-col>
+    <ion-button color="secondary" fill="clear" (click)="dismiss('cancel')">
+      {{ "Cancel" | translate }}
+    </ion-button>
+  </ion-col>
+  <ion-col *ngIf="action == 'modify'">
+    <div class="ion-text-center">
+      <label for="uploadphoto" [ngClass]="'button button-outline'">{{
+        "Replace" | translate
+      }}</label>
+      <input
+        #uploadphoto
+        type="file"
+        accept="image/*"
+        id="uploadphoto"
+        (change)="loadPhoto()"
+        />
+    </div>
+  </ion-col>
+  <ion-col *ngIf="action == 'modify'">
+    <ion-button color="danger" fill="clear" (click)="dismiss('delete')">
+      {{ "Delete" | translate }}
+    </ion-button>
+  </ion-col>
+</ion-row>
+</ion-grid>
+-->
+<!-- </ion-content> -->
 </div>

@@ -8,29 +8,35 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div *ngIf="list">
-    <div *ngIf="wineTypes$ | async">
-      <ion-list>
-        <ion-item
-          *ngFor="let type of wineTypes$ | async"
-          (click)="editType(type)"
-        >
-          {{ type.nom }}
-          <!-- <ion-button slot="end" fill="outline">Modify -->
-          <ion-icon
-            slot="end"
-            color="dark"
-            name="caret-forward-outline"
-          ></ion-icon>
-          <!-- </ion-button> -->
-        </ion-item>
-      </ion-list>
-    </div>
+  @if (list) {
+    <div>
+      @if (wineTypes$ | async) {
+        <div>
+          <ion-list>
+            @for (type of wineTypes$ | async; track type) {
+              <ion-item
+                (click)="editType(type)"
+                >
+                {{ type.nom }}
+                <!-- <ion-button slot="end" fill="outline">Modify -->
+                <ion-icon
+                  slot="end"
+                  color="dark"
+                  name="caret-forward-outline"
+                ></ion-icon>
+              <!-- </ion-button> -->
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+    }
     <ion-button expand="full" (click)="editType(type)">
       {{'general.add' | translate }} {{'type.type' | translate }}
     </ion-button>
   </div>
-  <div *ngIf="!list">
+}
+@if (!list) {
+  <div>
     <form [formGroup]="typeForm" id="type-form4">
       <ion-item id="type-input1">
         <ion-label floating translate>type.type</ion-label>
@@ -43,16 +49,19 @@
           [class.invalid]="!typeForm.controls.nom.valid && (typeForm.controls.nom.dirty || submitted)"
         ></ion-input>
       </ion-item>
-      <ion-item
-        *ngIf="!typeForm.controls.nom.valid  && (typeForm.controls.nom.dirty || submitted)"
-      >
-        <p class="invalid">
-          {{'type.type' | translate }} {{"general.required" | translate }}
+      @if (!typeForm.controls.nom.valid  && (typeForm.controls.nom.dirty || submitted)) {
+        <ion-item
+          >
+          <p class="invalid">
+            {{'type.type' | translate }} {{"general.required" | translate }}
+          </p>
+        </ion-item>
+      }
+      @if (typeForm.hasError('double')) {
+        <p [class.invalid]="true">
+          {{ 'type.double' | translate }}
         </p>
-      </ion-item>
-      <p *ngIf="typeForm.hasError('double')" [class.invalid]="true">
-        {{ 'type.double' | translate }}
-      </p>
+      }
     </form>
     <ion-button
       [disabled]="!typeForm.valid"
@@ -61,21 +70,23 @@
       color="primary"
       block
       (click)="saveType()"
-    >
+      >
       {{'general.save' | translate }}
     </ion-button>
-    <ion-button
-      *ngIf="!newType"
-      id="region-button5"
-      ion-button
-      color="danger"
-      block
-      (click)="deleteType()"
-    >
-      {{'general.suppress' | translate }}
-    </ion-button>
+    @if (!newType) {
+      <ion-button
+        id="region-button5"
+        ion-button
+        color="danger"
+        block
+        (click)="deleteType()"
+        >
+        {{'general.suppress' | translate }}
+      </ion-button>
+    }
     <ion-button color="light" block [routerLink]="['/types']">
       {{'general.cancel' | translate }}
     </ion-button>
   </div>
+}
 </ion-content>

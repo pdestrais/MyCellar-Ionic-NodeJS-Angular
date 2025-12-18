@@ -5,7 +5,7 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 
 import { HomePage } from "./home.page";
-import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonButton, IonIcon, IonList, IonItem, IonBadge, IonSearchbar, IonSpinner, IonLabel, IonToggle } from "@ionic/angular/standalone";
+import { IonicModule } from "@ionic/angular";
 
 @NgModule({
     imports: [
@@ -18,22 +18,9 @@ import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent,
             },
         ]),
         TranslateModule,
-        IonHeader,
-        IonToolbar,
-        IonButtons,
-        IonMenuButton,
-        IonTitle,
-        IonContent,
-        IonButton,
-        IonIcon,
-        IonList,
-        IonItem,
-        IonBadge,
-        IonSearchbar,
-        IonSpinner,
-        IonLabel,
-        IonToggle
+        IonicModule,
+        HomePage,
     ],
-    declarations: [HomePage],
+    declarations: [],
 })
 export class HomePageModule { }
