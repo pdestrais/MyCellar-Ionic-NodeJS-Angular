@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { OrigineModel, VinModel } from "../models/cellar.model";
@@ -26,6 +27,18 @@ import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
 
 const debug = Debugger("app:region");
+
+/* Restored comments from previous version:
+ - We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
+ - When an origine is selected from the store we reset the Origine state to avoid shadow UI messages coming from previous updates in other app instances
+ - Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+   - (I) internal ? => (wine/origine is saved in the application) a confirmation message is shown to the user and the app goes to the home screen
+   - (II) external ?
+       - (A) event comes from the local DB resulting from the update of the origine we just saved
+       - (B) event comes from the remoteDB resulting from the update of an origine (not the one we are working on)
+       - (C) event coming from the remoteDB resulting from the update of the origine we are working on (concurrent update)
+ - Delete does not remove a doc; it creates a new document with "_delete" attribute set to true
+*/
 
 @Component({
   selector: "app-region",
@@ -79,200 +92,171 @@ export class RegionPage implements OnInit {
       ? (this.list = true)
       : (this.list = false);
     // We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
-    this.origines$ = this.store
-      .select(OrigineSelectors.getAllOriginesArraySorted)
-      .pipe(takeUntil(this.unsubscribe$));
-    // loading origines map from state (used for double check)
-    this.store
-      .select(OrigineSelectors.origineMapForDuplicates)
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((originesMap) => (this.originesMap = originesMap));
+    this.origines$ = this.store.select(OrigineSelectors.getAllOriginesArraySorted);
+    // loading origines map from state (used for double check) via signal
+      const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
+      effect(() => {
+        this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
+    });
     // Now loading selected wine from the state
     // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized
-    this.store
-      .select(
-        OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!)
-      )
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((origine) => {
-        if (origine) {
-          this.list = false;
-          this.origine = origine;
-          this.newOrigine = false;
-          // We have selected an origine
-          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
-          this.store.dispatch(
-            OrigineActions.editOrigine({
-              id: origine._id!,
-              rev: origine._rev!,
-            })
-          );
-          this.origineForm.get("pays")!.setValue(origine.pays);
-          this.origineForm.get("region")!.setValue(origine.region);
-          debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
-        } else {
-          // No wine was selected, when will register a new origine
-          this.newOrigine = true;
-          this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
-        }
-      });
+    const selectedOrigineSignal = toSignal(
+      this.store.select(OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!))
+    );
+    effect(() => {
+      const origine = selectedOrigineSignal();
+      if (origine) {
+        this.list = false;
+        this.origine = origine;
+        this.newOrigine = false;
+        // We have selected an origine
+        // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
 
-    this.winesForOrigine$ = this.store
-      .select(VinSelectors.getWinesByOrigine(this.origine._id))
-      .pipe(takeUntil(this.unsubscribe$));
+        this.store.dispatch(
+          OrigineActions.editOrigine({
+            id: origine._id!,
+            rev: origine._rev!,
+          })
+        );
+        this.origineForm.get("pays")!.setValue(origine.pays);
+        this.origineForm.get("region")!.setValue(origine.region);
+        debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
+      } else {
+        // No wine was selected, when will register a new origine
+        this.newOrigine = true;
+        this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
+      }
+    });
+
+    this.winesForOrigine$ = this.store.select(VinSelectors.getWinesByOrigine(this.origine._id));
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-    this.store
-      .select((state: AppState) => state.origines)
-      .pipe(
-        takeUntil(this.unsubscribe$)
-        /*         tap((origineState) =>
-                  debug(
-                    "[ngOnInit]handle origineState Changes - ts " +
-                      window.performance.now() +
-                      "\norigineState : " +
-                      JSON.stringify(origineState, replacer)
-                  )
-                )
-         */
-      )
-      .subscribe((origineState) => {
-        switch (origineState.status) {
-          case "saved":
-            debug(
-              "[ngOnInit] handling change to 'saved' status - ts " +
-              window.performance.now() +
-              "\norigineState : " +
-              JSON.stringify(origineState, replacer)
-            );
+    const origineStateSignal = toSignal(this.store.select((state: AppState) => state.origines));
+    effect(() => {
+      const origineState = origineStateSignal();
+      if (!origineState) return; // guard against undefined
+      switch (origineState.status) {
+        case "saved":
+          debug(
+            "[ngOnInit] handling change to 'saved' status - ts " +
+            window.performance.now() +
+            "\norigineState : " +
+            JSON.stringify(origineState, replacer)
+          );
 
-            // if we get an event that a wine is saved. We need to check it's id and
-            // if the event source is internal (saved within this instance of the application) or external.
-            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-            // - (II) external ?
-            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-            if (origineState.source == "internal") {
-              debug("[ngInit](I) Standard wine saved");
-              // Internal event
-              this.presentToast(
-                this.translate.instant("general.dataSaved"),
-                "success",
-                "home",
-                2000
-              );
+          // if we get an event that a wine is saved. We need to check it's id and
+          // if the event source is internal (saved within this instance of the application) or external.
+          // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+          // - (II) external ?
+          //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+          //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+          //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+          if (origineState.source == "internal") {
+            debug("[ngInit](I) Standard wine saved");
+            // Internal event
+            this.presentToast(
+              this.translate.instant("general.dataSaved"),
+              "success",
+              "home",
+              2000
+            );
+            this.store.dispatch(OrigineActions.setStatusToLoaded());
+          } else {
+            // let's try to find a duplicate event in the eventLog
+            let filteredEventLog = origineState.eventLog.filter(
+              (value) =>
+                value.id == origineState.currentOrigine!.id &&
+                value.rev == origineState.currentOrigine!.rev &&
+                value.action == "create"
+            );
+            debug("[ngInit](II) FilteredEventLog : " + JSON.stringify(filteredEventLog));
+            if (filteredEventLog.length == 2) {
+              debug("[ngInit](II.A) Duplicate state change for the same wine");
               this.store.dispatch(OrigineActions.setStatusToLoaded());
+            } else if (
+              origineState.eventLog[origineState.eventLog.length - 1].id ==
+              origineState.currentOrigine!.id &&
+              origineState.eventLog[origineState.eventLog.length - 1].rev ==
+              origineState.currentOrigine!.rev &&
+              origineState.eventLog[origineState.eventLog.length - 1].action ==
+              "create" &&
+              this.origineForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+            ) {
+              // Event showing concurrent editing on the same wine that was saved somewhere else
+              debug("[ngInit](II.C) Concurrent editing on the same wine");
+              this.presentToast(
+                this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
+                "warning",
+                "",
+                0,
+                "Close"
+              );
             } else {
-              // let's try to find a duplicate event in the eventLog
-              let filteredEventLog = origineState.eventLog.filter(
+              debug("[ngInit](II.B) Update of another wine");
+            }
+          }
+          break;
+        case "error":
+          this.presentToast(
+            this.translate.instant("general.DBError") + " " + origineState.error,
+            "error",
+            null,
+            5000
+          );
+          break;
+        case "deleted":
+          // if we get an event that an origine is saved. We need to check it's id and
+          // if the event source is internal (saved within this instance of the application) or external.
+          // - (I) internal ? => (origine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+          // - (II) external ?
+          //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+          //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+          //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+          // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
+          if (origineState.source == "internal") {
+            debug("[ngInit](I) Standard wine deleted");
+            // Internal event
+            this.presentToast(
+              this.translate.instant("wine.wineDeleted"),
+              "success",
+              "home",
+              2000
+            );
+            this.store.dispatch(OrigineActions.setStatusToLoaded());
+          } else {
+            // let's try to find a duplicate event in the eventLog
+            // this should never happen for a delete
+            if (
+              origineState.eventLog.filter(
                 (value) =>
                   value.id == origineState.currentOrigine!.id &&
-                  value.rev == origineState.currentOrigine!.rev &&
-                  value.action == "create"
-              );
-              debug(
-                "[ngInit](II) FilteredEventLog : " +
-                JSON.stringify(filteredEventLog)
-              );
-              if (filteredEventLog.length == 2) {
-                debug(
-                  "[ngInit](II.A) Duplicate state change for the same wine"
-                );
-                this.store.dispatch(OrigineActions.setStatusToLoaded());
-              } else if (
-                origineState.eventLog[origineState.eventLog.length - 1].id ==
-                origineState.currentOrigine!.id &&
-                origineState.eventLog[origineState.eventLog.length - 1].rev ==
-                origineState.currentOrigine!.rev &&
-                origineState.eventLog[origineState.eventLog.length - 1]
-                  .action == "create" &&
-                this.origineForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
-              ) {
-                // Event showing concurrent editing on the same wine that was saved somewhere else
-                debug("[ngInit](II.C) Concurrent editing on the same wine");
-                this.presentToast(
-                  this.translate.instant(
-                    "wine.savedConcurrentlyOnAnotherInstance"
-                  ),
-                  "warning",
-                  "",
-                  0,
-                  "Close"
-                );
-              } else {
-                debug("[ngInit](II.B) Update of another wine");
-              }
-            }
-            break;
-          case "error":
-            this.presentToast(
-              this.translate.instant("general.DBError") +
-              " " +
-              origineState.error,
-              "error",
-              null,
-              5000
-            );
-            break;
-          case "deleted":
-            // if we get an event that an origine is saved. We need to check it's id and
-            // if the event source is internal (saved within this instance of the application) or external.
-            // - (I) internal ? => (origine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-            // - (II) external ?
-            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-            // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
-            if (origineState.source == "internal") {
-              debug("[ngInit](I) Standard wine deleted");
-              // Internal event
-              this.presentToast(
-                this.translate.instant("wine.wineDeleted"),
-                "success",
-                "home",
-                2000
-              );
+                  value.rev >= origineState.currentOrigine!.rev &&
+                  value.action == "delete"
+              ).length == 2
+            ) {
+              debug("[ngInit](II.A) Duplicate state change for the same wine");
               this.store.dispatch(OrigineActions.setStatusToLoaded());
+            } else if (
+              origineState.eventLog[origineState.eventLog.length - 1].id ==
+              origineState.currentOrigine!.id &&
+              origineState.eventLog[origineState.eventLog.length - 1].action ==
+              "delete"
+            ) {
+              debug("[ngInit](II.C) Concurrent editing on the same wine");
+              this.presentToast(
+                this.translate.instant("wine.deletedConcurrentlyOnAnotherInstance"),
+                "warning",
+                "home",
+                0,
+                "Close"
+              );
             } else {
-              // let's try to find a duplicate event in the eventLog
-              // this should never happen for a delete
-              if (
-                origineState.eventLog.filter(
-                  (value) =>
-                    value.id == origineState.currentOrigine!.id &&
-                    value.rev >= origineState.currentOrigine!.rev &&
-                    value.action == "delete"
-                ).length == 2
-              ) {
-                debug(
-                  "[ngInit](II.A) Duplicate state change for the same wine"
-                );
-                this.store.dispatch(OrigineActions.setStatusToLoaded());
-              } else if (
-                origineState.eventLog[origineState.eventLog.length - 1].id ==
-                origineState.currentOrigine!.id &&
-                origineState.eventLog[origineState.eventLog.length - 1]
-                  .action == "delete"
-              ) {
-                // Event showing concurrent editing on the same wine that was saved somewhere else
-                debug("[ngInit](II.C) Concurrent editing on the same wine");
-                this.presentToast(
-                  this.translate.instant(
-                    "wine.deletedConcurrentlyOnAnotherInstance"
-                  ),
-                  "warning",
-                  "home",
-                  0,
-                  "Close"
-                );
-              } else {
-                debug("[ngInit](II.B) Delete of another wine");
-              }
+              debug("[ngInit](II.B) Delete of another wine");
             }
-            break;
-        }
-      });
+          }
+          break;
+      }
+    });
   }
 
   public ngOnDestroy() {
@@ -336,9 +320,9 @@ export class RegionPage implements OnInit {
     // Before deleting an origine, we need to check if this origine is not used for any of the wines.
     // If it is used, it can't be deleted.
     let used = false;
-    this.winesForOrigine$.subscribe((wineListForOrigine) =>
-      wineListForOrigine.length > 0 ? (used = true) : (used = false)
-    );
+    // read once from the wines observable without subscribing permanently
+    const wineListForOrigine = toSignal(this.store.select(VinSelectors.getWinesByOrigine(this.origine._id)))();
+    if (wineListForOrigine) used = wineListForOrigine.length > 0;
     if (!used) {
       this.alertController
         .create({

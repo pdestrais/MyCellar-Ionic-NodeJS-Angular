@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TypeModel } from "../models/cellar.model";
@@ -26,6 +27,18 @@ import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
 
 const debug = Debugger("app:type");
+
+/* Restored comments from previous version:
+ - We need to load the type list even if we create or modify an type because in this case we need the type list to check for doubles
+ - When a type is selected from the store we reset the Type state to avoid shadow UI messages coming from previous updates in other app instances
+ - Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+   - (I) internal ? => (type is saved in the application) a confirmation message is shown to the user and the app goes to the home screen
+   - (II) external ?
+       - (A) event comes from the local DB resulting from the update of the type we just saved
+       - (B) event comes from the remoteDB resulting from the update of a type (not the one we are working on)
+       - (C) event coming from the remoteDB resulting from the update of the type we are working on (concurrent update)
+ - Delete does not remove a doc; it creates a new document with "_delete" attribute set to true
+*/
 
 @Component({
   selector: "app-type",
@@ -92,61 +105,53 @@ export class TypePage implements OnInit {
       );
 
     // loading types map from state (used for double check)
-    this.store
-      .select(TypeSelectors.typeMapForDuplicates)
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((typesMap) => (this.typesMap = typesMap));
+    const typesMapSignal = toSignal(
+      this.store.select(TypeSelectors.typeMapForDuplicates)
+    );
+    effect(() => {
+      this.typesMap = typesMapSignal() ?? new Map<any, any>();
+    });
     // Now loading selected type from the state
     // if id param is there, the type will be loaded, if not, we want to create a new type and the form values will remain as initialized
-    this.store
-      .select(TypeSelectors.getType(this.route.snapshot.paramMap.get("id")!))
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((type) => {
-        if (type) {
-          this.list = false;
-          this.type = type;
-          this.newType = false;
-          // We have selected an type
-          // reset VinState status to avoid shadow UI messages coming from previous updates in other app instances
-          this.store.dispatch(
-            TypeActions.editType({
-              id: type._id,
-              rev: type._rev,
-            })
-          );
-          this.typeForm.get("nom")!.setValue(type.nom);
-          debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
-        } else {
-          // No wine was selected, when will register a new type
-          this.newType = true;
-          this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
-        }
-      });
+    const selectedTypeSignal = toSignal(
+      this.store.select(TypeSelectors.getType(this.route.snapshot.paramMap.get("id")!))
+    );
+    effect(() => {
+      const type = selectedTypeSignal();
+      if (type) {
+        this.list = false;
+        this.type = type;
+        this.newType = false;
+        // We have selected an type
+        // reset VinState status to avoid shadow UI messages coming from previous updates in other app instances
+        this.store.dispatch(
+          TypeActions.editType({
+            id: type._id,
+            rev: type._rev,
+          })
+        );
+        this.typeForm.get("nom")!.setValue(type.nom);
+        debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
+      } else {
+        // No wine was selected, when will register a new type
+        this.newType = true;
+        this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
+      }
+    });
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-    this.store
-      .select((state: AppState) => state.types)
-      .pipe(
-        takeUntil(this.unsubscribe$)
-        /*         tap((typeState) =>
-                  debug(
-                    "[ngOnInit]handle typeState Changes - ts " +
-                      window.performance.now() +
-                      "\ntypeState : " +
-                      JSON.stringify(typeState, replacer)
-                  )
-                )
-         */
-      )
-      .subscribe((typeState) => {
-        switch (typeState.status) {
-          case "saved":
-            debug(
-              "[ngOnInit] handling change to 'saved' status - ts " +
+    const typeStateSignal = toSignal(this.store.select((state: AppState) => state.types));
+    effect(() => {
+      const typeState = typeStateSignal();
+      if (!typeState) return; // guard against undefined
+      switch (typeState.status) {
+        case "saved":
+          debug(
+            "[ngOnInit] handling change to 'saved' status - ts " +
               window.performance.now() +
               "\ntypeState : " +
               JSON.stringify(typeState, replacer)
-            );
+          );
 
             // if we get an event that a wine is saved. We need to check it's id and
             // if the event source is internal (saved within this instance of the application) or external.
@@ -155,67 +160,60 @@ export class TypePage implements OnInit {
             //       - (A) event comes from the local DB resulting from the update of the wine we just saved
             //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
             //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-            if (typeState.source == "internal") {
-              debug("[ngInit](I) Standard wine saved");
+          if (typeState.source == "internal") {
+            debug("[ngInit](I) Standard wine saved");
               // Internal event
-              this.presentToast(
-                this.translate.instant("general.dataSaved"),
-                "success",
-                "home",
-                2000
-              );
-              this.store.dispatch(TypeActions.setStatusToLoaded());
-            } else {
-              // let's try to find a duplicate event in the eventLog
-              let filteredEventLog = typeState.eventLog.filter(
-                (value) =>
-                  value.id == typeState.currentType.id &&
-                  value.rev == typeState.currentType.rev &&
-                  value.action == "create"
-              );
-              debug(
-                "[ngInit](II) FilteredEventLog : " +
-                JSON.stringify(filteredEventLog)
-              );
-              if (filteredEventLog.length == 2) {
-                debug(
-                  "[ngInit](II.A) Duplicate state change for the same wine"
-                );
-                this.store.dispatch(TypeActions.setStatusToLoaded());
-              } else if (
-                typeState.eventLog[typeState.eventLog.length - 1].id ==
-                typeState.currentType.id &&
-                typeState.eventLog[typeState.eventLog.length - 1].rev ==
-                typeState.currentType.rev &&
-                typeState.eventLog[typeState.eventLog.length - 1].action ==
-                "create" &&
-                this.typeForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
-              ) {
-                // Event showing concurrent editing on the same wine that was saved somewhere else
-                debug("[ngInit](II.C) Concurrent editing on the same wine");
-                this.presentToast(
-                  this.translate.instant(
-                    "wine.savedConcurrentlyOnAnotherInstance"
-                  ),
-                  "warning",
-                  "",
-                  0,
-                  "Close"
-                );
-              } else {
-                debug("[ngInit](II.B) Update of another wine");
-              }
-            }
-            break;
-          case "error":
             this.presentToast(
-              this.translate.instant("general.DBError") + " " + typeState.error,
-              "error",
-              null,
-              5000
+              this.translate.instant("general.dataSaved"),
+              "success",
+              "home",
+              2000
             );
-            break;
-          case "deleted":
+            this.store.dispatch(TypeActions.setStatusToLoaded());
+          } else {
+              // let's try to find a duplicate event in the eventLog
+            let filteredEventLog = typeState.eventLog.filter(
+              (value) =>
+                value.id == typeState.currentType.id &&
+                value.rev == typeState.currentType.rev &&
+                value.action == "create"
+            );
+            debug("[ngInit](II) FilteredEventLog : " + JSON.stringify(filteredEventLog));
+            if (filteredEventLog.length == 2) {
+              debug("[ngInit](II.A) Duplicate state change for the same wine");
+              this.store.dispatch(TypeActions.setStatusToLoaded());
+            } else if (
+              typeState.eventLog[typeState.eventLog.length - 1].id ==
+              typeState.currentType.id &&
+              typeState.eventLog[typeState.eventLog.length - 1].rev ==
+              typeState.currentType.rev &&
+              typeState.eventLog[typeState.eventLog.length - 1].action ==
+              "create" &&
+              this.typeForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+            ) {
+                // Event showing concurrent editing on the same wine that was saved somewhere else
+              debug("[ngInit](II.C) Concurrent editing on the same wine");
+              this.presentToast(
+                this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
+                "warning",
+                "",
+                0,
+                "Close"
+              );
+            } else {
+              debug("[ngInit](II.B) Update of another wine");
+            }
+          }
+          break;
+        case "error":
+          this.presentToast(
+            this.translate.instant("general.DBError") + " " + typeState.error,
+            "error",
+            null,
+            5000
+          );
+          break;
+        case "deleted":
             // if we get an event that an type is saved. We need to check it's id and
             // if the event source is internal (saved within this instance of the application) or external.
             // - (I) internal ? => (type is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
@@ -224,57 +222,52 @@ export class TypePage implements OnInit {
             //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
             //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
             // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
-            if (typeState.source == "internal") {
-              debug("[ngInit](I) Standard wine deleted");
+          if (typeState.source == "internal") {
+            debug("[ngInit](I) Standard type deleted");
               // Internal event
-              this.presentToast(
-                this.translate.instant("wine.wineDeleted"),
-                "success",
-                "home",
-                2000
-              );
-              this.store.dispatch(TypeActions.setStatusToLoaded());
-            } else {
+            this.presentToast(
+              this.translate.instant("type.typeDeleted"),
+              "success",
+              "home",
+              2000
+            );
+            this.store.dispatch(TypeActions.setStatusToLoaded());
+          } else {
               // let's try to find a duplicate event in the eventLog
               // this should never happen for a delete
-              if (
-                typeState.eventLog.filter(
-                  (value) =>
-                    value.id == typeState.currentType.id &&
-                    value.rev >= typeState.currentType.rev &&
-                    value.action == "delete"
-                ).length == 2
-              ) {
-                debug(
-                  "[ngInit](II.A) Duplicate state change for the same wine"
-                );
-                this.store.dispatch(TypeActions.setStatusToLoaded());
-              } else if (
-                typeState.eventLog[typeState.eventLog.length - 1].id ==
-                typeState.currentType.id &&
-                typeState.eventLog[typeState.eventLog.length - 1].action ==
-                "delete"
-              ) {
+            if (
+              typeState.eventLog.filter(
+                (value) =>
+                  value.id == typeState.currentType.id &&
+                  value.rev >= typeState.currentType.rev &&
+                  value.action == "delete"
+              ).length == 2
+            ) {
+              debug("[ngInit](II.A) Duplicate state change for the same wine");
+              this.store.dispatch(TypeActions.setStatusToLoaded());
+            } else if (
+              typeState.eventLog[typeState.eventLog.length - 1].id ==
+              typeState.currentType.id &&
+              typeState.eventLog[typeState.eventLog.length - 1].action ==
+              "delete"
+            ) {
                 // Event showing concurrent editing on the same wine that was saved somewhere else
-                debug("[ngInit](II.C) Concurrent editing on the same wine");
-                this.presentToast(
-                  this.translate.instant(
-                    "wine.deletedConcurrentlyOnAnotherInstance"
-                  ),
-                  "warning",
-                  "home",
-                  0,
-                  "Close"
-                );
-              } else {
-                debug("[ngInit](II.B) Delete of another wine");
-              }
+              debug("[ngInit](II.C) Concurrent editing on the same wine");
+              this.presentToast(
+                this.translate.instant("type.deletedConcurrentlyOnAnotherInstance"),
+                "warning",
+                "home",
+                0,
+                "Close"
+              );
+            } else {
+              debug("[ngInit](II.B) Delete of another wine");
             }
-            break;
-        }
-      });
-  }
-
+          }
+          break;
+      }
+    });
+    }
   public ngOnDestroy() {
     debug("[Type.ngOnDestroy]called");
     // Unscubribe all observers

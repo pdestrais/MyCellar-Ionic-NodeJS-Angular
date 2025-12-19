@@ -38,7 +38,7 @@ export class UserManagementService {
           let userTemp = JSON.parse(localStorage.getItem("currentUser")!);
           result.user.token = userTemp.token;
           localStorage.setItem("currentUser", JSON.stringify(result.user));
-          this.authenticationService.getCurrentUserSubject().next(result.user);
+          this.authenticationService.setCurrentUser(result.user);
         }
         return result;
       })
