@@ -14,8 +14,8 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    declarations: [RegisterComponent],
     imports: [
+        RegisterComponent,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,

@@ -1,11 +1,15 @@
 import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import vintageData from "../../assets/data/vintage-table.json";
 
 @Component({
     selector: "app-vintage",
     templateUrl: "./vintage.component.html",
     styleUrls: ["./vintage.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule]
 })
 export class VintageComponent implements OnInit {
     public appellationList: Array<string> = [];

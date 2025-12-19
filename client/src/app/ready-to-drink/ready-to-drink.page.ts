@@ -1,4 +1,8 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { RouterModule } from "@angular/router";
 import { PouchdbService } from "../services/pouchdb.service";
 import { VinModel } from "../models/cellar.model";
 import dayjs from "dayjs";
@@ -14,7 +18,8 @@ const debug = Debugger("app:readytodrink");
     selector: "app-ready-to-drink",
     templateUrl: "./ready-to-drink.page.html",
     styleUrls: ["./ready-to-drink.page.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, RouterModule]
 })
 export class ReadyToDrinkPage implements OnInit {
     public wines: Array<VinModel> = [];

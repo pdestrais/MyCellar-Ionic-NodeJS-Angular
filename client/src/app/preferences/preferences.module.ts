@@ -15,27 +15,6 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        TranslateModule,
-        RouterModule.forChild(routes),
-        IonHeader,
-        IonToolbar,
-        IonButtons,
-        IonMenuButton,
-        IonTitle,
-        IonContent,
-        IonGrid,
-        IonRow,
-        IonCol,
-        IonItemGroup,
-        IonItemDivider,
-        IonLabel,
-        IonItem,
-        IonSelect,
-        IonSelectOption
-    ],
-    declarations: [PreferencesPage /*, SupportPage */],
+    imports: [PreferencesPage, CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItemGroup, IonItemDivider, IonLabel, IonItem, IonSelect, IonSelectOption],
 })
 export class PreferencesPageModule { }

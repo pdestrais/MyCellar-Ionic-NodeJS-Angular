@@ -1,4 +1,7 @@
 import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import { VinModel } from "./../../models/cellar.model";
 import { PouchdbService } from "./../../services/pouchdb.service";
 import { jsPDF } from "jspdf";
@@ -8,7 +11,8 @@ import * as d3 from "d3";
     selector: "app-rapport-pdf",
     templateUrl: "./rapport-pdf.component.html",
     styleUrls: ["./rapport-pdf.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule]
 })
 export class RapportPdfComponent implements OnInit {
     private doc: jsPDF;

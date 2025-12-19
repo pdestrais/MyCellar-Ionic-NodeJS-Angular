@@ -7,6 +7,11 @@ import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
 import Debugger from "debug";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { RouterModule } from "@angular/router";
 import { Store } from "@ngrx/store";
 import * as TypeSelectors from "../state/type/type.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
@@ -26,7 +31,8 @@ const debug = Debugger("app:type");
   selector: "app-type",
   templateUrl: "./type.page.html",
   styleUrls: ["./type.page.scss"],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, TranslateModule, RouterModule]
 })
 export class TypePage implements OnInit {
   public type: TypeModel = new TypeModel({

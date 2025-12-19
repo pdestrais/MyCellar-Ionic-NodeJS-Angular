@@ -1,5 +1,9 @@
 import { Component, OnInit, NgZone } from "@angular/core";
 import { Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { FormsModule } from "@angular/forms";
 
 import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
@@ -9,7 +13,8 @@ const debug = Debugger("app:preferences");
     selector: "app-preferences",
     templateUrl: "./preferences.page.html",
     styleUrls: ["./preferences.page.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, FormsModule]
 })
 export class PreferencesPage implements OnInit {
     public language: string = "en";

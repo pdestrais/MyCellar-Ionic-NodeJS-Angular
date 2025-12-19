@@ -6,6 +6,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { first } from "rxjs/operators";
 import { ToastController } from "@ionic/angular/standalone";
 import { UserManagementService } from "../../services/user-management.service";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
 
 import Debugger from "debug";
 const debug = Debugger("app:resetpwd");
@@ -14,7 +18,8 @@ const debug = Debugger("app:resetpwd");
     selector: "app-resetpwd",
     templateUrl: "./resetpwd.component.html",
     styleUrls: ["./resetpwd.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
 })
 export class ResetpwdComponent implements OnInit {
     resetpwdForm!: FormGroup;

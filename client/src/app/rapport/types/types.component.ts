@@ -1,4 +1,8 @@
 import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { ElementListComponent } from "../element-list/element-list.component";
 import { PouchdbService } from "../../services/pouchdb.service";
 import { ActivatedRoute } from "@angular/router";
 import { VinModel } from "../../models/cellar.model";
@@ -12,7 +16,8 @@ const debug = Debugger("app:rapport:types");
     selector: "app-types",
     templateUrl: "./types.component.html",
     styleUrls: ["./types.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, ElementListComponent]
 })
 export class TypesComponent implements OnInit {
     public typeView: string = "";

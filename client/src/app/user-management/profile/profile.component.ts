@@ -6,6 +6,11 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { first } from "rxjs/operators";
 import { ToastController } from "@ionic/angular/standalone";
 import { UserManagementService } from "../../services/user-management.service";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { RouterModule } from "@angular/router";
 
 import Debugger from "debug";
 const debug = Debugger("app:profile");
@@ -14,7 +19,8 @@ const debug = Debugger("app:profile");
     selector: "app-profile",
     templateUrl: "./profile.component.html",
     styleUrls: ["./profile.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, RouterModule]
 })
 export class ProfileComponent implements OnInit {
     profileForm!: FormGroup;

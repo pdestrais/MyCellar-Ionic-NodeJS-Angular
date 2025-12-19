@@ -1,7 +1,10 @@
 import { MenuService } from "./services/menu.service";
 import { Component } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
 import { Platform, MenuController } from "@ionic/angular/standalone";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
 import { filter, map } from "rxjs/operators";
 import { Router } from "@angular/router";
@@ -21,7 +24,8 @@ const debug = Debugger("app:root");
     selector: "app-root",
     templateUrl: "app.component.html",
     styleUrls: ["./app.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, MultiLevelSideMenuComponent]
 })
 export class AppComponent {
     public appMenuItems: Array<any> = [];

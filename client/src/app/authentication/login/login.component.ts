@@ -10,6 +10,10 @@ import {
   LoadingController,
   AlertController,
 } from "@ionic/angular/standalone";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
 
 import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
@@ -27,7 +31,8 @@ const debug = Debugger("app:login");
 @Component({
   templateUrl: "login.component.html",
   styleUrls: ["login.component.scss"],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
 })
 export class LoginComponent implements OnInit {
   public loginForm!: FormGroup;

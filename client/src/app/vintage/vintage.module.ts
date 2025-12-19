@@ -13,23 +13,6 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    declarations: [VintageComponent],
-    imports: [
-        CommonModule,
-        RouterModule.forChild(routes),
-        TranslateModule,
-        IonHeader,
-        IonToolbar,
-        IonButtons,
-        IonMenuButton,
-        IonTitle,
-        IonContent,
-        IonList,
-        IonListHeader,
-        IonLabel,
-        IonItem,
-        IonSelect,
-        IonSelectOption
-    ],
+    imports: [VintageComponent, CommonModule, RouterModule.forChild(routes), TranslateModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonListHeader, IonLabel, IonItem, IonSelect, IonSelectOption],
 })
 export class VintageModule { }
