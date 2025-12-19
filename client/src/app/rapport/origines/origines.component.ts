@@ -1,4 +1,9 @@
 import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { BreadcrumbComponent } from "../breadcrumb/breadcrumb.component";
+import { ElementListComponent } from "../element-list/element-list.component";
 import { PouchdbService } from "../../services/pouchdb.service";
 import { ActivatedRoute } from "@angular/router";
 import { VinModel } from "../../models/cellar.model";
@@ -12,7 +17,8 @@ const debug = Debugger("app:rapport:years");
     selector: "app-origines",
     templateUrl: "./origines.component.html",
     styleUrls: ["./origines.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, BreadcrumbComponent, ElementListComponent]
 })
 export class OriginesComponent implements OnInit {
     public typeView: string = "";

@@ -1,4 +1,8 @@
 import { Component, OnInit, NgZone, ViewEncapsulation } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { FormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Router } from "@angular/router";
 import { VinModel } from "../models/cellar.model";
@@ -17,7 +21,8 @@ import * as VinActions from "../state/vin/vin.actions";
     templateUrl: "./stats.page.html",
     styleUrls: ["./stats.page.scss"],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, TranslateModule, FormsModule]
 })
 export class StatsPage implements OnInit {
   private total: number = 0;

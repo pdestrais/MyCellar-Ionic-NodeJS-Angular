@@ -15,6 +15,7 @@ const routes: Routes = [
 
 @NgModule({
     imports: [
+        RegionPage,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
@@ -32,7 +33,6 @@ const routes: Routes = [
         IonButton,
         IonLabel,
         IonInput
-    ],
-    declarations: [RegionPage]
+    ]
 })
 export class RegionPageModule { }

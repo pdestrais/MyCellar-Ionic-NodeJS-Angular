@@ -23,9 +23,8 @@ import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
-import { AppComponent } from "./app.component";
+// AppComponent is standalone; do not declare it here
 import { AppRoutingModule } from "./app-routing.module";
-import { MultiLevelSideMenuComponent } from "./multi-level-side-menu/multi-level-side-menu.component";
 import { ServiceWorkerModule } from "@angular/service-worker";
 import { environment } from "../environments/environment";
 import { StoreModule } from "@ngrx/store";
@@ -37,8 +36,8 @@ import { TypeEffects } from "./state/type/type.effects";
 import { AppellationEffects } from "./state/appellation/appellation.effects";
 import { reducers } from "./state/app.state";
 
-@NgModule({ declarations: [AppComponent, MultiLevelSideMenuComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    imports: [BrowserModule,
         AppRoutingModule,
         TranslateModule.forRoot({
             loader: {

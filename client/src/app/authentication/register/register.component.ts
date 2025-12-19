@@ -11,6 +11,10 @@ import {
 } from "@angular/forms";
 import { first } from "rxjs/operators";
 import { ToastController, AlertController } from "@ionic/angular/standalone";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
 
 import Debugger from "debug";
 const debug = Debugger("app:register");
@@ -19,7 +23,8 @@ const debug = Debugger("app:register");
     selector: "app-register",
     templateUrl: "./register.component.html",
     styleUrls: ["./register.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
 })
 export class RegisterComponent implements OnInit {
     registerForm!: FormGroup;

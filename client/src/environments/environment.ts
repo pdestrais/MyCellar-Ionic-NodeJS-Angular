@@ -8,8 +8,8 @@ export const environment = {
   production: false,
   APIEndpoint: "http://localhost:8080",
   version: npmPackage.version,
-  ionic: "7",
-  angular: "17",
+  ionic: "8",
+  angular: "21",
 };
 
 /*

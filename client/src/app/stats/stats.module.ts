@@ -14,7 +14,6 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonLabel, IonSelect, IonSelectOption, IonButton],
-    declarations: [StatsPage]
+    imports: [StatsPage, CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonLabel, IonSelect, IonSelectOption, IonButton]
 })
 export class StatsPageModule { }

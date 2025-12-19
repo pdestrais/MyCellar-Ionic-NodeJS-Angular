@@ -1,4 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
 import { Router } from "@angular/router";
 import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
@@ -7,7 +9,8 @@ import { caretForwardOutline } from "ionicons/icons";
     selector: "app-element-list",
     templateUrl: "./element-list.component.html",
     styleUrls: ["./element-list.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule]
 })
 export class ElementListComponent implements OnInit {
     @Input() elementList: Array<any> = [];

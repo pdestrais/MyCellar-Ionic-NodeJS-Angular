@@ -4,6 +4,6 @@ export const environment = {
   production: true,
   APIEndpoint: "",
   version: npmPackage.version,
-  ionic: "7",
-  angular: "17",
+  ionic: "8",
+  angular: "21",
 };

@@ -7,6 +7,11 @@ import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
 import { Store } from "@ngrx/store";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { RouterModule } from "@angular/router";
 import * as OrigineSelectors from "../state/origine/origine.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import * as OrigineActions from "../state/origine/origine.actions";
@@ -26,7 +31,8 @@ const debug = Debugger("app:region");
   selector: "app-region",
   templateUrl: "./region.page.html",
   styleUrls: ["./region.page.scss"],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, FormsModule, TranslateModule, RouterModule]
 })
 export class RegionPage implements OnInit {
   public origine: OrigineModel = new OrigineModel({

@@ -5,6 +5,11 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AppellationModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { RouterModule } from "@angular/router";
 
 import Debugger from "debug";
 import { Store } from "@ngrx/store";
@@ -25,7 +30,15 @@ const debug = Debugger("app:appellation");
     selector: "app-appellation",
     templateUrl: "./appellation.page.html",
     styleUrls: ["./appellation.page.scss"],
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        IonicModule,
+        ReactiveFormsModule,
+        FormsModule,
+        TranslateModule,
+        RouterModule
+    ]
 })
 export class AppellationPage implements OnInit {
     public appellation: AppellationModel = new AppellationModel({

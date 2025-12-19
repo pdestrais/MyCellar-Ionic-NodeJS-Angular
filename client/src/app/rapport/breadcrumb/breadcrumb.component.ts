@@ -1,5 +1,7 @@
 import { Router } from "@angular/router";
 import { Component, OnInit, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
 import { addIcons } from "ionicons";
 import { star } from "ionicons/icons";
 
@@ -7,7 +9,8 @@ import { star } from "ionicons/icons";
     selector: "app-breadcrumb",
     templateUrl: "./breadcrumb.component.html",
     styleUrls: ["./breadcrumb.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule]
 })
 export class BreadcrumbComponent implements OnInit {
     @Input() breadcrumb: Array<any> = [];

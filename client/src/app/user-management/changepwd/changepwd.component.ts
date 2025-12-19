@@ -16,6 +16,10 @@ import {
     AlertController,
     LoadingController,
 } from "@ionic/angular/standalone";
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
+import { ReactiveFormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
 import { UserManagementService } from "../../services/user-management.service";
 import { PouchdbService } from "./../../services/pouchdb.service";
 
@@ -38,7 +42,8 @@ const confirmPwdValidator: ValidatorFn = (
     selector: "app-changepwd",
     templateUrl: "./changepwd.component.html",
     styleUrls: ["./changepwd.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
 })
 export class ChangepwdComponent implements OnInit {
     public changepwdForm!: FormGroup;

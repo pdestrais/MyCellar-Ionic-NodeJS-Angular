@@ -32,8 +32,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [CommonModule, FormsModule, TranslateModule, RouterModule.forChild(routes), IonHeader, IonToolbar, IonTitle, IonContent, IonChip, IonLabel, IonIcon, IonList, IonItem, IonBadge, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonBadge, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent],
-    declarations: [
+    imports: [
         RapportPage,
         TypesComponent,
         YearsComponent,
@@ -41,7 +40,26 @@ const routes: Routes = [
         WinesComponent,
         ElementListComponent,
         BreadcrumbComponent,
-        RapportPdfComponent
+        RapportPdfComponent,
+        CommonModule,
+        FormsModule,
+        TranslateModule,
+        RouterModule.forChild(routes),
+        IonHeader,
+        IonToolbar,
+        IonTitle,
+        IonContent,
+        IonChip,
+        IonLabel,
+        IonIcon,
+        IonList,
+        IonItem,
+        IonBadge,
+        IonButtons,
+        IonMenuButton,
+        IonCard,
+        IonCardHeader,
+        IonCardContent
     ]
 })
 export class RapportPageModule { }

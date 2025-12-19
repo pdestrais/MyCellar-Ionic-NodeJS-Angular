@@ -7,6 +7,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from "@angular/core"; // tslint:disable-line
+import { CommonModule } from "@angular/common";
+import { IonicModule } from "@ionic/angular";
 
 // RxJS
 import { Observable } from "rxjs";
@@ -85,7 +87,8 @@ class InnerMenuOptionModel {
     templateUrl: "./multi-level-side-menu.component.html",
     styleUrls: ["./multi-level-side-menu.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  standalone: true,
+  imports: [CommonModule, IonicModule]
 })
 export class MultiLevelSideMenuComponent {
   // Main inputs

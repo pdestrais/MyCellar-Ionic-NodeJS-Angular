@@ -14,8 +14,8 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    declarations: [LoginComponent],
     imports: [
+        LoginComponent,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
