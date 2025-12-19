@@ -1,6 +1,5 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { UserModel } from "../models/cellar.model";
@@ -16,30 +15,24 @@ const APIEndpoint = environment.APIEndpoint;
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService {
-  private currentUserSubject: BehaviorSubject<UserModel | null> =
-    new BehaviorSubject<UserModel | null>(null);
-  public currentUser: Observable<UserModel | null> =
-    new Observable<UserModel | null>();
+  private _currentUser = signal<UserModel | null>(null);
+  public currentUserSignal = computed(() => this._currentUser());
 
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
-      this.currentUserSubject = new BehaviorSubject<UserModel | null>(
-        JSON.parse(storedUser) as UserModel
-      );
+      this._currentUser.set(JSON.parse(storedUser) as UserModel);
     } else {
-      this.currentUserSubject = new BehaviorSubject<UserModel | null>(null);
+      this._currentUser.set(null);
     }
-
-    this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  public getCurrentUserSubject() {
-    return this.currentUserSubject;
+  public setCurrentUser(user: UserModel | null) {
+    this._currentUser.set(user);
   }
 
   public get currentUserValue(): UserModel | null {
-    return this.currentUserSubject ? this.currentUserSubject.value : null;
+    return this._currentUser();
   }
 
   login(username: string, password: string) {
@@ -56,7 +49,7 @@ export class AuthenticationService {
           // store user details and jwt token in local storage to keep user logged in between page refreshes
           //localStorage.setItem('previousUser', JSON.stringify(this.currentUserValue));
           localStorage.setItem("currentUser", JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          this._currentUser.set(response.user);
         }
         return response;
       })
@@ -67,7 +60,7 @@ export class AuthenticationService {
     // remove user from local storage to log user out
     localStorage.setItem("previousUser", JSON.stringify(this.currentUserValue));
     localStorage.removeItem("currentUser");
-    this.currentUserSubject.next(null);
+    this._currentUser.set(null);
   }
 
   getTokenExpirationDate(token: string): Date | null {
