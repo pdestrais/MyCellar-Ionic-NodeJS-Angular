@@ -35,9 +35,8 @@ export class YearsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe((data) => {
-      this.typeView = data["typeView"];
-    });
+    // route data is static for this activated route; read snapshot instead of subscribing
+    this.typeView = this.route.snapshot.data["typeView"];
     this.type = this.route.snapshot.paramMap.get("type")!;
     this.origine = this.route.snapshot.paramMap.get("origine")!;
 
