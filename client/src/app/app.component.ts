@@ -1,5 +1,5 @@
 import { MenuService } from "./services/menu.service";
-import { Component, effect } from "@angular/core";
+import { Component, effect, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 
@@ -28,7 +28,7 @@ const debug = Debugger("app:root");
     standalone: true,
     imports: [CommonModule, IonicModule, TranslateModule, MultiLevelSideMenuComponent]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     public appMenuItems: Array<any> = [];
 
     // Options to show in the SideMenuContentComponent
@@ -53,6 +53,21 @@ export class AppComponent {
         private swUpdate: SwUpdate
     ) {
         console.log("Detecting application updates");
+        this.initializeApp();
+        effect(() => {
+            const x = this.authenticationService.currentUserSignal();
+            this.currentUser = x;
+            if (x == null) {
+                debug("[login / logout subscriber]user just logged out");
+                this.router.navigate(["/login"]);
+            } else {
+                this.options = this.menuService.initializeOptions();
+            }
+        });
+    }
+
+    ngOnInit(): void {
+        // toSignal() must be called in an injection context (ngOnInit is valid)
         const versionReadySignal = toSignal(
             this.swUpdate.versionUpdates.pipe(
                 filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY")
@@ -68,19 +83,7 @@ export class AppComponent {
                 }
             }
         });
-        
-        this.initializeApp();
-        effect(() => {
-            const x = this.authenticationService.currentUserSignal();
-            this.currentUser = x;
-            if (x == null) {
-                debug("[login / logout subscriber]user just logged out");
-                this.router.navigate(["/login"]);
-            } else {
-                this.options = this.menuService.initializeOptions();
-            }
-        });
-        
+
         // Listen to language changes via signal
         const langChangeSignal = toSignal(this.translateService.onLangChange);
         effect(() => {
