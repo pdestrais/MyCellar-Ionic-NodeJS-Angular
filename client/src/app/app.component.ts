@@ -1,5 +1,6 @@
 import { MenuService } from "./services/menu.service";
 import { Component, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 
 import { Platform, MenuController } from "@ionic/angular/standalone";
@@ -74,9 +75,15 @@ export class AppComponent {
                 this.options = this.menuService.initializeOptions();
             }
         });
-        this.translateService.onLangChange.subscribe((event) => {
-            debug("[preference changes]regenerating menu");
-            this.options = this.menuService.initializeOptions();
+        
+        // Listen to language changes via signal
+        const langChangeSignal = toSignal(this.translateService.onLangChange);
+        effect(() => {
+            const event = langChangeSignal();
+            if (event) {
+                debug("[preference changes]regenerating menu");
+                this.options = this.menuService.initializeOptions();
+            }
         });
     }
 
