@@ -5,6 +5,7 @@ import { AlertController, NavController, MenuController } from "@ionic/angular";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { VinModel } from "../models/cellar.model";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import * as Debugger from "debug";
 import Debug from "debug";
@@ -117,17 +118,20 @@ export class HomePage implements OnInit {
     this.store.dispatch(TypeActions.loadTypes());
     this.store.dispatch(OrigineActions.loadOrigines());
     this.store.dispatch(AppellationActions.loadAppellations());
-    this.store.pipe(select(VinSelectors.getVinState)).subscribe((vinState) => {
-      return { ...vinState, status: "noop", source: "" };
-    });
-    this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
-      this.wines.set(Array.from(wineList.values()));
-      this.nbrARTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("ARTD"))().length);
-      this.nbrRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("RTD"))().length);
-      this.nbrNRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NRTD"))().length);
-      this.nbrNotRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NotRTD"))().length);
-      this.loading.set(false);
-      debug("[HomePage]Loading " + this.wines.length + " wines to home page");
+    
+    // migrate to signals: load wines when store state changes
+    const allWinesSignal = toSignal(this.store.pipe(select(VinSelectors.getAllVins)));
+    effect(() => {
+      const wineList = allWinesSignal();
+      if (wineList) {
+        this.wines.set(Array.from(wineList.values()));
+        this.nbrARTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("ARTD"))().length);
+        this.nbrRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("RTD"))().length);
+        this.nbrNRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NRTD"))().length);
+        this.nbrNotRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NotRTD"))().length);
+        this.loading.set(false);
+        debug("[HomePage]Loading " + this.wines.length + " wines to home page");
+      }
     });
 
     // and sometime, there is no synchronization defined

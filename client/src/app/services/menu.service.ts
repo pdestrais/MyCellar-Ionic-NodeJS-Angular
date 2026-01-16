@@ -103,8 +103,8 @@ export class MenuService {
       {
         displayText:
           /* 					this.translate.instant('page.logout') + ' (' + this.currentUser
-						? this.currentUser.username
-						: 'undefined' + ')',
+            ? this.currentUser.username
+            : 'undefined' + ')',
  */
           this.translate.instant("page.logout") + " (" + username + ")",
         custom: "logout",

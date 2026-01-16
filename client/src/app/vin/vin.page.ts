@@ -16,8 +16,9 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  signal, computed, inject
+  signal, computed, inject, effect
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -327,10 +328,13 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       });
 
     // Load a map containing all wine with the key being nom+year. This map is used to check for wine duplicates
-    this.vinMapState$ = this.store
+    const vinMapStateSignal = toSignal(this.store
       .select<Map<string, VinModel>>(VinSelectors.vinMapForDuplicates)
-      .pipe(takeUntil(this.unsubscribe$));
-    this.vinMapState$.subscribe((map) => (this.vinsMap = map));
+      .pipe(takeUntil(this.unsubscribe$)));
+    effect(() => {
+      const map = vinMapStateSignal();
+      if (map) this.vinsMap = map;
+    });
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
     this.store

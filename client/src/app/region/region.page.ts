@@ -94,9 +94,9 @@ export class RegionPage implements OnInit {
     // We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
     this.origines$ = this.store.select(OrigineSelectors.getAllOriginesArraySorted);
     // loading origines map from state (used for double check) via signal
-      const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
-      effect(() => {
-        this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
+    const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
+    effect(() => {
+      this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
     });
     // Now loading selected wine from the state
     // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized

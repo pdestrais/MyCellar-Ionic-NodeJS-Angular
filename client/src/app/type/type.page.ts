@@ -148,21 +148,21 @@ export class TypePage implements OnInit {
         case "saved":
           debug(
             "[ngOnInit] handling change to 'saved' status - ts " +
-              window.performance.now() +
-              "\ntypeState : " +
-              JSON.stringify(typeState, replacer)
+            window.performance.now() +
+            "\ntypeState : " +
+            JSON.stringify(typeState, replacer)
           );
 
-            // if we get an event that a wine is saved. We need to check it's id and
-            // if the event source is internal (saved within this instance of the application) or external.
-            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-            // - (II) external ?
-            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+          // if we get an event that a wine is saved. We need to check it's id and
+          // if the event source is internal (saved within this instance of the application) or external.
+          // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+          // - (II) external ?
+          //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+          //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+          //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
           if (typeState.source == "internal") {
             debug("[ngInit](I) Standard wine saved");
-              // Internal event
+            // Internal event
             this.presentToast(
               this.translate.instant("general.dataSaved"),
               "success",
@@ -171,7 +171,7 @@ export class TypePage implements OnInit {
             );
             this.store.dispatch(TypeActions.setStatusToLoaded());
           } else {
-              // let's try to find a duplicate event in the eventLog
+            // let's try to find a duplicate event in the eventLog
             let filteredEventLog = typeState.eventLog.filter(
               (value) =>
                 value.id == typeState.currentType.id &&
@@ -191,7 +191,7 @@ export class TypePage implements OnInit {
               "create" &&
               this.typeForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
             ) {
-                // Event showing concurrent editing on the same wine that was saved somewhere else
+              // Event showing concurrent editing on the same wine that was saved somewhere else
               debug("[ngInit](II.C) Concurrent editing on the same wine");
               this.presentToast(
                 this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
@@ -214,17 +214,17 @@ export class TypePage implements OnInit {
           );
           break;
         case "deleted":
-            // if we get an event that an type is saved. We need to check it's id and
-            // if the event source is internal (saved within this instance of the application) or external.
-            // - (I) internal ? => (type is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-            // - (II) external ?
-            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-            // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
+          // if we get an event that an type is saved. We need to check it's id and
+          // if the event source is internal (saved within this instance of the application) or external.
+          // - (I) internal ? => (type is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+          // - (II) external ?
+          //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+          //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+          //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+          // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
           if (typeState.source == "internal") {
             debug("[ngInit](I) Standard type deleted");
-              // Internal event
+            // Internal event
             this.presentToast(
               this.translate.instant("type.typeDeleted"),
               "success",
@@ -233,8 +233,8 @@ export class TypePage implements OnInit {
             );
             this.store.dispatch(TypeActions.setStatusToLoaded());
           } else {
-              // let's try to find a duplicate event in the eventLog
-              // this should never happen for a delete
+            // let's try to find a duplicate event in the eventLog
+            // this should never happen for a delete
             if (
               typeState.eventLog.filter(
                 (value) =>
@@ -251,7 +251,7 @@ export class TypePage implements OnInit {
               typeState.eventLog[typeState.eventLog.length - 1].action ==
               "delete"
             ) {
-                // Event showing concurrent editing on the same wine that was saved somewhere else
+              // Event showing concurrent editing on the same wine that was saved somewhere else
               debug("[ngInit](II.C) Concurrent editing on the same wine");
               this.presentToast(
                 this.translate.instant("type.deletedConcurrentlyOnAnotherInstance"),
@@ -267,7 +267,7 @@ export class TypePage implements OnInit {
           break;
       }
     });
-    }
+  }
   public ngOnDestroy() {
     debug("[Type.ngOnDestroy]called");
     // Unscubribe all observers
@@ -318,12 +318,9 @@ export class TypePage implements OnInit {
     // Before deleting an type, we need to check if this type is not used for any of the wines.
     // If it is used, it can't be deleted.
     let used = false;
-    this.store
-      .select(VinSelectors.getWinesByType(this.type._id))
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((wineListForType) =>
-        wineListForType.length > 0 ? (used = true) : (used = false)
-      );
+    // read once from the wines observable without subscribing permanently
+    const wineListForType = toSignal(this.store.select(VinSelectors.getWinesByType(this.type._id)))();
+    if (wineListForType) used = wineListForType.length > 0;
     if (!used) {
       this.alertController
         .create({

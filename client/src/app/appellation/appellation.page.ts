@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AppellationModel, VinModel } from "../models/cellar.model";
@@ -87,66 +88,56 @@ export class AppellationPage implements OnInit {
         this.appellations$ = this.store
             .select(AppellationSelectors.getAllAppellationsArraySorted)
             .pipe(takeUntil(this.unsubscribe$));
-        // loading appellations map from state (used for double check)
-        this.store
-            .select(AppellationSelectors.appellationMapForDuplicates)
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((appellationsMap) => (this.appellationsMap = appellationsMap));
-        // Now loading selected wine from the state
+        // loading appellations map from state (used for double check) via signal
+        const appellationsMapSignal = toSignal(this.store.select(AppellationSelectors.appellationMapForDuplicates));
+        effect(() => {
+            this.appellationsMap = appellationsMapSignal() ?? new Map<any, any>();
+        });
+        // Now loading selected appellation from the state
         // if id param is there, the appellation will be loaded, if not, we want to create a new appellation and the form values will remain as initialized
-        this.store
-            .select(
+        const selectedAppellationSignal = toSignal(
+            this.store.select(
                 AppellationSelectors.getAppellation(
                     this.route.snapshot.paramMap.get("id")!
                 )
             )
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((appellation) => {
-                if (appellation) {
-                    this.list = false;
-                    this.appellation = appellation;
-                    // We have selected an appellation
-                    // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
-                    this.store.dispatch(
-                        AppellationActions.editAppellation({
-                            id: appellation._id,
-                            rev: appellation._rev,
-                        })
-                    );
-                    this.appellationForm.get("courte")!.setValue(appellation.courte);
-                    this.appellationForm.get("longue")!.setValue(appellation.longue);
-                    debug(
-                        "[Vin.ngOnInit]Appellation loaded : " + JSON.stringify(appellation)
-                    );
-                } else {
-                    // No wine was selected, when will register a new appellation
-                    this.store.dispatch(
-                        AppellationActions.editAppellation({ id: "", rev: "" })
-                    );
-                }
-            });
+        );
+        effect(() => {
+            const appellation = selectedAppellationSignal();
+            if (appellation) {
+                this.list = false;
+                this.appellation = appellation;
+                // We have selected an appellation
+                // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+                this.store.dispatch(
+                    AppellationActions.editAppellation({
+                        id: appellation._id,
+                        rev: appellation._rev,
+                    })
+                );
+                this.appellationForm.get("courte")!.setValue(appellation.courte);
+                this.appellationForm.get("longue")!.setValue(appellation.longue);
+                debug(
+                    "[Vin.ngOnInit]Appellation loaded : " + JSON.stringify(appellation)
+                );
+            } else {
+                // No appellation was selected, we will register a new appellation
+                this.store.dispatch(
+                    AppellationActions.editAppellation({ id: "", rev: "" })
+                );
+            }
+        });
 
         this.winesForAppellation$ = this.store
             .select(VinSelectors.getWinesByAppellation(this.appellation._id))
             .pipe(takeUntil(this.unsubscribe$));
 
         // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-        this.store
-            .select((state: AppState) => state.appellations)
-            .pipe(
-                takeUntil(this.unsubscribe$)
-                /*         tap((appellationState) =>
-                  debug(
-                    "[ngOnInit]handle appellationState Changes - ts " +
-                      window.performance.now() +
-                      "\nappellationState : " +
-                      JSON.stringify(appellationState, replacer)
-                  )
-                )
-         */
-            )
-            .subscribe((appellationState) => {
-                switch (appellationState.status) {
+        const appellationStateSignal = toSignal(this.store.select((state: AppState) => state.appellations));
+        effect(() => {
+            const appellationState = appellationStateSignal();
+            if (!appellationState) return; // guard against undefined
+            switch (appellationState.status) {
                     case "saved":
                         debug(
                             "[ngOnInit] handling change to 'saved' status - ts " +
@@ -280,8 +271,8 @@ export class AppellationPage implements OnInit {
                             }
                         }
                         break;
-                }
-            });
+            }
+        });
     }
 
     public ngOnDestroy() {
@@ -349,9 +340,9 @@ export class AppellationPage implements OnInit {
         // Before deleting an appellation, we need to check if this appellation is not used for any of the wines.
         // If it is used, it can't be deleted.
         let used = false;
-        this.winesForAppellation$.subscribe((wineListForAppellation) =>
-            wineListForAppellation.length > 0 ? (used = true) : (used = false)
-        );
+        // read once from the wines observable without subscribing permanently
+        const wineListForAppellation = toSignal(this.winesForAppellation$)();
+        if (wineListForAppellation) used = wineListForAppellation.length > 0;
         if (!used) {
             this.alertController
                 .create({

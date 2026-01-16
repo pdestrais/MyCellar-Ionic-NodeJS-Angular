@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { FormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
@@ -45,10 +46,9 @@ export class PreferencesPage implements OnInit {
     languageChange(val: any) {
         this.language = val.detail.value;
         debug("Language Change:", val);
-        this.zone.run(() => {
-            this.translate.use(this.language).subscribe((changed) => {
-                window.localStorage.setItem("myCellar.language", this.language);
-            });
+        this.zone.run(async () => {
+            await firstValueFrom(this.translate.use(this.language));
+            window.localStorage.setItem("myCellar.language", this.language);
         });
     }
 }

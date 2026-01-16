@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, NgZone, ViewEncapsulation, effect } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -7,6 +7,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Router } from "@angular/router";
 import { VinModel } from "../models/cellar.model";
 import { PouchdbService } from "../services/pouchdb.service";
+import { toSignal } from "@angular/core/rxjs-interop";
 import * as d3 from "d3";
 import * as d3scale from "d3-scale";
 import * as d3shape from "d3-shape";
@@ -59,9 +60,15 @@ export class StatsPage implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(VinActions.loadVins());
-    this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
-      this.vins = Array.from(wineList.values());
-      console.log("[Stats]" + this.vins.length + " wines loaded");
+    
+    // migrate to signals: load wines when store state changes
+    const allWinesSignal = toSignal(this.store.pipe(select(VinSelectors.getAllVins)));
+    effect(() => {
+      const wineList = allWinesSignal();
+      if (wineList) {
+        this.vins = Array.from(wineList.values());
+        console.log("[Stats]" + this.vins.length + " wines loaded");
+      }
     });
   }
 
