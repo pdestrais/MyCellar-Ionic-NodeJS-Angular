@@ -6,6 +6,7 @@ import {
   take,
   takeUntil,
   tap,
+  debounceTime,
 } from "rxjs/operators";
 import { TranslateService } from "@ngx-translate/core";
 import {
@@ -498,12 +499,15 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     );
 
     // For each change of value in nom or annee fields, check if no wine with the same name/year combination exist
-    merge(
-      this.vinForm.get("annee")?.valueChanges as Observable<string>,
-      this.vinForm.get("nom")?.valueChanges as Observable<string>
-    )
-      .pipe(debounceTime(1000))
-      .subscribe((value) => {
+    const nameYearChangesSignal = toSignal(
+      merge(
+        this.vinForm.get("annee")?.valueChanges as Observable<string>,
+        this.vinForm.get("nom")?.valueChanges as Observable<string>
+      ).pipe(debounceTime(1000), takeUntil(this.unsubscribe$))
+    );
+    effect(() => {
+      const value = nameYearChangesSignal();
+      if (value) {
         debug("[ngInit]on name or year value change", +JSON.stringify(value));
         if (
           this.vinForm &&
@@ -515,7 +519,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             this.vinForm.setErrors({ double: true });
           }
         }
-      });
+      }
+    });
   }
 
   // Used to comare Objects in html selects
