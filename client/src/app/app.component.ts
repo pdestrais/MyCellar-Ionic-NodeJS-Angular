@@ -53,17 +53,22 @@ export class AppComponent {
         private swUpdate: SwUpdate
     ) {
         console.log("Detecting application updates");
-        swUpdate.versionUpdates
-            .pipe(
+        const versionReadySignal = toSignal(
+            this.swUpdate.versionUpdates.pipe(
                 filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY")
             )
-            .subscribe((evt) => {
+        );
+        effect(() => {
+            const evt = versionReadySignal();
+            if (evt) {
                 if (confirm("A new version is available. Would you like to update?")) {
                     // Reload the page to update to the latest version.
                     console.log("reloading application");
                     document.location.reload();
                 }
-            });
+            }
+        });
+        
         this.initializeApp();
         effect(() => {
             const x = this.authenticationService.currentUserSignal();
