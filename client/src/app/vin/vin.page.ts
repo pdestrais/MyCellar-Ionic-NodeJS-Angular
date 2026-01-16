@@ -250,24 +250,27 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     //   .select(AppellationSelectors.getAllAppellationsArraySorted)
     //   .pipe(takeUntil(this.unsubscribe$));
     // Now loading selected wine from the state
-    this.store
-      .select<VinModel | undefined>(VinSelectors.getWine(paramId))
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((vin: VinModel | undefined) => {
-        if (vin) {
-          // We have selected a wine
-          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
-          this.store.dispatch(
-            VinActions.editVin({ id: vin._id, rev: vin._rev })
-          );
-          this.vin = { ...vin };
-          this.originalName = vin.nom;
-          this.originalYear = vin.annee;
-          this.vin.rating = !this.vin.rating ? 0 : this.vin.rating;
-          this.vin.apogee = !this.vin.apogee ? "" : this.vin.apogee;
-          this.vin.cepage = !this.vin.cepage ? "" : this.vin.cepage;
-          this.vin.GWSScore = !this.vin.GWSScore ? 0 : this.vin.GWSScore;
-          this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
+    const selectedVinSignal = toSignal(
+      this.store
+        .select<VinModel | undefined>(VinSelectors.getWine(paramId))
+        .pipe(takeUntil(this.unsubscribe$))
+    );
+    effect(() => {
+      const vin = selectedVinSignal();
+      if (vin) {
+        // We have selected a wine
+        // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+        this.store.dispatch(
+          VinActions.editVin({ id: vin._id, rev: vin._rev })
+        );
+        this.vin = { ...vin };
+        this.originalName = vin.nom;
+        this.originalYear = vin.annee;
+        this.vin.rating = !this.vin.rating ? 0 : this.vin.rating;
+        this.vin.apogee = !this.vin.apogee ? "" : this.vin.apogee;
+        this.vin.cepage = !this.vin.cepage ? "" : this.vin.cepage;
+        this.vin.GWSScore = !this.vin.GWSScore ? 0 : this.vin.GWSScore;
+        this.nbreAvantUpdate = this.vin.nbreBouteillesReste;
           this.newWine = false;
           debug("[Vin.ngOnInit]Vin loaded : " + JSON.stringify(this.vin));
           // If the wine has a photo, asynchronously eagerly load the photo from the Cloud Object Storage
@@ -325,7 +328,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             "photo",
           ])
         );
-      });
+      }
+    });
 
     // Load a map containing all wine with the key being nom+year. This map is used to check for wine duplicates
     const vinMapStateSignal = toSignal(this.store
@@ -337,7 +341,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     });
 
     // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-    this.store
+    const vinStateSignal = toSignal(this.store
       .select((state: AppState) => state.vins)
       .pipe(
         takeUntil(this.unsubscribe$),
@@ -351,9 +355,11 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             JSON.stringify(vinState.eventLog)
           )
         )
-      )
-      .subscribe((vinState) => {
-        switch (vinState.status) {
+      ));
+    effect(() => {
+      const vinState = vinStateSignal();
+      if (!vinState) return; // guard against undefined
+      switch (vinState.status) {
           case "saved":
             debug(
               "[ngOnInit] handling change to 'saved' status - ts " +
@@ -488,7 +494,8 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
             }
             break;
         }
-      });
+      }
+    });
 
     // For each change of value in nom or annee fields, check if no wine with the same name/year combination exist
     merge(
