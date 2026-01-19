@@ -18,12 +18,12 @@ import * as VinSelectors from "../state/vin/vin.selectors";
 import * as VinActions from "../state/vin/vin.actions";
 
 @Component({
-    selector: "app-stats",
-    templateUrl: "./stats.page.html",
-    styleUrls: ["./stats.page.scss"],
-    encapsulation: ViewEncapsulation.None,
-    standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, FormsModule]
+  selector: "app-stats",
+  templateUrl: "./stats.page.html",
+  styleUrls: ["./stats.page.scss"],
+  encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [CommonModule, IonicModule, TranslateModule, FormsModule]
 })
 export class StatsPage implements OnInit {
   private total: number = 0;
@@ -60,7 +60,7 @@ export class StatsPage implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(VinActions.loadVins());
-    
+
     // migrate to signals: load wines when store state changes
     const allWinesSignal = toSignal(this.store.pipe(select(VinSelectors.getAllVins)));
     effect(() => {
@@ -101,9 +101,9 @@ export class StatsPage implements OnInit {
             h &&
             h.type == "update" &&
             Date.parse(h.date) <=
-              currentDate.getTime() - _self.from * 365 * 1000 * 3600 * 24 &&
+            currentDate.getTime() - _self.from * 365 * 1000 * 3600 * 24 &&
             Date.parse(h.date) >
-              currentDate.getTime() - _self.to * 365 * 1000 * 3600 * 24
+            currentDate.getTime() - _self.to * 365 * 1000 * 3600 * 24
           ) {
             // if dataset already contains the region, add the difference to dataset's count. If not, create dataset element with label and count
             var _self2 = _self1;

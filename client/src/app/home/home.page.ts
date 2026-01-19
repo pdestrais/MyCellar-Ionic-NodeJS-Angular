@@ -114,7 +114,7 @@ export class HomePage implements OnInit {
     this.store.dispatch(TypeActions.loadTypes());
     this.store.dispatch(OrigineActions.loadOrigines());
     this.store.dispatch(AppellationActions.loadAppellations());
-    
+
     // Use runInInjectionContext(injector, fn) with Injector as first argument
     runInInjectionContext(this.injector, () => {
       // migrate to signals: load wines when store state changes
