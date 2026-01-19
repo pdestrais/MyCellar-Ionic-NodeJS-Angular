@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect } from "@angular/core";
+import { Component, OnInit, effect, Injector, runInInjectionContext } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -72,7 +72,8 @@ export class RegionPage implements OnInit {
     private translate: TranslateService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private injector: Injector
   ) {
     addIcons({ caretForwardOutline });
   }
@@ -93,48 +94,51 @@ export class RegionPage implements OnInit {
       : (this.list = false);
     // We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
     this.origines$ = this.store.select(OrigineSelectors.getAllOriginesArraySorted);
-    // loading origines map from state (used for double check) via signal
-    const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
-    effect(() => {
-      this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
-    });
-    // Now loading selected wine from the state
-    // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized
-    const selectedOrigineSignal = toSignal(
-      this.store.select(OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!))
-    );
-    effect(() => {
-      const origine = selectedOrigineSignal();
-      if (origine) {
-        this.list = false;
-        this.origine = origine;
-        this.newOrigine = false;
-        // We have selected an origine
-        // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+    
+    // Use runInInjectionContext for toSignal() and effect() calls
+    runInInjectionContext(this.injector, () => {
+      // loading origines map from state (used for double check) via signal
+      const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
+      effect(() => {
+        this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
+      });
+      // Now loading selected wine from the state
+      // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized
+      const selectedOrigineSignal = toSignal(
+        this.store.select(OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!))
+      );
+      effect(() => {
+        const origine = selectedOrigineSignal();
+        if (origine) {
+          this.list = false;
+          this.origine = origine;
+          this.newOrigine = false;
+          // We have selected an origine
+          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
 
-        this.store.dispatch(
-          OrigineActions.editOrigine({
-            id: origine._id!,
-            rev: origine._rev!,
-          })
-        );
-        this.origineForm.get("pays")!.setValue(origine.pays);
-        this.origineForm.get("region")!.setValue(origine.region);
-        debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
-      } else {
-        // No wine was selected, when will register a new origine
-        this.newOrigine = true;
-        this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
-      }
-    });
+          this.store.dispatch(
+            OrigineActions.editOrigine({
+              id: origine._id!,
+              rev: origine._rev!,
+            })
+          );
+          this.origineForm.get("pays")!.setValue(origine.pays);
+          this.origineForm.get("region")!.setValue(origine.region);
+          debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
+        } else {
+          // No wine was selected, when will register a new origine
+          this.newOrigine = true;
+          this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
+        }
+      });
 
-    this.winesForOrigine$ = this.store.select(VinSelectors.getWinesByOrigine(this.origine._id));
+      this.winesForOrigine$ = this.store.select(VinSelectors.getWinesByOrigine(this.origine._id));
 
-    // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-    const origineStateSignal = toSignal(this.store.select((state: AppState) => state.origines));
-    effect(() => {
-      const origineState = origineStateSignal();
-      if (!origineState) return; // guard against undefined
+      // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+      const origineStateSignal = toSignal(this.store.select((state: AppState) => state.origines));
+      effect(() => {
+        const origineState = origineStateSignal();
+        if (!origineState) return; // guard against undefined
       switch (origineState.status) {
         case "saved":
           debug(
@@ -257,8 +261,7 @@ export class RegionPage implements OnInit {
           break;
       }
     });
-  }
-
+    });
   public ngOnDestroy() {
     debug("[Origine.ngOnDestroy]called");
     // Unscubribe all observers

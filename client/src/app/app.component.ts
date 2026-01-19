@@ -1,5 +1,5 @@
 import { MenuService } from "./services/menu.service";
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, OnInit, Injector, runInInjectionContext } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 
@@ -50,48 +50,52 @@ export class AppComponent implements OnInit {
         private authenticationService: AuthenticationService,
         private translateService: TranslateService,
         private menuService: MenuService,
-        private swUpdate: SwUpdate
+        private swUpdate: SwUpdate,
+        private injector: Injector
     ) {
         console.log("Detecting application updates");
         this.initializeApp();
-        effect(() => {
-            const x = this.authenticationService.currentUserSignal();
-            this.currentUser = x;
-            if (x == null) {
-                debug("[login / logout subscriber]user just logged out");
-                this.router.navigate(["/login"]);
-            } else {
-                this.options = this.menuService.initializeOptions();
-            }
-        });
     }
 
     ngOnInit(): void {
-        // toSignal() must be called in an injection context (ngOnInit is valid)
-        const versionReadySignal = toSignal(
-            this.swUpdate.versionUpdates.pipe(
-                filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY")
-            )
-        );
-        effect(() => {
-            const evt = versionReadySignal();
-            if (evt) {
-                if (confirm("A new version is available. Would you like to update?")) {
-                    // Reload the page to update to the latest version.
-                    console.log("reloading application");
-                    document.location.reload();
+        // Use runInInjectionContext(injector, fn) with Injector as first argument
+        runInInjectionContext(this.injector, () => {
+            effect(() => {
+                const x = this.authenticationService.currentUserSignal();
+                this.currentUser = x;
+                if (x == null) {
+                    debug("[login / logout subscriber]user just logged out");
+                    this.router.navigate(["/login"]);
+                } else {
+                    this.options = this.menuService.initializeOptions();
                 }
-            }
-        });
+            });
 
-        // Listen to language changes via signal
-        const langChangeSignal = toSignal(this.translateService.onLangChange);
-        effect(() => {
-            const event = langChangeSignal();
-            if (event) {
-                debug("[preference changes]regenerating menu");
-                this.options = this.menuService.initializeOptions();
-            }
+            const versionReadySignal = toSignal(
+                this.swUpdate.versionUpdates.pipe(
+                    filter((evt): evt is VersionReadyEvent => evt.type === "VERSION_READY")
+                )
+            );
+            effect(() => {
+                const evt = versionReadySignal();
+                if (evt) {
+                    if (confirm("A new version is available. Would you like to update?")) {
+                        // Reload the page to update to the latest version.
+                        console.log("reloading application");
+                        document.location.reload();
+                    }
+                }
+            });
+
+            // Listen to language changes via signal
+            const langChangeSignal = toSignal(this.translateService.onLangChange);
+            effect(() => {
+                const event = langChangeSignal();
+                if (event) {
+                    debug("[preference changes]regenerating menu");
+                    this.options = this.menuService.initializeOptions();
+                }
+            });
         });
     }
 

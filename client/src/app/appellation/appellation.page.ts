@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect } from "@angular/core";
+import { Component, OnInit, effect, Injector, runInInjectionContext } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -65,7 +65,8 @@ export class AppellationPage implements OnInit {
         private translate: TranslateService,
         private alertController: AlertController,
         private toastCtrl: ToastController,
-        private store: Store<AppState>
+        private store: Store<AppState>,
+        private injector: Injector
     ) {
         addIcons({ caretForwardOutline });
     }
@@ -88,75 +89,78 @@ export class AppellationPage implements OnInit {
         this.appellations$ = this.store
             .select(AppellationSelectors.getAllAppellationsArraySorted)
             .pipe(takeUntil(this.unsubscribe$));
-        // loading appellations map from state (used for double check) via signal
-        const appellationsMapSignal = toSignal(this.store.select(AppellationSelectors.appellationMapForDuplicates));
-        effect(() => {
-            this.appellationsMap = appellationsMapSignal() ?? new Map<any, any>();
-        });
-        // Now loading selected appellation from the state
-        // if id param is there, the appellation will be loaded, if not, we want to create a new appellation and the form values will remain as initialized
-        const selectedAppellationSignal = toSignal(
-            this.store.select(
-                AppellationSelectors.getAppellation(
-                    this.route.snapshot.paramMap.get("id")!
+        
+        // Use runInInjectionContext for toSignal() and effect() calls
+        runInInjectionContext(this.injector, () => {
+            // loading appellations map from state (used for double check) via signal
+            const appellationsMapSignal = toSignal(this.store.select(AppellationSelectors.appellationMapForDuplicates));
+            effect(() => {
+                this.appellationsMap = appellationsMapSignal() ?? new Map<any, any>();
+            });
+            // Now loading selected appellation from the state
+            // if id param is there, the appellation will be loaded, if not, we want to create a new appellation and the form values will remain as initialized
+            const selectedAppellationSignal = toSignal(
+                this.store.select(
+                    AppellationSelectors.getAppellation(
+                        this.route.snapshot.paramMap.get("id")!
+                    )
                 )
-            )
-        );
-        effect(() => {
-            const appellation = selectedAppellationSignal();
-            if (appellation) {
-                this.list = false;
-                this.appellation = appellation;
-                // We have selected an appellation
-                // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
-                this.store.dispatch(
-                    AppellationActions.editAppellation({
-                        id: appellation._id,
-                        rev: appellation._rev,
-                    })
-                );
-                this.appellationForm.get("courte")!.setValue(appellation.courte);
-                this.appellationForm.get("longue")!.setValue(appellation.longue);
-                debug(
-                    "[Vin.ngOnInit]Appellation loaded : " + JSON.stringify(appellation)
-                );
-            } else {
-                // No appellation was selected, we will register a new appellation
-                this.store.dispatch(
-                    AppellationActions.editAppellation({ id: "", rev: "" })
-                );
-            }
-        });
+            );
+            effect(() => {
+                const appellation = selectedAppellationSignal();
+                if (appellation) {
+                    this.list = false;
+                    this.appellation = appellation;
+                    // We have selected an appellation
+                    // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+                    this.store.dispatch(
+                        AppellationActions.editAppellation({
+                            id: appellation._id,
+                            rev: appellation._rev,
+                        })
+                    );
+                    this.appellationForm.get("courte")!.setValue(appellation.courte);
+                    this.appellationForm.get("longue")!.setValue(appellation.longue);
+                    debug(
+                        "[Vin.ngOnInit]Appellation loaded : " + JSON.stringify(appellation)
+                    );
+                } else {
+                    // No appellation was selected, we will register a new appellation
+                    this.store.dispatch(
+                        AppellationActions.editAppellation({ id: "", rev: "" })
+                    );
+                }
+            });
 
-        this.winesForAppellation$ = this.store
-            .select(VinSelectors.getWinesByAppellation(this.appellation._id))
-            .pipe(takeUntil(this.unsubscribe$));
+            this.winesForAppellation$ = this.store
+                .select(VinSelectors.getWinesByAppellation(this.appellation._id))
+                .pipe(takeUntil(this.unsubscribe$));
 
-        // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-        const appellationStateSignal = toSignal(this.store.select((state: AppState) => state.appellations));
-        effect(() => {
-            const appellationState = appellationStateSignal();
-            if (!appellationState) return; // guard against undefined
-            switch (appellationState.status) {
-                    case "saved":
-                        debug(
-                            "[ngOnInit] handling change to 'saved' status - ts " +
-                            window.performance.now() +
-                            "\nappellationState : " +
-                            JSON.stringify(appellationState, replacer)
-                        );
+            // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+            const appellationStateSignal = toSignal(this.store.select((state: AppState) => state.appellations));
+            effect(() => {
+                const appellationState = appellationStateSignal();
+                if (!appellationState) return; // guard against undefined
+                switch (appellationState.status) {
+                        case "saved":
+                            debug(
+                                "[ngOnInit] handling change to 'saved' status - ts " +
+                                window.performance.now() +
+                                "\nappellationState : " +
+                                JSON.stringify(appellationState, replacer)
+                            );
 
-                        // if we get an event that a wine is saved. We need to check it's id and
-                        // if the event source is internal (saved within this instance of the application) or external.
-                        // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-                        // - (II) external ?
-                        //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-                        //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-                        //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-                        if (appellationState.source == "internal") {
-                            debug("[ngInit](I) Standard wine saved");
-                            // Internal event
-                            this.presentToast(
+                            // if we get an event that a wine is saved. We need to check it's id and
+                            // if the event source is internal (saved within this instance of the application) or external.
+                            // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
+                            // - (II) external ?
+                            //       - (A) event comes from the local DB resulting from the update of the wine we just saved
+                            //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
+                            //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
+                            if (appellationState.source == "internal") {
+                                debug("[ngInit](I) Standard wine saved");
+                                // Internal event
+                                this.presentToast(
                                 this.translate.instant("general.dataSaved"),
                                 "success",
                                 "home",
@@ -271,7 +275,8 @@ export class AppellationPage implements OnInit {
                             }
                         }
                         break;
-            }
+                }
+            });
         });
     }
 

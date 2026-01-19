@@ -16,7 +16,7 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  signal, computed, inject, effect
+  signal, computed, inject, effect, Injector, runInInjectionContext
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
@@ -147,6 +147,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private platform: Platform,
+    private injector: Injector
     //    private store: Store<AppState>
   ) {
     // Initializing vin object & form
@@ -238,30 +239,33 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
   public ngOnInit() {
     debug("[Vin.ngOnInit]called");
-    let paramId = this.route.snapshot.params["id"];
-    // loading from the state the types, origines and appellations
-    // this.types$ = this.store
-    //   .select(TypeSelectors.getAllTypesArraySorted)
-    //   .pipe(takeUntil(this.unsubscribe$));
-    // this.origines$ = this.store
-    //   .select(OrigineSelectors.getAllOriginesArraySorted)
-    //   .pipe(takeUntil(this.unsubscribe$));
-    // this.appellations$ = this.store
-    //   .select(AppellationSelectors.getAllAppellationsArraySorted)
-    //   .pipe(takeUntil(this.unsubscribe$));
-    // Now loading selected wine from the state
-    const selectedVinSignal = toSignal(
-      this.store
-        .select<VinModel | undefined>(VinSelectors.getWine(paramId))
-        .pipe(takeUntil(this.unsubscribe$))
-    );
-    effect(() => {
-      const vin = selectedVinSignal();
-      if (vin) {
-        // We have selected a wine
-        // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
-        this.store.dispatch(
-          VinActions.editVin({ id: vin._id, rev: vin._rev })
+    
+    // Use runInInjectionContext for toSignal() and effect() calls
+    runInInjectionContext(this.injector, () => {
+      let paramId = this.route.snapshot.params["id"];
+      // loading from the state the types, origines and appellations
+      // this.types$ = this.store
+      //   .select(TypeSelectors.getAllTypesArraySorted)
+      //   .pipe(takeUntil(this.unsubscribe$));
+      // this.origines$ = this.store
+      //   .select(OrigineSelectors.getAllOriginesArraySorted)
+      //   .pipe(takeUntil(this.unsubscribe$));
+      // this.appellations$ = this.store
+      //   .select(AppellationSelectors.getAllAppellationsArraySorted)
+      //   .pipe(takeUntil(this.unsubscribe$));
+      // Now loading selected wine from the state
+      const selectedVinSignal = toSignal(
+        this.store
+          .select<VinModel | undefined>(VinSelectors.getWine(paramId))
+          .pipe(takeUntil(this.unsubscribe$))
+      );
+      effect(() => {
+        const vin = selectedVinSignal();
+        if (vin) {
+          // We have selected a wine
+          // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
+          this.store.dispatch(
+            VinActions.editVin({ id: vin._id, rev: vin._rev })
         );
         this.vin = { ...vin };
         this.originalName = vin.nom;
@@ -1020,6 +1024,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
         8) /
       12
     );
+    });
   }
 
   private reject(obj, keys) {

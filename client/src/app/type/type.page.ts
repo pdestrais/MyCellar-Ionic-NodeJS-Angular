@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect } from "@angular/core";
+import { Component, OnInit, effect, Injector, runInInjectionContext } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -69,7 +69,8 @@ export class TypePage implements OnInit {
     private translate: TranslateService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private injector: Injector
   ) {
     addIcons({ caretForwardOutline });
   }
@@ -104,54 +105,56 @@ export class TypePage implements OnInit {
         )
       );
 
-    // loading types map from state (used for double check)
-    const typesMapSignal = toSignal(
-      this.store.select(TypeSelectors.typeMapForDuplicates)
-    );
-    effect(() => {
-      this.typesMap = typesMapSignal() ?? new Map<any, any>();
-    });
-    // Now loading selected type from the state
-    // if id param is there, the type will be loaded, if not, we want to create a new type and the form values will remain as initialized
-    const selectedTypeSignal = toSignal(
-      this.store.select(TypeSelectors.getType(this.route.snapshot.paramMap.get("id")!))
-    );
-    effect(() => {
-      const type = selectedTypeSignal();
-      if (type) {
-        this.list = false;
-        this.type = type;
-        this.newType = false;
-        // We have selected an type
-        // reset VinState status to avoid shadow UI messages coming from previous updates in other app instances
-        this.store.dispatch(
-          TypeActions.editType({
-            id: type._id,
-            rev: type._rev,
-          })
-        );
-        this.typeForm.get("nom")!.setValue(type.nom);
-        debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
-      } else {
-        // No wine was selected, when will register a new type
-        this.newType = true;
-        this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
-      }
-    });
-
-    // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
-    const typeStateSignal = toSignal(this.store.select((state: AppState) => state.types));
-    effect(() => {
-      const typeState = typeStateSignal();
-      if (!typeState) return; // guard against undefined
-      switch (typeState.status) {
-        case "saved":
-          debug(
-            "[ngOnInit] handling change to 'saved' status - ts " +
-            window.performance.now() +
-            "\ntypeState : " +
-            JSON.stringify(typeState, replacer)
+    // Use runInInjectionContext for toSignal() and effect() calls
+    runInInjectionContext(this.injector, () => {
+      // loading types map from state (used for double check)
+      const typesMapSignal = toSignal(
+        this.store.select(TypeSelectors.typeMapForDuplicates)
+      );
+      effect(() => {
+        this.typesMap = typesMapSignal() ?? new Map<any, any>();
+      });
+      // Now loading selected type from the state
+      // if id param is there, the type will be loaded, if not, we want to create a new type and the form values will remain as initialized
+      const selectedTypeSignal = toSignal(
+        this.store.select(TypeSelectors.getType(this.route.snapshot.paramMap.get("id")!))
+      );
+      effect(() => {
+        const type = selectedTypeSignal();
+        if (type) {
+          this.list = false;
+          this.type = type;
+          this.newType = false;
+          // We have selected an type
+          // reset VinState status to avoid shadow UI messages coming from previous updates in other app instances
+          this.store.dispatch(
+            TypeActions.editType({
+              id: type._id,
+              rev: type._rev,
+            })
           );
+          this.typeForm.get("nom")!.setValue(type.nom);
+          debug("[Vin.ngOnInit]Type loaded : " + JSON.stringify(type));
+        } else {
+          // No wine was selected, when will register a new type
+          this.newType = true;
+          this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
+        }
+      });
+
+      // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+      const typeStateSignal = toSignal(this.store.select((state: AppState) => state.types));
+      effect(() => {
+        const typeState = typeStateSignal();
+        if (!typeState) return; // guard against undefined
+        switch (typeState.status) {
+          case "saved":
+            debug(
+              "[ngOnInit] handling change to 'saved' status - ts " +
+              window.performance.now() +
+              "\ntypeState : " +
+              JSON.stringify(typeState, replacer)
+            );
 
           // if we get an event that a wine is saved. We need to check it's id and
           // if the event source is internal (saved within this instance of the application) or external.
@@ -265,7 +268,8 @@ export class TypePage implements OnInit {
             }
           }
           break;
-      }
+        }
+      });
     });
   }
   public ngOnDestroy() {

@@ -1,4 +1,4 @@
-import { Component, computed, effect, OnInit, signal } from "@angular/core";
+import { Component, computed, effect, OnInit, signal, Injector, runInInjectionContext } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { AlertController, NavController, MenuController } from "@ionic/angular";
@@ -73,14 +73,10 @@ export class HomePage implements OnInit {
   constructor(
     private alertCtrl: AlertController,
     private navCtrl: NavController,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private injector: Injector
   ) {
     addIcons({ arrowBackOutline, searchOutline });
-    // effect(() => {
-    //   console.log(`fileteredWines length is : ${this.filteredWines().length}`);
-    //   console.log(`maturityWinesList length is : ${this.maturityWinesList().length}`);
-    //   console.log(`dashboardSelectedMaturity is : ${this.dashboardSelectedMaturity()}`);
-    // });
   }
 
   async alertNoRemoteDB() {
@@ -119,19 +115,22 @@ export class HomePage implements OnInit {
     this.store.dispatch(OrigineActions.loadOrigines());
     this.store.dispatch(AppellationActions.loadAppellations());
     
-    // migrate to signals: load wines when store state changes
-    const allWinesSignal = toSignal(this.store.pipe(select(VinSelectors.getAllVins)));
-    effect(() => {
-      const wineList = allWinesSignal();
-      if (wineList) {
-        this.wines.set(Array.from(wineList.values()));
-        this.nbrARTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("ARTD"))().length);
-        this.nbrRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("RTD"))().length);
-        this.nbrNRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NRTD"))().length);
-        this.nbrNotRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NotRTD"))().length);
-        this.loading.set(false);
-        debug("[HomePage]Loading " + this.wines.length + " wines to home page");
-      }
+    // Use runInInjectionContext(injector, fn) with Injector as first argument
+    runInInjectionContext(this.injector, () => {
+      // migrate to signals: load wines when store state changes
+      const allWinesSignal = toSignal(this.store.pipe(select(VinSelectors.getAllVins)));
+      effect(() => {
+        const wineList = allWinesSignal();
+        if (wineList) {
+          this.wines.set(Array.from(wineList.values()));
+          this.nbrARTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("ARTD"))().length);
+          this.nbrRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("RTD"))().length);
+          this.nbrNRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NRTD"))().length);
+          this.nbrNotRTD.set(this.store.selectSignal(VinSelectors.getWinesMaturity("NotRTD"))().length);
+          this.loading.set(false);
+          debug("[HomePage]Loading " + this.wines.length + " wines to home page");
+        }
+      });
     });
 
     // and sometime, there is no synchronization defined
