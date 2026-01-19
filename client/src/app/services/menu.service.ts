@@ -13,15 +13,14 @@ export class MenuService {
     private authenticationService: AuthenticationService,
     private translate: TranslateService
   ) {
-    this.authenticationService.currentUser.subscribe((x) => {
-      this.currentUser = x;
-    });
+    // read current user via signal when needed; avoid manual subscription here
   }
   public initializeOptions(): Array<SideMenuOption> {
     this.options = new Array<SideMenuOption>();
+    const user = this.authenticationService.currentUserSignal();
     let username = "";
-    if (this.currentUser) {
-      username = this.currentUser.username;
+    if (user) {
+      username = user.username;
     }
     this.options = [
       {
@@ -112,7 +111,7 @@ export class MenuService {
         iconSrc: "./assets/icons/logout.svg",
       },
     ];
-    if (this.currentUser && this.currentUser != null && this.currentUser.admin)
+    if (user && user.admin)
       this.options.splice(this.options.length - 2, 0, {
         displayText: this.translate.instant("page.register"),
         route: ["/register"],

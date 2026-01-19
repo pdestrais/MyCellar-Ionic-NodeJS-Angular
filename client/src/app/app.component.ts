@@ -1,5 +1,5 @@
 import { MenuService } from "./services/menu.service";
-import { Component } from "@angular/core";
+import { Component, effect } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
 import { Platform, MenuController } from "@ionic/angular/standalone";
@@ -64,7 +64,8 @@ export class AppComponent {
                 }
             });
         this.initializeApp();
-        this.authenticationService.currentUser.subscribe((x) => {
+        effect(() => {
+            const x = this.authenticationService.currentUserSignal();
             this.currentUser = x;
             if (x == null) {
                 debug("[login / logout subscriber]user just logged out");
