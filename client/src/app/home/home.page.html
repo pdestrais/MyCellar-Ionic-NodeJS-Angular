@@ -11,146 +11,89 @@
   <div class="container">
     <h3>{{'search.winesReadyness' | translate }}</h3>
     @if(dashboardSelectedMaturity()!='') {
-      <ion-button fill="outline" size="small" (click)="this.dashboardSelectedMaturity.set('')">
-        {{'general.back' | translate }}
-        <ion-icon slot="end" name="arrow-back-outline"></ion-icon>
-      </ion-button>
+    <ion-button fill="outline" size="small" (click)="this.dashboardSelectedMaturity.set('')">
+      {{'general.back' | translate }}
+      <ion-icon slot="end" name="arrow-back-outline"></ion-icon>
+    </ion-button>
     }
   </div>
 
   @if(dashboardSelectedMaturity()!='') {
-    <ion-list>
-      @for(wineToDrink of maturityWinesList(); track wineToDrink){
-        <ion-item
-          [routerLink]="['/vin', wineToDrink._id]"
-          routerDirection="root"
-          class="condensed"
-          >
-          {{wineToDrink.nom}} [{{wineToDrink.annee}}]
-          @if (wineToDrink.type && wineToDrink.type.nom=='Rouge') {
-            <ion-icon
-              class="limitMargin"
-              slot="end"
-              size="small"
-              src="assets/icons/Rouge.svg"
-            ></ion-icon>
-          }
-          @if (wineToDrink.type && wineToDrink.type.nom=='Blanc') {
-            <ion-icon
-              class="limitMargin"
-              slot="end"
-              size="small"
-              src="assets/icons/Blanc.svg"
-            ></ion-icon>
-          }
-          <ion-badge class="limitMargin" slot="end"
-            >{{ wineToDrink.nbreBouteillesReste}}</ion-badge
-            >
-          </ion-item>
-        }
-      </ion-list>
+  <ion-list>
+    @for(wineToDrink of maturityWinesList(); track wineToDrink){
+    <ion-item [routerLink]="['/vin', wineToDrink._id]" routerDirection="root" class="condensed">
+      {{wineToDrink.nom}} [{{wineToDrink.annee}}] @if (wineToDrink.type &&
+      wineToDrink.type.nom=='Rouge') {
+      <ion-icon class="limitMargin" slot="end" size="small" src="assets/icons/Rouge.svg"></ion-icon>
+      } @if (wineToDrink.type && wineToDrink.type.nom=='Blanc') {
+      <ion-icon class="limitMargin" slot="end" size="small" src="assets/icons/Blanc.svg"></ion-icon>
+      }
+      <ion-badge class="limitMargin" slot="end">{{ wineToDrink.nbreBouteillesReste}}</ion-badge>
+    </ion-item>
     }
-    @if(dashboardSelectedMaturity()=='') {
-      <div class="container1">
-        <div
-          class="container2"
-          id="ARTD"
-          (click)="dashboardSelectedMaturity.set('ARTD')"
-          >
-          <div>
-            <img
-              src="assets/icons/ARTD.png"
-              sizes="(max-width: 800px) 100px, 20px"
-              />
-          </div>
-          <div class="bigText">{{nbrARTD()}}</div>
-        </div>
-        <div
-          class="container2"
-          id="RTD"
-          (click)="dashboardSelectedMaturity.set('RTD')"
-          >
-          <div>
-            <img
-              src="assets/icons/RTD.png"
-              sizes="(max-width: 800px) 100px, 20px"
-              />
-          </div>
-          <div class="bigText">{{nbrRTD()}}</div>
-        </div>
-        <div
-          class="container2"
-          id="NRTD"
-          (click)="dashboardSelectedMaturity.set('NRTD')"
-          >
-          <div>
-            <img
-              src="assets/icons/NRTD.png"
-              sizes="(max-width: 800px) 100px, 20px"
-              />
-          </div>
-          <div class="bigText">{{nbrNRTD()}}</div>
-        </div>
-        <div
-          class="container2"
-          id="NotRTD"
-          (click)="dashboardSelectedMaturity.set('NotRTD')"
-          >
-          <div>
-            <img
-              src="assets/icons/NotRTD.png"
-              sizes="(max-width: 800px) 100px, 20px"
-              />
-          </div>
-          <div>
-            <div class="bigText">{{nbrNotRTD()}}</div>
-          </div>
-        </div>
+  </ion-list>
+  } @if(dashboardSelectedMaturity()=='') {
+  <div class="container1">
+    <div class="container2" id="ARTD" (click)="dashboardSelectedMaturity.set('ARTD')">
+      <div>
+        <img src="assets/icons/ARTD.png" sizes="(max-width: 800px) 100px, 20px" />
       </div>
-    }
-
-    <h3>{{'search.search' | translate }}</h3>
-
-    <div id="search-container1">
-      <ion-searchbar
-        placeholder=""
-        show-clear-button="focus"
-        search-icon="search-outline"
-        [debounce]="300"
-        (ionInput)="this.searchString.set($event.target.value?.toLowerCase() || '')"
-      ></ion-searchbar>
+      <div class="bigText">{{nbrARTD()}}</div>
     </div>
-    @if(loading()){
-      <div class="spinner-container">
-        <ion-spinner></ion-spinner>
+    <div class="container2" id="RTD" (click)="dashboardSelectedMaturity.set('RTD')">
+      <div>
+        <img src="assets/icons/RTD.png" sizes="(max-width: 800px) 100px, 20px" />
       </div>
-    }
-    <ion-item id="search-radio1">
-      <ion-toggle
-        checked="isInStock()"
-        (ionChange)="this.isInStock.set(!this.isInStock())"
-        >{{ 'search.inStock' | translate }}</ion-toggle
-        >
-      </ion-item>
+      <div class="bigText">{{nbrRTD()}}</div>
+    </div>
+    <div class="container2" id="NRTD" (click)="dashboardSelectedMaturity.set('NRTD')">
+      <div>
+        <img src="assets/icons/NRTD.png" sizes="(max-width: 800px) 100px, 20px" />
+      </div>
+      <div class="bigText">{{nbrNRTD()}}</div>
+    </div>
+    <div class="container2" id="NotRTD" (click)="dashboardSelectedMaturity.set('NotRTD')">
+      <div>
+        <img src="assets/icons/NotRTD.png" sizes="(max-width: 800px) 100px, 20px" />
+      </div>
+      <div>
+        <div class="bigText">{{nbrNotRTD()}}</div>
+      </div>
+    </div>
+  </div>
+  }
 
-      <ion-list>
-        @for(item of filteredWines(); track item){
-          <ion-item [routerLink]="['/vin', item._id]" routerDirection="root">
-            <ion-label>{{item.annee}} - {{item.nom}}</ion-label>
-            @if(item.type.nom=='Rouge'){
-              <ion-icon
-                slot="start"
-                size="small"
-                src="assets/icons/Rouge.svg"
-              ></ion-icon>
-              } @if(item.type.nom=='Blanc'){
-              <ion-icon
-                slot="start"
-                size="small"
-                src="assets/icons/Blanc.svg"
-                ></ion-icon
-                >} </ion-item
-                >}
-                <!-- <ion-icon name="arrow-dropright" slot="end"></ion-icon> -->
-              </ion-list>
-            </ion-content>
+  <h3>{{'search.search' | translate }}</h3>
+
+  <div id="search-container1">
+    <ion-searchbar
+      placeholder=""
+      show-clear-button="focus"
+      search-icon="search-outline"
+      [debounce]="300"
+      (ionInput)="this.searchString.set($event.target.value?.toLowerCase() || '')"
+    ></ion-searchbar>
+  </div>
+  @if(loading()){
+  <div class="spinner-container">
+    <ion-spinner></ion-spinner>
+  </div>
+  }
+  <ion-item id="search-radio1">
+    <ion-toggle checked="isInStock()" (ionChange)="this.isInStock.set(!this.isInStock())"
+      >{{ 'search.inStock' | translate }}</ion-toggle
+    >
+  </ion-item>
+
+  <ion-list>
+    @for(item of filteredWines(); track item){
+    <ion-item [routerLink]="['/vin', item._id]" routerDirection="root">
+      <ion-label>{{item.annee}} - {{item.nom}} ({{item.prixAchat}}€)</ion-label>
+      @if(item.type.nom=='Rouge'){
+      <ion-icon slot="start" size="small" src="assets/icons/Rouge.svg"></ion-icon>
+      } @if(item.type.nom=='Blanc'){
+      <ion-icon slot="start" size="small" src="assets/icons/Blanc.svg"></ion-icon>} </ion-item
+    >}
+    <!-- <ion-icon name="arrow-dropright" slot="end"></ion-icon> -->
+  </ion-list>
+</ion-content>
