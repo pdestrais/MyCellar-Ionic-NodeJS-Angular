@@ -6,29 +6,26 @@ import { TranslateModule } from "@ngx-translate/core";
 import { VinPage, ModalPage } from "./vin.page";
 import { ViewerComponent } from "./viewer/viewer.component";
 import { NgxStarRatingComponent } from "../ngx-star-rating/ngx-star-rating.component";
-import { IonicModule } from "@ionic/angular";
-
 const routes: Routes = [
-  {
-    path: "",
-    component: VinPage,
-  },
+    {
+        path: "",
+        component: VinPage,
+    },
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule.forChild(routes),
-    TranslateModule,
-    IonicModule,
-    VinPage,
-    ModalPage,
-    ViewerComponent,
-    NgxStarRatingComponent,
-  ],
-  providers: [],
-  declarations: [],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forChild(routes),
+        TranslateModule,
+        VinPage,
+        ModalPage,
+        ViewerComponent,
+        NgxStarRatingComponent,
+    ],
+    providers: [],
+    declarations: [],
 })
 export class VinPageModule { }

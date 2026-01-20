@@ -20,14 +20,17 @@ import {
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   NavController,
   AlertController,
   ModalController,
   LoadingController,
-  Platform,
+  Platform, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol, IonButton, IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonBadge
 } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { PouchdbService } from "../services/pouchdb.service";
@@ -83,7 +86,7 @@ interface Option {
   templateUrl: "./vin.page.html",
   styleUrls: ["./vin.page.scss"],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, TranslateModule, ViewerComponent, NgxStarRatingComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, ViewerComponent, NgxStarRatingComponent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol, IonButton, IonIcon],
 })
 export class VinPage implements OnInit, OnDestroy, AfterViewInit {
   store = inject(Store);
@@ -233,6 +236,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
       image,
       clipboardOutline,
     });
+    addIcons({ arrowUpCircleOutline, arrowDownCircleOutline, image, clipboardOutline });
   }
 
   public ngOnInit() {
@@ -1028,7 +1032,7 @@ export class VinPage implements OnInit, OnDestroy, AfterViewInit {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, IonicModule, TranslateModule],
+  imports: [CommonModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonBadge, IonButton, TranslateModule],
   template: `
     <ion-header>
       <ion-toolbar>

@@ -1,12 +1,13 @@
 import { Component, OnInit, NgZone } from "@angular/core";
 import { Location } from "@angular/common";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { FormsModule } from "@angular/forms";
 
 import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItemGroup, IonItemDivider, IonLabel, IonItem, IonSelect, IonSelectOption } from "@ionic/angular/standalone";
+
 const debug = Debugger("app:preferences");
 
 @Component({
@@ -14,7 +15,7 @@ const debug = Debugger("app:preferences");
     templateUrl: "./preferences.page.html",
     styleUrls: ["./preferences.page.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, FormsModule]
+    imports: [CommonModule, TranslateModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItemGroup, IonItemDivider, IonLabel, IonItem, IonSelect, IonSelectOption]
 })
 export class PreferencesPage implements OnInit {
     public language: string = "en";

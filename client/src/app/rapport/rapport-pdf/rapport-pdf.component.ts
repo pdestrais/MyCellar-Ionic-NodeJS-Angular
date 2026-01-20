@@ -1,18 +1,18 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { VinModel } from "./../../models/cellar.model";
 import { PouchdbService } from "./../../services/pouchdb.service";
 import { jsPDF } from "jspdf";
 import * as d3 from "d3";
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent } from "@ionic/angular/standalone";
 
 @Component({
     selector: "app-rapport-pdf",
     templateUrl: "./rapport-pdf.component.html",
     styleUrls: ["./rapport-pdf.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule]
+    imports: [CommonModule, TranslateModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent]
 })
 export class RapportPdfComponent implements OnInit {
     private doc: jsPDF;
@@ -154,7 +154,7 @@ export class RapportPdfComponent implements OnInit {
                         );
 
                         // sort by year
-                        this.typesOrigineYearGrouping.sort(function (a, b) {
+                        this.typesOrigineYearGrouping.sort(function(a, b) {
                             if (a.key < b.key) {
                                 return -1;
                             }

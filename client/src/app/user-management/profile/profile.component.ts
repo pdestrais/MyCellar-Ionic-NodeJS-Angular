@@ -4,10 +4,9 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { first } from "rxjs/operators";
-import { ToastController } from "@ionic/angular/standalone";
+import { ToastController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonButton, IonBackButton } from "@ionic/angular/standalone";
 import { UserManagementService } from "../../services/user-management.service";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
@@ -20,7 +19,7 @@ const debug = Debugger("app:profile");
     templateUrl: "./profile.component.html",
     styleUrls: ["./profile.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, RouterModule]
+    imports: [CommonModule, ReactiveFormsModule, TranslateModule, RouterModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonButton, IonBackButton]
 })
 export class ProfileComponent implements OnInit {
     profileForm!: FormGroup;

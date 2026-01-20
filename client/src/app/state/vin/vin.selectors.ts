@@ -8,13 +8,13 @@ export const getVinState = (state: AppState): VinState => {
   return state
     ? state.vins
     : {
-        vins: new Map(),
-        error: null,
-        status: "pending",
-        source: "",
-        eventLog: [],
-        currentWine: { id: "", rev: "" },
-      };
+      vins: new Map(),
+      error: null,
+      status: "pending",
+      source: "",
+      eventLog: [],
+      currentWine: { id: "", rev: "" },
+    };
 };
 export const getAllVins = createSelector(getVinState, (state: VinState) => {
   return state && state.vins ? state.vins : new Map<string, VinModel>();
@@ -65,7 +65,7 @@ export const getWinesMaturity = (category: string) =>
       }
     });
     return MaturityList.sort((a, b) =>
-      a.nom + a.annee < b.nom + b.annee ? -1 : 1
+      a.annee + a.nom < b.annee + b.nom ? -1 : 1
     );
   });
 
@@ -117,7 +117,7 @@ export const getWine = (id: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     console.log(
       "[VinSelector]getWine returned wine from state : " +
-        JSON.stringify(allVinMap.get(id))
+      JSON.stringify(allVinMap.get(id))
     );
     return allVinMap.get(id);
   });

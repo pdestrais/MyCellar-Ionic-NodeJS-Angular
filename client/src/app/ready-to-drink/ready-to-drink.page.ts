@@ -1,16 +1,14 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
 import { PouchdbService } from "../services/pouchdb.service";
 import { VinModel } from "../models/cellar.model";
 import dayjs from "dayjs";
 import { Router } from "@angular/router";
-import { IonAccordionGroup } from "@ionic/angular/standalone";
+import { IonAccordionGroup, IonRouterLink, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonAccordion, IonItem, IonLabel, IonList, IonIcon, IonBadge } from "@ionic/angular/standalone";
 
 import Debugger from "debug";
-import { IonRouterLink } from "@ionic/angular/standalone";
 
 const debug = Debugger("app:readytodrink");
 
@@ -19,7 +17,7 @@ const debug = Debugger("app:readytodrink");
     templateUrl: "./ready-to-drink.page.html",
     styleUrls: ["./ready-to-drink.page.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, RouterModule]
+    imports: [CommonModule, TranslateModule, RouterModule, IonRouterLink, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonAccordionGroup, IonAccordion, IonItem, IonLabel, IonList, IonIcon, IonBadge]
 })
 export class ReadyToDrinkPage implements OnInit {
     public wines: Array<VinModel> = [];

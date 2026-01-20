@@ -1,16 +1,16 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { Router } from "@angular/router";
 import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
+import { IonList, IonItem, IonBadge, IonIcon } from "@ionic/angular/standalone";
 
 @Component({
     selector: "app-element-list",
     templateUrl: "./element-list.component.html",
     styleUrls: ["./element-list.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule]
+    imports: [CommonModule, IonList, IonItem, IonBadge, IonIcon]
 })
 export class ElementListComponent implements OnInit {
     @Input() elementList: Array<any> = [];
@@ -21,6 +21,7 @@ export class ElementListComponent implements OnInit {
     @Input() preSelectedOrigine: string = "";
 
     constructor(private router: Router) {
+        addIcons({ caretForwardOutline });
         addIcons({ caretForwardOutline });
     }
 

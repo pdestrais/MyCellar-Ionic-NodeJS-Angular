@@ -8,13 +8,11 @@ import {
   ChangeDetectorRef,
 } from "@angular/core"; // tslint:disable-line
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
-
 // RxJS
 import { Observable } from "rxjs";
 
 // Ionic
-import { Platform /* , Events */ } from "@ionic/angular/standalone";
+import { IonList, IonBadge, IonIcon, Platform /* , Events */ } from "@ionic/angular/standalone";
 
 // Models
 import { SideMenuOption } from "./models/side-menu-option";
@@ -83,12 +81,12 @@ class InnerMenuOptionModel {
 }
 
 @Component({
-    selector: "app-multi-level-side-menu",
-    templateUrl: "./multi-level-side-menu.component.html",
-    styleUrls: ["./multi-level-side-menu.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-multi-level-side-menu",
+  templateUrl: "./multi-level-side-menu.component.html",
+  styleUrls: ["./multi-level-side-menu.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, IonList, IonBadge, IonIcon]
 })
 export class MultiLevelSideMenuComponent {
   // Main inputs

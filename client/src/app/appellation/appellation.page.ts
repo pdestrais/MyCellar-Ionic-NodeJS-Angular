@@ -1,12 +1,11 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Component, OnInit } from "@angular/core";
-import { NavController, AlertController } from "@ionic/angular/standalone";
+import { NavController, AlertController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonLabel, IonInput } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AppellationModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
@@ -33,11 +32,22 @@ const debug = Debugger("app:appellation");
     standalone: true,
     imports: [
         CommonModule,
-        IonicModule,
         ReactiveFormsModule,
         FormsModule,
         TranslateModule,
-        RouterModule
+        RouterModule,
+        IonHeader,
+        IonToolbar,
+        IonButtons,
+        IonMenuButton,
+        IonTitle,
+        IonContent,
+        IonList,
+        IonItem,
+        IonIcon,
+        IonButton,
+        IonLabel,
+        IonInput
     ]
 })
 export class AppellationPage implements OnInit {
@@ -66,6 +76,7 @@ export class AppellationPage implements OnInit {
         private toastCtrl: ToastController,
         private store: Store<AppState>
     ) {
+        addIcons({ caretForwardOutline });
         addIcons({ caretForwardOutline });
     }
 

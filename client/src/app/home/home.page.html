@@ -22,8 +22,8 @@
   <ion-list>
     @for(wineToDrink of maturityWinesList(); track wineToDrink){
     <ion-item [routerLink]="['/vin', wineToDrink._id]" routerDirection="root" class="condensed">
-      {{wineToDrink.nom}} [{{wineToDrink.annee}}] @if (wineToDrink.type &&
-      wineToDrink.type.nom=='Rouge') {
+      {{wineToDrink.nom}} ({{wineToDrink.annee}}) [{{wineToDrink.prixAchat}}€]@if (wineToDrink.type
+      && wineToDrink.type.nom=='Rouge') {
       <ion-icon class="limitMargin" slot="end" size="small" src="assets/icons/Rouge.svg"></ion-icon>
       } @if (wineToDrink.type && wineToDrink.type.nom=='Blanc') {
       <ion-icon class="limitMargin" slot="end" size="small" src="assets/icons/Blanc.svg"></ion-icon>
@@ -67,7 +67,7 @@
 
   <div id="search-container1">
     <ion-searchbar
-      placeholder=""
+      placeholder="start entering wine name..."
       show-clear-button="focus"
       search-icon="search-outline"
       [debounce]="300"
@@ -88,7 +88,7 @@
   <ion-list>
     @for(item of filteredWines(); track item){
     <ion-item [routerLink]="['/vin', item._id]" routerDirection="root">
-      <ion-label>{{item.annee}} - {{item.nom}} ({{item.prixAchat}}€)</ion-label>
+      <ion-label>{{item.nom}} ({{item.annee}}) [{{item.prixAchat}}€]</ion-label>
       @if(item.type.nom=='Rouge'){
       <ion-icon slot="start" size="small" src="assets/icons/Rouge.svg"></ion-icon>
       } @if(item.type.nom=='Blanc'){

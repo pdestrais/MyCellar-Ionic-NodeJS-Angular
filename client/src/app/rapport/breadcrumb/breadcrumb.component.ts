@@ -1,21 +1,22 @@
 import { Router } from "@angular/router";
 import { Component, OnInit, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { addIcons } from "ionicons";
 import { star } from "ionicons/icons";
+import { IonChip, IonLabel, IonIcon } from "@ionic/angular/standalone";
 
 @Component({
     selector: "app-breadcrumb",
     templateUrl: "./breadcrumb.component.html",
     styleUrls: ["./breadcrumb.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule]
+    imports: [CommonModule, IonChip, IonLabel, IonIcon]
 })
 export class BreadcrumbComponent implements OnInit {
     @Input() breadcrumb: Array<any> = [];
 
     constructor(private router: Router) {
+        addIcons({ star });
         addIcons({ star });
     }
 

@@ -2,8 +2,7 @@ import { MenuService } from "./services/menu.service";
 import { Component, effect } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { Platform, MenuController } from "@ionic/angular/standalone";
-import { IonicModule } from "@ionic/angular";
+import { Platform, MenuController, IonApp, IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonRouterOutlet } from "@ionic/angular/standalone";
 import { TranslateModule } from "@ngx-translate/core";
 import { SwUpdate, VersionReadyEvent } from "@angular/service-worker";
 import { filter, map } from "rxjs/operators";
@@ -25,7 +24,7 @@ const debug = Debugger("app:root");
     templateUrl: "app.component.html",
     styleUrls: ["./app.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, MultiLevelSideMenuComponent]
+    imports: [CommonModule, TranslateModule, MultiLevelSideMenuComponent, IonApp, IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonRouterOutlet]
 })
 export class AppComponent {
     public appMenuItems: Array<any> = [];

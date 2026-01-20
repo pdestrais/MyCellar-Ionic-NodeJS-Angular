@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { IonHeader, IonToolbar, IonTitle, IonContent } from "@ionic/angular/standalone";
 
 @Component({
     selector: 'app-rapport',
     templateUrl: './rapport.page.html',
     styleUrls: ['./rapport.page.scss'],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule]
+    imports: [CommonModule, TranslateModule, IonHeader, IonToolbar, IonTitle, IonContent]
 })
 export class RapportPage implements OnInit {
 

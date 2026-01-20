@@ -5,7 +5,6 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 
 import { HomePage } from "./home.page";
-import { IonicModule } from "@ionic/angular";
 
 @NgModule({
     imports: [
@@ -18,7 +17,6 @@ import { IonicModule } from "@ionic/angular";
             },
         ]),
         TranslateModule,
-        IonicModule,
         HomePage,
     ],
     declarations: [],

@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { BreadcrumbComponent } from "../breadcrumb/breadcrumb.component";
 import { PouchdbService } from "../../services/pouchdb.service";
@@ -10,6 +9,8 @@ import { VinModel } from "../../models/cellar.model";
 import * as d3 from "d3";
 
 import Debugger from "debug";
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonBadge } from "@ionic/angular/standalone";
+
 const debug = Debugger("app:rapport:wines");
 
 @Component({
@@ -17,7 +18,7 @@ const debug = Debugger("app:rapport:wines");
     templateUrl: "./wines.component.html",
     styleUrls: ["./wines.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, BreadcrumbComponent]
+    imports: [CommonModule, TranslateModule, BreadcrumbComponent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonBadge]
 })
 export class WinesComponent implements OnInit {
     private typeView: string = "";

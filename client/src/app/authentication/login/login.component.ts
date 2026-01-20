@@ -8,10 +8,9 @@ import { AuthenticationService } from "../../services/auth.service";
 import {
   ToastController,
   LoadingController,
-  AlertController,
+  AlertController, IonRouterLinkWithHref, IonContent, IonGrid, IonRow, IonCol, IonInput, IonButton
 } from "@ionic/angular/standalone";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -24,7 +23,6 @@ import * as VinActions from "../../state/vin/vin.actions";
 import * as TypeActions from "../../state/type/type.actions";
 import * as OrigineActions from "../../state/origine/origine.actions";
 import * as AppellationActions from "../../state/appellation/appellation.actions";
-import { IonRouterLinkWithHref } from "@ionic/angular/standalone";
 
 const debug = Debugger("app:login");
 
@@ -32,7 +30,7 @@ const debug = Debugger("app:login");
   templateUrl: "login.component.html",
   styleUrls: ["login.component.scss"],
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IonRouterLinkWithHref, IonContent, IonGrid, IonRow, IonCol, IonInput, IonButton]
 })
 export class LoginComponent implements OnInit {
   public loginForm!: FormGroup;

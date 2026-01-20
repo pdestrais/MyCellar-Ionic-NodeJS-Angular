@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { BreadcrumbComponent } from "../breadcrumb/breadcrumb.component";
 import { ElementListComponent } from "../element-list/element-list.component";
@@ -11,6 +10,8 @@ import { VinModel } from "../../models/cellar.model";
 import * as d3 from "d3";
 
 import Debugger from "debug";
+import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent } from "@ionic/angular/standalone";
+
 const debug = Debugger("app:rapport:years");
 
 @Component({
@@ -18,7 +19,7 @@ const debug = Debugger("app:rapport:years");
     templateUrl: "./origines.component.html",
     styleUrls: ["./origines.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule, BreadcrumbComponent, ElementListComponent]
+    imports: [CommonModule, TranslateModule, BreadcrumbComponent, ElementListComponent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent]
 })
 export class OriginesComponent implements OnInit {
     public typeView: string = "";

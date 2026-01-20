@@ -1734,7 +1734,7 @@ app.delete("/api/photo/:user/:id", async (request, response, next) => {
 //serve static file (index.html, images, css)
 console.log("__dirname : " + __dirname);
 console.log("pwd : " + process.cwd());
-var staticFileRootPath = process.cwd() + "/client/www";
+var staticFileRootPath = process.cwd() + "/client/www/browser";
 console.log("staticFileRootPath : " + staticFileRootPath);
 //app.use(express.static(__dirname + "./../client/www"));
 

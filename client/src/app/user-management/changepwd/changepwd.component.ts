@@ -14,10 +14,9 @@ import { first } from "rxjs/operators";
 import {
     ToastController,
     AlertController,
-    LoadingController,
+    LoadingController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonButton, IonBackButton
 } from "@ionic/angular/standalone";
 import { CommonModule } from "@angular/common";
-import { IonicModule } from "@ionic/angular";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { UserManagementService } from "../../services/user-management.service";
@@ -43,7 +42,7 @@ const confirmPwdValidator: ValidatorFn = (
     templateUrl: "./changepwd.component.html",
     styleUrls: ["./changepwd.component.scss"],
     standalone: true,
-    imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule]
+    imports: [CommonModule, ReactiveFormsModule, TranslateModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonButton, IonBackButton]
 })
 export class ChangepwdComponent implements OnInit {
     public changepwdForm!: FormGroup;
