@@ -18,12 +18,14 @@ npm-debug.log*`
 .env.*
 .jsbeautifyrc
 private.md
+.bobmodes
 
 .idea/
 .sourcemaps/
 .sass-cache/
 .tmp/
 .versions/
+.bob/
 client/build/
 client/coverage/
 client/dist/
