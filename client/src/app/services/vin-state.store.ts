@@ -134,8 +134,83 @@ export const VinStore = signalStore(
   })),
   
   // Methods (Actions)
-  withMethods((store, pouchService = inject(PouchdbService), ngrxStore = inject(Store)) => ({
+  withMethods((store, pouchService = inject(PouchdbService), ngrxStore = inject(Store)) => {
     
+    /**
+     * Detect concurrent updates by analyzing event log
+     * Replicates logic from original vin.page.ts lines 367-424
+     */
+    const detectConcurrentUpdate = (
+      newEvent: VinEvent,
+      formIsDirty: boolean
+    ): ConcurrentUpdateDetection => {
+      const eventLog = store.eventLog();
+      const currentVinId = store.currentVinId();
+      
+      // Only check for concurrent updates on external events
+      if (newEvent.source === 'internal') {
+        return {
+          detected: false,
+          affectedVinId: null,
+          message: null,
+          severity: null
+        };
+      }
+      
+      // Check if this is a duplicate event (same id, rev, action)
+      const duplicateEvents = eventLog.filter(
+        event =>
+          event.id === newEvent.id &&
+          event.rev === newEvent.rev &&
+          event.action === newEvent.action
+      );
+      
+      if (duplicateEvents.length >= 1) {
+        // (II.A) Duplicate event - already processed
+        debug('[ConcurrentDetection] Duplicate event detected, ignoring');
+        return {
+          detected: false,
+          affectedVinId: null,
+          message: null,
+          severity: null
+        };
+      }
+      
+      // Check if this event affects the wine currently being edited
+      const isCurrentWine = newEvent.id === currentVinId;
+      
+      if (isCurrentWine && formIsDirty) {
+        // (II.C) Concurrent update detected!
+        // Someone else modified the wine we're currently editing
+        const message = newEvent.action === 'delete'
+          ? 'wine.deletedConcurrentlyOnAnotherInstance'
+          : 'wine.savedConcurrentlyOnAnotherInstance';
+        
+        debug('[ConcurrentDetection] Concurrent update detected!', {
+          vinId: newEvent.id,
+          action: newEvent.action,
+          formIsDirty
+        });
+        
+        return {
+          detected: true,
+          affectedVinId: newEvent.id,
+          message,
+          severity: 'warning'
+        };
+      }
+      
+      // (II.B) Update of another wine - not relevant
+      debug('[ConcurrentDetection] Update of different wine, ignoring');
+      return {
+        detected: false,
+        affectedVinId: null,
+        message: null,
+        severity: null
+      };
+    };
+    
+    return {
     /**
      * Load all vins from PouchDB
      */
@@ -373,15 +448,19 @@ export const VinStore = signalStore(
         
         const newEventLog = [...store.eventLog(), event];
         
-        patchState(store, { 
+        // Detect concurrent updates using local function
+        const detection = detectConcurrentUpdate(event, formIsDirty);
+        
+        patchState(store, {
           vins: newVinsMap,
-          eventLog: newEventLog
+          eventLog: newEventLog,
+          concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
         });
         
         // Dispatch to NgRx Store for backward compatibility
         ngrxStore.dispatch(VinActions.deleteVinSuccess({ result: change, source: 'external' }));
         
-        patchState(store, { 
+        patchState(store, {
           lastOperation: {
             success: true,
             source: 'external'
@@ -408,15 +487,19 @@ export const VinStore = signalStore(
         
         const newEventLog = [...store.eventLog(), event];
         
-        patchState(store, { 
+        // Detect concurrent updates using local function
+        const detection = detectConcurrentUpdate(event, formIsDirty);
+        
+        patchState(store, {
           vins: newVinsMap,
-          eventLog: newEventLog
+          eventLog: newEventLog,
+          concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
         });
         
         // Dispatch to NgRx Store for backward compatibility
         ngrxStore.dispatch(VinActions.createVinSuccess({ vin, source: 'external' }));
         
-        patchState(store, { 
+        patchState(store, {
           lastOperation: {
             success: true,
             source: 'external',
@@ -454,7 +537,8 @@ export const VinStore = signalStore(
       patchState(store, initialState);
       debug('[reset] State reset');
     }
-  })),
+    };
+  }),
   
   // Lifecycle Hooks
   withHooks({

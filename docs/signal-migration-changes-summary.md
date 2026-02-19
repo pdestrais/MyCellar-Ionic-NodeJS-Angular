@@ -422,6 +422,37 @@ private readonly nbreAvantUpdate = signal<number>(0);
 
 **Fix:** Added missing imports to ModalPage component
 
+### 6. Label Styling Inconsistency
+**Problem:** "apogee" and "contenance" labels rendered differently
+
+**Cause:** Ionic applies different CSS classes based on validation state
+
+**Fix:** Added CSS rules to normalize label styling regardless of validation
+
+### 7. Concurrent Update Detection Not Working
+**Problem:** No warning shown when wine modified in another browser
+
+**Cause:** `detectConcurrentUpdate()` function was missing from VinStore
+
+**Fix:** Implemented concurrent detection logic in VinStore
+```typescript
+// Added local function in withMethods scope
+const detectConcurrentUpdate = (
+  newEvent: VinEvent,
+  formIsDirty: boolean
+): ConcurrentUpdateDetection => {
+  // Check for duplicate events
+  // Check if current wine is affected
+  // Return detection result
+};
+
+// Called in handleExternalChange
+const detection = detectConcurrentUpdate(event, formIsDirty);
+patchState(store, {
+  concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
+});
+```
+
 ---
 
 ## Performance Improvements

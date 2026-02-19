@@ -685,14 +685,79 @@ private setupFormDirtyTracking(): void {
 ### Pattern 7: Concurrent Update Warnings
 **Keep as Effect** - Legitimate side effect (UI notification)
 
+**IMPORTANT:** Requires concurrent detection logic in store!
+
 ```typescript
-// Keep as-is
-effect(() => {
-  const update = this.store.concurrentUpdate();
-  if (update) {
-    this.showWarning('Concurrent update detected');
-  }
+// In Store: Add detection function in withMethods scope
+withMethods((store, deps) => {
+  // Local function for concurrent detection
+  const detectConcurrentUpdate = (
+    newEvent: Event,
+    formIsDirty: boolean
+  ): ConcurrentUpdateDetection => {
+    const eventLog = store.eventLog();
+    const currentItemId = store.currentItemId();
+    
+    // Only check external events
+    if (newEvent.source === 'internal') {
+      return { detected: false, affectedItemId: null, message: null, severity: null };
+    }
+    
+    // Check for duplicate events (same id, rev, action)
+    const duplicates = eventLog.filter(
+      e => e.id === newEvent.id && e.rev === newEvent.rev && e.action === newEvent.action
+    );
+    if (duplicates.length >= 1) {
+      return { detected: false, affectedItemId: null, message: null, severity: null };
+    }
+    
+    // Check if current item is affected
+    if (newEvent.id === currentItemId && formIsDirty) {
+      return {
+        detected: true,
+        affectedItemId: newEvent.id,
+        message: newEvent.action === 'delete'
+          ? 'item.deletedConcurrentlyOnAnotherInstance'
+          : 'item.savedConcurrentlyOnAnotherInstance',
+        severity: 'warning'
+      };
+    }
+    
+    return { detected: false, affectedItemId: null, message: null, severity: null };
+  };
+  
+  return {
+    // Use in handleExternalChange
+    handleExternalChange(change: any): void {
+      const formIsDirty = store.formDirtyStates().get(change.id) ?? false;
+      const event = { /* create event */ };
+      
+      // Detect concurrent updates
+      const detection = detectConcurrentUpdate(event, formIsDirty);
+      
+      patchState(store, {
+        eventLog: [...store.eventLog(), event],
+        concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
+      });
+    }
+  };
 });
+
+// In Component: Effect to show warning
+effect(() => {
+  const concurrent = this.store.concurrentUpdate();
+  console.log('[Effect] Concurrent update state:', concurrent); // Debug log
+  if (concurrent.detected && concurrent.message) {
+    console.log('[Effect] Showing concurrent update warning'); // Debug log
+    this.presentToast(
+      this.translate.instant(concurrent.message),
+      concurrent.severity === 'error' ? 'error' : 'warning',
+      null,
+      0, // duration=0 means show button
+      this.translate.instant('general.ok')
+    );
+  }
+}, { allowSignalWrites: true });
 ```
 
 ### Pattern 8: Load External Resources
@@ -707,6 +772,206 @@ effect(() => {
   }
 }, { allowSignalWrites: true });
 ```
+
+---
+
+## Concurrent Update Detection Implementation
+
+### Overview
+Concurrent update detection is critical for multi-user/multi-device scenarios. It detects when multiple application instances modify the same data simultaneously.
+
+### Required Components
+
+#### 1. Event Tracking Interface
+```typescript
+export interface Event {
+  id: string;
+  rev: string;
+  action: 'create' | 'update' | 'delete';
+  timestamp: number;
+  source: 'internal' | 'external';
+}
+
+export interface ConcurrentUpdateDetection {
+  detected: boolean;
+  affectedItemId: string | null;
+  message: string | null;
+  severity: 'warning' | 'error' | null;
+}
+```
+
+#### 2. Store State
+```typescript
+interface StoreState {
+  items: Map<string, Item>;
+  currentItemId: string | null;
+  eventLog: Event[];
+  concurrentUpdate: ConcurrentUpdateDetection;
+  formDirtyStates: Map<string, boolean>;
+}
+```
+
+#### 3. Detection Logic in Store
+```typescript
+withMethods((store, pouchService, ngrxStore) => {
+  // Local function - NOT exported as method
+  const detectConcurrentUpdate = (
+    newEvent: Event,
+    formIsDirty: boolean
+  ): ConcurrentUpdateDetection => {
+    const eventLog = store.eventLog();
+    const currentItemId = store.currentItemId();
+    
+    // (I) Internal events: No detection needed
+    if (newEvent.source === 'internal') {
+      return {
+        detected: false,
+        affectedItemId: null,
+        message: null,
+        severity: null
+      };
+    }
+    
+    // (II.A) Duplicate events: Ignore
+    const duplicates = eventLog.filter(
+      event =>
+        event.id === newEvent.id &&
+        event.rev === newEvent.rev &&
+        event.action === newEvent.action
+    );
+    
+    if (duplicates.length >= 1) {
+      debug('[ConcurrentDetection] Duplicate event, ignoring');
+      return {
+        detected: false,
+        affectedItemId: null,
+        message: null,
+        severity: null
+      };
+    }
+    
+    // (II.C) Concurrent update: Current item + dirty form
+    const isCurrentItem = newEvent.id === currentItemId;
+    
+    if (isCurrentItem && formIsDirty) {
+      debug('[ConcurrentDetection] Concurrent update detected!', {
+        itemId: newEvent.id,
+        action: newEvent.action,
+        formIsDirty
+      });
+      
+      return {
+        detected: true,
+        affectedItemId: newEvent.id,
+        message: newEvent.action === 'delete'
+          ? 'item.deletedConcurrentlyOnAnotherInstance'
+          : 'item.savedConcurrentlyOnAnotherInstance',
+        severity: 'warning'
+      };
+    }
+    
+    // (II.B) Different item: Ignore
+    debug('[ConcurrentDetection] Update of different item, ignoring');
+    return {
+      detected: false,
+      affectedItemId: null,
+      message: null,
+      severity: null
+    };
+  };
+  
+  return {
+    handleExternalChange(change: any): void {
+      debug('[handleExternalChange] Received change:', change);
+      
+      const formIsDirty = store.formDirtyStates().get(change.id) ?? false;
+      
+      // Create event
+      const event: Event = {
+        id: change.id,
+        rev: change.doc?._rev || '',
+        action: change.deleted ? 'delete' : 'update',
+        timestamp: Date.now(),
+        source: 'external'
+      };
+      
+      // Detect concurrent updates
+      const detection = detectConcurrentUpdate(event, formIsDirty);
+      
+      // Update state
+      patchState(store, {
+        eventLog: [...store.eventLog(), event],
+        concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
+      });
+    },
+    
+    clearConcurrentUpdate(): void {
+      patchState(store, {
+        concurrentUpdate: {
+          detected: false,
+          affectedItemId: null,
+          message: null,
+          severity: null
+        }
+      });
+    }
+  };
+});
+```
+
+#### 4. Component Effect
+```typescript
+// In component constructor
+effect(() => {
+  const concurrent = this.store.concurrentUpdate();
+  
+  // Debug logging (remove in production)
+  console.log('[Effect] Concurrent update state:', concurrent);
+  
+  if (concurrent.detected && concurrent.message) {
+    console.log('[Effect] Showing concurrent update warning');
+    
+    this.presentToast(
+      this.translate.instant(concurrent.message),
+      concurrent.severity === 'error' ? 'error' : 'warning',
+      null,
+      0, // duration=0 shows button instead of auto-dismiss
+      this.translate.instant('general.ok')
+    );
+  }
+}, { allowSignalWrites: true });
+```
+
+### Testing Concurrent Updates
+
+1. **Open two browsers** (or incognito + normal)
+2. **Browser 1:** Open item for editing (make form dirty)
+3. **Browser 2:** Open same item, modify, and save
+4. **Browser 1:** Should show warning toast
+
+**Expected Console Logs (Browser 1):**
+```
+[PouchDB Change] Received change for item: item-123
+[handleExternalChange] Received change: {...}
+[ConcurrentDetection] Concurrent update detected! {itemId: 'item-123', action: 'update', formIsDirty: true}
+[Effect] Concurrent update state: {detected: true, affectedItemId: 'item-123', ...}
+[Effect] Showing concurrent update warning
+```
+
+### Common Issues
+
+**Issue 1: No warning shown**
+- Check: Is form dirty? (formIsDirty must be true)
+- Check: Is currentItemId set correctly?
+- Check: Are console logs appearing?
+
+**Issue 2: Warning shows for wrong item**
+- Check: currentItemId matches the changed item
+- Check: Event log for duplicate detection
+
+**Issue 3: Warning shows on own saves**
+- Check: Event source is 'external', not 'internal'
+- Check: Detection logic filters internal events
 
 ---
 

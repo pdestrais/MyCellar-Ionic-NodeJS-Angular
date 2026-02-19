@@ -323,7 +323,9 @@ export class VinPage {
     effect(
       () => {
         const concurrent = this.concurrentUpdate();
+        console.log('[VinPage Effect 7] Concurrent update state:', concurrent);
         if (concurrent.detected && concurrent.message) {
+          console.log('[VinPage Effect 7] Showing concurrent update warning');
           this.presentToast(
             this.translate.instant(concurrent.message),
             concurrent.severity === "error" ? "error" : "warning",
