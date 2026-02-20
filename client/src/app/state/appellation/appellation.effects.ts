@@ -54,14 +54,15 @@ export class AppellationEffects {
       this.actions$.pipe(
         ofType(AppellationAction.createAppellation),
         switchMap((action) => {
-          //        this.lastSavedWine = action.appellation;
-          return of(
+          // Convert Promise to Observable using from()
+          return from(
             this.pouchService.saveDoc(
               Object.assign({}, action.appellation),
               "appellation"
-            )
+            ) as Promise<IResult>
           ).pipe(
             map((result: IResult) => {
+              debug("[saveAppellation$] Save result:", result);
               return AppellationAction.createAppellationSuccess({
                 appellation: {
                   ...action.appellation,
@@ -71,9 +72,10 @@ export class AppellationEffects {
                 source: "internal",
               });
             }),
-            catchError((error) =>
-              of(AppellationAction.createAppellationFailure({ error }))
-            )
+            catchError((error) => {
+              debug("[saveAppellation$] Save error:", error);
+              return of(AppellationAction.createAppellationFailure({ error }));
+            })
           );
         })
         /*        exhaustMap((action) =>
@@ -125,25 +127,35 @@ export class AppellationEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
+        // Filter to only process appellation documents
         tap((change) =>
           debug(
             "[handleChanges Effect]ts: " +
               window.performance.now() +
               "\n - change : " +
-              JSON.stringify(change)
+              JSON.stringify(change) +
+              "\n - doc._id: " +
+              change.doc?._id
           )
         ),
+        // Only process changes for appellation documents (those with _id starting with "appellation|")
         map((change) => {
-          if (!change.deleted) {
-            return AppellationAction.createAppellationSuccess({
-              appellation: change.doc,
-              source: "external",
-            });
-          } else
-            return AppellationAction.deleteAppellationSuccess({
-              result: change,
-              source: "external",
-            });
+          // Check if this is an appellation document
+          if (change.doc && change.doc._id && change.doc._id.startsWith("appellation|")) {
+            if (!change.deleted) {
+              return AppellationAction.createAppellationSuccess({
+                appellation: change.doc,
+                source: "external",
+              });
+            } else {
+              return AppellationAction.deleteAppellationSuccess({
+                result: change,
+                source: "external",
+              });
+            }
+          }
+          // Return a no-op action for non-appellation documents
+          return AppellationAction.setStatusToLoaded();
         })
       ),
     { dispatch: true }

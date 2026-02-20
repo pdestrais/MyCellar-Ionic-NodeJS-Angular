@@ -8,34 +8,32 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (list) {
+  @if (list()) {
     <div>
-      @if (wineTypes$ | async) {
+      @if (wineTypes().length > 0) {
         <div>
           <ion-list>
-            @for (type of wineTypes$ | async; track type) {
+            @for (type of wineTypes(); track type._id) {
               <ion-item
                 (click)="editType(type)"
                 >
                 {{ type.nom }}
-                <!-- <ion-button slot="end" fill="outline">Modify -->
                 <ion-icon
                   slot="end"
                   color="dark"
                   name="caret-forward-outline"
                 ></ion-icon>
-              <!-- </ion-button> -->
             </ion-item>
           }
         </ion-list>
       </div>
     }
-    <ion-button expand="full" (click)="editType(type)">
+    <ion-button expand="full" (click)="editType(null)">
       {{'general.add' | translate }} {{'type.type' | translate }}
     </ion-button>
   </div>
 }
-@if (!list) {
+@if (!list()) {
   <div>
     <form [formGroup]="typeForm" id="type-form4">
       <ion-item id="type-input1">
@@ -46,10 +44,10 @@
           placeholder="{{ 'type.type' | translate }}"
           formControlName="nom"
           class="ion-text-right"
-          [class.invalid]="!typeForm.controls.nom.valid && (typeForm.controls.nom.dirty || submitted)"
+          [class.invalid]="!typeForm.controls.nom.valid && (typeForm.controls.nom.dirty || submitted())"
         ></ion-input>
       </ion-item>
-      @if (!typeForm.controls.nom.valid  && (typeForm.controls.nom.dirty || submitted)) {
+      @if (!typeForm.controls.nom.valid  && (typeForm.controls.nom.dirty || submitted())) {
         <ion-item
           >
           <p class="invalid">
@@ -73,7 +71,7 @@
       >
       {{'general.save' | translate }}
     </ion-button>
-    @if (!newType) {
+    @if (!newType()) {
       <ion-button
         id="region-button5"
         ion-button
