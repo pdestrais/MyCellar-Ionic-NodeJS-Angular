@@ -167,8 +167,8 @@ export const appellationReducer = createReducer(
       var newEventArray = Array.from(state.eventLog);
       newAppellationMap.delete(result.id);
       newEventArray.push({
-        id: result.id ? result.id : result.doc._id,
-        rev: result.rev ? result.id : result.doc._rev,
+        id: result.id ? result.id : (result.doc ? result.doc._id : result.id),
+        rev: result.rev ? result.rev : (result.doc ? result.doc._rev : result.rev),
         action: "delete",
         timestamp: dayjs(),
       });

@@ -20,7 +20,7 @@
 
   @if(dashboardSelectedMaturity()!='') {
   <ion-list>
-    @for(wineToDrink of maturityWinesList(); track wineToDrink){
+    @for(wineToDrink of maturityWinesList(); track wineToDrink._id){
     <ion-item [routerLink]="['/vin', wineToDrink._id]" routerDirection="root" class="condensed">
       {{wineToDrink.nom}} ({{wineToDrink.annee}}) [{{wineToDrink.prixAchat}}€]@if (wineToDrink.type
       && wineToDrink.type.nom=='Rouge') {
@@ -86,7 +86,7 @@
   </ion-item>
 
   <ion-list>
-    @for(item of filteredWines(); track item){
+    @for(item of filteredWines(); track item._id){
     <ion-item [routerLink]="['/vin', item._id]" routerDirection="root">
       <ion-label>{{item.nom}} ({{item.annee}}) [{{item.prixAchat}}€]</ion-label>
       @if(item.type.nom=='Rouge'){

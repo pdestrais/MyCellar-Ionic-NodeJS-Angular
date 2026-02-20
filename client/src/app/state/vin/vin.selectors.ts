@@ -93,7 +93,7 @@ export const getWinesByAppellation = (appellationId: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     let filteredList = Array.from(allVinMap.values());
     return filteredList
-      .filter((item) => item.appellation._id == appellationId)
+      .filter((item) => item.appellation && item.appellation._id == appellationId)
       .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
   });
 
@@ -101,7 +101,7 @@ export const getWinesByOrigine = (origineId: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     let filteredList = Array.from(allVinMap.values());
     return filteredList
-      .filter((item) => item.origine._id == origineId)
+      .filter((item) => item.origine && item.origine._id == origineId)
       .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
   });
 
@@ -109,7 +109,7 @@ export const getWinesByType = (typeId: string) =>
   createSelector(getAllVins, (allVinMap: Map<string, VinModel>) => {
     let filteredList = Array.from(allVinMap.values());
     return filteredList
-      .filter((item) => item.type._id == typeId)
+      .filter((item) => item.type && item.type._id == typeId)
       .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
   });
 
