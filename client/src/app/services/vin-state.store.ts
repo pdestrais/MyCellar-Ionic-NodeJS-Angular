@@ -17,6 +17,7 @@ import * as VinActions from '../state/vin/vin.actions';
 import * as VinSelectors from '../state/vin/vin.selectors';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import Debug from 'debug';
+import dayjs from 'dayjs';
 
 const debug = Debug('app:vin-signal-store');
 
@@ -130,7 +131,49 @@ export const VinStore = signalStore(
     isSaving: computed(() => store.status() === 'saving'),
     
     // Check if has error
-    hasError: computed(() => store.status() === 'error')
+    hasError: computed(() => store.status() === 'error'),
+    
+    // ============================================
+    // SEARCH AND FILTER FUNCTIONALITY
+    // ============================================
+    
+    /**
+     * Maturity counts for dashboard
+     * Computes counts for all maturity categories
+     */
+    maturityCounts: computed(() => {
+      // Get vins from store and convert to array
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values());
+      const now = dayjs();
+      
+      const counts = {
+        ARTD: 0,
+        RTD: 0,
+        NRTD: 0,
+        NotRTD: 0
+      };
+      
+      vins.forEach(v => {
+        if (v.apogee && v.nbreBouteillesReste > 0) {
+          const drinkFromTo = v.apogee.split('-');
+          const apogeeTo = parseInt(drinkFromTo[1]);
+          const apogeeFrom = parseInt(drinkFromTo[0]);
+          
+          if (now.year() - apogeeTo >= 0) {
+            counts.ARTD++;
+          } else if (now.year() <= apogeeTo && now.year() > apogeeFrom) {
+            counts.RTD++;
+          } else if (now.year() > apogeeFrom - 2 && now.year() <= apogeeFrom) {
+            counts.NRTD++;
+          } else {
+            counts.NotRTD++;
+          }
+        }
+      });
+      
+      return counts;
+    })
   })),
   
   // Methods (Actions)
@@ -210,7 +253,96 @@ export const VinStore = signalStore(
       };
     };
     
+    /**
+     * Get filtered wines based on search string and stock filter
+     * Matches NgRx selector logic from vin.selectors.ts
+     */
+    const getFilteredWines = (searchString: string, inStockOnly: boolean) => computed(() => {
+      // Get vins from store and convert to sorted array
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values())
+        .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+      
+      // Return empty if search string too short (matching NgRx selector)
+      if (searchString.length <= 2) {
+        return [];
+      }
+      
+      let filtered = vins;
+      
+      // Filter by stock
+      if (inStockOnly) {
+        filtered = filtered.filter(v => v.nbreBouteillesReste > 0);
+      }
+      
+      // Filter by search term (name only, matching NgRx selector)
+      const searchLower = searchString.toLowerCase();
+      filtered = filtered.filter(v =>
+        v.nom.toLowerCase().indexOf(searchLower) > -1
+      );
+      
+      return filtered;
+    });
+    
+    /**
+     * Get wines by maturity category
+     * Matches NgRx selector logic from vin.selectors.ts
+     */
+    const getWinesByMaturity = (category: string) => computed(() => {
+      // Get vins from store and convert to sorted array
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values())
+        .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+      
+      const now = dayjs();
+      const maturityList: VinModel[] = [];
+      
+      vins.forEach(v => {
+        if (v.apogee && v.nbreBouteillesReste > 0) {
+          const drinkFromTo = v.apogee.split('-');
+          const apogeeTo = parseInt(drinkFromTo[1]);
+          const apogeeFrom = parseInt(drinkFromTo[0]);
+          
+          /* apogee :                 FROM-2          FROM            TO            */
+          /*             <----NotRTD ---|--NearlyRTD---|-----RTD------|----ARTD---> */
+          switch (category) {
+            case 'ARTD':
+              if (now.year() - apogeeTo >= 0) {
+                maturityList.push(v);
+              }
+              break;
+            case 'RTD':
+              if (now.year() <= apogeeTo && now.year() > apogeeFrom) {
+                maturityList.push(v);
+              }
+              break;
+            case 'NRTD':
+              if (now.year() > apogeeFrom - 2 && now.year() <= apogeeFrom) {
+                maturityList.push(v);
+              }
+              break;
+            default:
+              maturityList.push(v);
+          }
+        }
+      });
+      
+      // Sort by type first, then by name
+      return maturityList.sort((a, b) => {
+        // First sort by type (Rouge, Blanc, etc.)
+        const typeCompare = a.type.nom.localeCompare(b.type.nom);
+        if (typeCompare !== 0) return typeCompare;
+        
+        // Then sort by name + year
+        return (a.nom + a.annee).localeCompare(b.nom + b.annee);
+      });
+    });
+    
     return {
+    // Expose filter/search methods
+    getFilteredWines,
+    getWinesByMaturity,
+    
     /**
      * Load all vins from PouchDB
      */
