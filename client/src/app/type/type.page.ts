@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect, signal, computed, inject, DestroyRef } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Component, OnInit, effect, signal, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonLabel, IonInput } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TypeModel } from "../models/cellar.model";
@@ -12,13 +12,9 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
-import { Store } from "@ngrx/store";
-import * as VinSelectors from "../state/vin/vin.selectors";
-import * as TypeActions from "../state/type/type.actions";
-import { AppState } from "../state/app.state";
 import { TypeStore } from "../services/type-state.store";
+import { VinStore } from "../services/vin-state.store";
 
-import { replacer } from "../util/util";
 import { addIcons } from "ionicons";
 import { caretForwardOutline } from "ionicons/icons";
 
@@ -53,9 +49,8 @@ export class TypePage implements OnInit {
     private readonly translate = inject(TranslateService);
     private readonly alertController = inject(AlertController);
     private readonly toastCtrl = inject(ToastController);
-    private readonly store = inject(Store<AppState>);
     private readonly typeStore = inject(TypeStore);
-    private readonly destroyRef = inject(DestroyRef);
+    private readonly vinStore = inject(VinStore);
 
     // ============================================
     // COMPONENT STATE (Signals)
@@ -98,138 +93,16 @@ export class TypePage implements OnInit {
                     this.list.set(false);
                     this.currentType.set(type);
                     this.newType.set(false);
-                    
-                    // Reset Type state to avoid shadow UI messages
-                    this.store.dispatch(
-                        TypeActions.editType({
-                            id: type._id,
-                            rev: type._rev,
-                        })
-                    );
                     this.typeForm.get("nom")!.setValue(type.nom);
-                    debug("[ngOnInit]Type loaded : " + JSON.stringify(type));
+                    debug("[Effect:typeId] Type loaded:", JSON.stringify(type));
                 }
             } else {
                 // No type selected, creating new type
                 this.newType.set(true);
-                // Reset to empty type for new creation
                 this.currentType.set(new TypeModel({
                     _id: "",
                     nom: "",
                 }));
-                this.store.dispatch(TypeActions.editType({ id: "", rev: "" }));
-            }
-        }, { allowSignalWrites: true });
-
-        // Effect: Handle state changes from NgRx (for save/delete operations)
-        const typeStateSignal = toSignal(this.store.select((state: AppState) => state.types));
-        effect(() => {
-            const typeState = typeStateSignal();
-            if (!typeState) return;
-            
-            switch (typeState.status) {
-                case "saved":
-                    debug(
-                        "[ngOnInit] handling change to 'saved' status - ts " +
-                        window.performance.now() +
-                        "\ntypeState : " +
-                        JSON.stringify(typeState, replacer)
-                    );
-
-                    if (typeState.source == "internal") {
-                        debug("[ngInit](I) Standard type saved");
-                        this.presentToast(
-                            this.translate.instant("general.dataSaved"),
-                            "success",
-                            "home",
-                            2000
-                        );
-                        this.store.dispatch(TypeActions.setStatusToLoaded());
-                    } else {
-                        let filteredEventLog = typeState.eventLog.filter(
-                            (value) =>
-                                value.id == typeState.currentType.id &&
-                                value.rev == typeState.currentType.rev &&
-                                value.action == "create"
-                        );
-                        debug("[ngInit](II) FilteredEventLog : " + JSON.stringify(filteredEventLog));
-                        
-                        if (filteredEventLog.length == 2) {
-                            debug("[ngInit](II.A) Duplicate state change for the same type");
-                            this.store.dispatch(TypeActions.setStatusToLoaded());
-                        } else if (
-                            typeState.eventLog[typeState.eventLog.length - 1].id ==
-                            typeState.currentType.id &&
-                            typeState.eventLog[typeState.eventLog.length - 1].rev ==
-                            typeState.currentType.rev &&
-                            typeState.eventLog[typeState.eventLog.length - 1].action ==
-                            "create" &&
-                            this.typeForm.dirty
-                        ) {
-                            debug("[ngInit](II.C) Concurrent editing on the same type");
-                            this.presentToast(
-                                this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
-                                "warning",
-                                "",
-                                0,
-                                "Close"
-                            );
-                        } else {
-                            debug("[ngInit](II.B) Update of another type");
-                        }
-                    }
-                    break;
-                    
-                case "error":
-                    this.presentToast(
-                        this.translate.instant("general.DBError") + " " + typeState.error,
-                        "error",
-                        null,
-                        5000
-                    );
-                    break;
-                    
-                case "deleted":
-                    if (typeState.source == "internal") {
-                        debug("[ngInit](I) Standard type deleted");
-                        this.presentToast(
-                            this.translate.instant("type.typeDeleted"),
-                            "success",
-                            "home",
-                            2000
-                        );
-                        this.store.dispatch(TypeActions.setStatusToLoaded());
-                    } else {
-                        const deleteEventsForCurrentType = typeState.eventLog.filter(
-                            (value) =>
-                                value.id == typeState.currentType.id &&
-                                value.rev >= typeState.currentType.rev &&
-                                value.action == "delete"
-                        );
-                        
-                        if (deleteEventsForCurrentType.length >= 1) {
-                            // This is the external event following our internal delete
-                            debug("[ngInit](II.A) Duplicate state change for the same type (external after internal)");
-                            this.store.dispatch(TypeActions.setStatusToLoaded());
-                        } else if (
-                            typeState.eventLog[typeState.eventLog.length - 1].id ==
-                            typeState.currentType.id &&
-                            typeState.eventLog[typeState.eventLog.length - 1].action ==
-                            "delete"
-                        ) {
-                            debug("[ngInit](II.C) Concurrent editing on the same type");
-                            this.presentToast(
-                                this.translate.instant("type.deletedConcurrentlyOnAnotherInstance"),
-                                "warning",
-                                "home",
-                                0,
-                                "Close"
-                            );
-                        } else {
-                            debug("[ngInit](II.B) Delete of another type");
-                        }
-                    }
-                    break;
             }
         }, { allowSignalWrites: true });
     }
@@ -268,22 +141,37 @@ export class TypePage implements OnInit {
         else this.navCtrl.navigateForward(["/type"]);
     }
 
-    public saveType() {
-        debug("[saveType]entering");
+    public async saveType() {
+        debug("[saveType] Entering");
         this.submitted.set(true);
         
         if (this.typeForm.valid) {
-            debug("[saveType]Type valid");
+            debug("[saveType] Type valid");
             const currentType = this.currentType();
             const updatedType = {
                 ...currentType,
                 ...this.typeForm.value,
             };
-            this.currentType.set(updatedType);
-
-            this.store.dispatch(TypeActions.createType({ _type: updatedType }));
+            
+            try {
+                await this.typeStore.saveType(updatedType);
+                this.presentToast(
+                    this.translate.instant("general.dataSaved"),
+                    "success",
+                    "home",
+                    2000
+                );
+            } catch (error) {
+                debug("[saveType] Error:", error);
+                this.presentToast(
+                    this.translate.instant("general.DBError"),
+                    "error",
+                    null,
+                    5000
+                );
+            }
         } else {
-            debug("[saveType]type invalid");
+            debug("[saveType] Type invalid");
             this.presentToast(
                 this.translate.instant("general.invalidData"),
                 "error",
@@ -292,41 +180,46 @@ export class TypePage implements OnInit {
         }
     }
 
-    public deleteType() {
+    public async deleteType() {
         // Check if type is used by any wines
         const currentType = this.currentType();
-        let used = false;
-        this.store
-            .select(VinSelectors.getWinesByType(currentType._id))
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((wineListForType) =>
-                wineListForType.length > 0 ? (used = true) : (used = false)
-            );
+        const winesByTypeSignal = this.vinStore.getWinesByType(currentType._id);
+        const wineListForType = winesByTypeSignal();
+        const used = wineListForType.length > 0;
             
         if (!used) {
-            this.alertController
-                .create({
-                    header: this.translate.instant("general.confirm"),
-                    message: this.translate.instant("general.sure"),
-                    buttons: [
-                        {
-                            text: this.translate.instant("general.cancel"),
-                        },
-                        {
-                            text: this.translate.instant("general.ok"),
-                            handler: () => {
-                                this.store.dispatch(
-                                    TypeActions.deleteType({
-                                        _type: currentType,
-                                    })
+            const alert = await this.alertController.create({
+                header: this.translate.instant("general.confirm"),
+                message: this.translate.instant("general.sure"),
+                buttons: [
+                    {
+                        text: this.translate.instant("general.cancel"),
+                    },
+                    {
+                        text: this.translate.instant("general.ok"),
+                        handler: async () => {
+                            try {
+                                await this.typeStore.deleteType(currentType);
+                                this.presentToast(
+                                    this.translate.instant("type.typeDeleted"),
+                                    "success",
+                                    "home",
+                                    2000
                                 );
-                            },
+                            } catch (error) {
+                                debug("[deleteType] Error:", error);
+                                this.presentToast(
+                                    this.translate.instant("general.DBError"),
+                                    "error",
+                                    null,
+                                    5000
+                                );
+                            }
                         },
-                    ],
-                })
-                .then((alert) => {
-                    alert.present();
-                });
+                    },
+                ],
+            });
+            await alert.present();
         } else {
             this.presentToast(
                 this.translate.instant("type.cantDeleteBecauseUsed"),

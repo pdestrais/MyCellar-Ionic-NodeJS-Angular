@@ -1,4 +1,4 @@
-import { computed, inject, DestroyRef } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
@@ -7,11 +7,8 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Store } from '@ngrx/store';
 import { TypeModel } from '../models/cellar.model';
-import { AppState } from '../state/app.state';
-import * as TypeSelectors from '../state/type/type.selectors';
+import { PouchdbService } from './pouchdb.service';
 import Debugger from 'debug';
 
 const debug = Debugger('app:type-store');
@@ -69,7 +66,7 @@ export const TypeStore = signalStore(
   // ============================================
   // METHODS
   // ============================================
-  withMethods((store, ngrxStore = inject(Store<AppState>), destroyRef = inject(DestroyRef)) => {
+  withMethods((store, pouchService = inject(PouchdbService)) => {
     // Local function to get a specific type by ID
     const getTypeById = (id: string) =>
       computed(() => {
@@ -81,31 +78,113 @@ export const TypeStore = signalStore(
       // Get a specific type by ID (returns computed signal)
       getTypeById,
 
-      // Load types from NgRx store (keeps subscription alive for updates)
-      loadTypes: () => {
-        debug('[loadTypes] Loading types and subscribing to updates');
+      // Handle external change from PouchDB sync
+      handleExternalChange(change: any): void {
+        debug('[handleExternalChange] Received change:', change);
+        
+        if (change.deleted) {
+          // External delete
+          const newTypesMap = new Map(store.types());
+          newTypesMap.delete(change.id);
+          patchState(store, { types: newTypesMap });
+        } else {
+          // External create/update
+          const type = change.doc as TypeModel;
+          const newTypesMap = new Map(store.types());
+          newTypesMap.set(type._id, type);
+          patchState(store, { types: newTypesMap });
+        }
+      },
+
+      // Load types from PouchDB
+      loadTypes: async () => {
+        debug('[loadTypes] Loading types from PouchDB');
         patchState(store, { isLoading: true });
         
-        // Subscribe to NgRx store and keep subscription alive for continuous updates
-        ngrxStore.select(TypeSelectors.getAllTypes)
-          .pipe(takeUntilDestroyed(destroyRef))
-          .subscribe({
-            next: (typesMap) => {
-              debug('[loadTypes] Received types update:', typesMap.size);
-              patchState(store, {
-                types: new Map(typesMap),
-                isLoading: false,
-                error: null,
-              });
-            },
-            error: (error) => {
-              debug('[loadTypes] Error:', error);
-              patchState(store, {
-                isLoading: false,
-                error: error.message || 'Failed to load types',
-              });
-            },
+        try {
+          const types = await pouchService.getDocsOfType$('type').toPromise() as TypeModel[];
+          const typesMap = new Map<string, TypeModel>(types.map(t => [t._id, t]));
+          
+          debug('[loadTypes] Loaded types:', typesMap.size);
+          patchState(store, {
+            types: typesMap,
+            isLoading: false,
+            error: null,
           });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to load types';
+          debug('[loadTypes] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+        }
+      },
+
+      // Save type (create or update)
+      saveType: async (type: TypeModel) => {
+        debug('[saveType] Saving type:', type.nom);
+        patchState(store, { isLoading: true, error: null });
+        
+        try {
+          const result = await pouchService.saveDoc(type, 'type');
+          
+          const updatedType: TypeModel = {
+            ...type,
+            _id: result.id,
+            _rev: result.rev
+          };
+          
+          // Update local state
+          const newTypesMap = new Map(store.types());
+          newTypesMap.set(result.id, updatedType);
+          
+          debug('[saveType] Type saved successfully:', updatedType._id);
+          patchState(store, {
+            types: newTypesMap,
+            isLoading: false,
+            error: null,
+          });
+          
+          return updatedType;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to save type';
+          debug('[saveType] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
+      },
+
+      // Delete type
+      deleteType: async (type: TypeModel) => {
+        debug('[deleteType] Deleting type:', type._id);
+        patchState(store, { isLoading: true, error: null });
+        
+        try {
+          await pouchService.deleteDoc(type);
+          
+          // Remove from local state
+          const newTypesMap = new Map(store.types());
+          newTypesMap.delete(type._id);
+          
+          debug('[deleteType] Type deleted successfully:', type._id);
+          patchState(store, {
+            types: newTypesMap,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to delete type';
+          debug('[deleteType] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
       },
     };
   }),
@@ -114,10 +193,21 @@ export const TypeStore = signalStore(
   // LIFECYCLE HOOKS
   // ============================================
   withHooks({
-    onInit(store) {
+    onInit(store, pouchService = inject(PouchdbService)) {
       debug('[TypeStore] Initializing');
+      
       // Auto-load types on initialization
       store.loadTypes();
+      
+      // Subscribe to PouchDB changes for real-time sync
+      pouchService.dbChanges$.subscribe((change) => {
+        if (change.id && change.id.startsWith('type|')) {
+          debug('[PouchDB Change] Received change for type:', change.id);
+          store.handleExternalChange(change);
+        }
+      });
+      
+      debug('[TypeStore] Hooks initialized');
     },
     onDestroy() {
       debug('[TypeStore] Destroying');

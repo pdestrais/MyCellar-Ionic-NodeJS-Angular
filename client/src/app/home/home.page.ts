@@ -5,17 +5,15 @@ import { AlertController, NavController } from "@ionic/angular/standalone";
 import { TranslateModule } from "@ngx-translate/core";
 import { VinModel } from "../models/cellar.model";
 import { VinStore } from "../services/vin-state.store";
-import { Store } from "@ngrx/store";
-import * as TypeActions from "../state/type/type.actions";
-import * as OrigineActions from "../state/origine/origine.actions";
-import * as AppellationActions from "../state/appellation/appellation.actions";
-import { AppState } from "../state/app.state";
+import { TypeStore } from "../services/type-state.store";
+import { OrigineStore } from "../services/origine-state.store";
+import { AppellationStore } from "../services/appellation-state.store";
 import { addIcons } from "ionicons";
 import { arrowBackOutline, searchOutline } from "ionicons/icons";
-import { 
-  IonRouterLink, IonHeader, IonToolbar, IonButtons, IonMenuButton, 
-  IonTitle, IonContent, IonButton, IonIcon, IonList, IonItem, 
-  IonBadge, IonSearchbar, IonSpinner, IonToggle, IonLabel 
+import {
+  IonRouterLink, IonHeader, IonToolbar, IonButtons, IonMenuButton,
+  IonTitle, IonContent, IonButton, IonIcon, IonList, IonItem,
+  IonBadge, IonSearchbar, IonSpinner, IonToggle, IonLabel
 } from "@ionic/angular/standalone";
 import Debug from "debug";
 
@@ -36,7 +34,9 @@ const debug = Debug("app:home");
 export class HomePage implements OnInit {
   // Inject dependencies
   private readonly vinStore = inject(VinStore);
-  private readonly store = inject(Store<AppState>);
+  private readonly typeStore = inject(TypeStore);
+  private readonly origineStore = inject(OrigineStore);
+  private readonly appellationStore = inject(AppellationStore);
   private readonly alertCtrl = inject(AlertController);
   private readonly navCtrl = inject(NavController);
   
@@ -119,11 +119,9 @@ export class HomePage implements OnInit {
     // Load vins via VinStore
     this.vinStore.loadVins();
     
-    // Load reference data (types, origines, appellations) via NgRx
-    // These will be migrated in future iterations
-    this.store.dispatch(TypeActions.loadTypes());
-    this.store.dispatch(OrigineActions.loadOrigines());
-    this.store.dispatch(AppellationActions.loadAppellations());
+    // Load reference data from signal stores
+    // Note: TypeStore, OrigineStore, and AppellationStore auto-load in their onInit hooks
+    // No explicit loading needed here as they initialize on injection
     
     // Check for remote DB configuration
     const result = window.localStorage.getItem("myCellar.remoteDBURL");

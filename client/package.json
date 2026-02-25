@@ -1,6 +1,6 @@
 {
   "name": "cellar-ionic",
-  "version": "5.0.1",
+  "version": "5.1",
   "author": "Philippe Destrais",
   "scripts": {
     "ng": "ng",
@@ -32,10 +32,8 @@
     "@capacitor/status-bar": "5.0.7",
     "@fortawesome/fontawesome-free": "^6.0.0-beta3",
     "@ionic/angular": "^8.7.13",
-    "@ngrx/effects": "^21.0.0",
     "@ngrx/operators": "^21.0.0",
     "@ngrx/signals": "^21.0.1",
-    "@ngrx/store": "^21.0.0",
     "@ngx-translate/core": "^14.0.0",
     "@ngx-translate/http-loader": "^7.0.0",
     "blueimp-load-image": "^5.16.0",
