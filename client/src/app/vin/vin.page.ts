@@ -50,10 +50,9 @@ import {
 } from "../models/cellar.model";
 import { VinFormModel, EMPTY_VIN_FORM_MODEL } from "../models/vin-form.model";
 
-import { Store } from "@ngrx/store";
-import * as TypeSelectors from "../state/type/type.selectors";
-import * as OrigineSelectors from "../state/origine/origine.selectors";
-import * as AppellationSelectors from "../state/appellation/appellation.selectors";
+import { TypeStore } from "../services/type-state.store";
+import { OrigineStore } from "../services/origine-state.store";
+import { AppellationStore } from "../services/appellation-state.store";
 
 import { HttpClient } from "@angular/common/http";
 import dayjs from "dayjs";
@@ -123,8 +122,10 @@ export class VinPage {
   private readonly toastCtrl = inject(ToastController);
   private readonly loadingCtrl = inject(LoadingController);
   private readonly platform = inject(Platform);
-  private readonly store = inject(Store);
   private readonly vinStore = inject(VinStore);
+  private readonly typeStore = inject(TypeStore);
+  private readonly origineStore = inject(OrigineStore);
+  private readonly appellationStore = inject(AppellationStore);
   private readonly destroyRef = inject(DestroyRef);
 
   // ============================================
@@ -135,17 +136,11 @@ export class VinPage {
   readonly isEditMode = computed(() => this.vinId() !== null);
 
   // ============================================
-  // STORE SELECTORS (Signal-based)
+  // REFERENCE DATA FROM SIGNAL STORES
   // ============================================
-  readonly types = computed<TypeModel[]>(() =>
-    this.store.selectSignal(TypeSelectors.getAllTypesArraySorted)()
-  );
-  readonly origines = computed<OrigineModel[]>(() =>
-    this.store.selectSignal(OrigineSelectors.getAllOriginesArraySorted)()
-  );
-  readonly appellations = computed<AppellationModel[]>(() =>
-    this.store.selectSignal(AppellationSelectors.getAllAppellationsArraySorted)()
-  );
+  readonly types = this.typeStore.typesList;
+  readonly origines = this.origineStore.originesList;
+  readonly appellations = this.appellationStore.appellationsList;
 
   // ============================================
   // COMPONENT STATE (All Signals)

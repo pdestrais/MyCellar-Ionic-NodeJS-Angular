@@ -12,9 +12,6 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { VinModel } from '../models/cellar.model';
 import { PouchdbService } from './pouchdb.service';
-import { Store } from '@ngrx/store';
-import * as VinActions from '../state/vin/vin.actions';
-import * as VinSelectors from '../state/vin/vin.selectors';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import Debug from 'debug';
 import dayjs from 'dayjs';
@@ -177,7 +174,7 @@ export const VinStore = signalStore(
   })),
   
   // Methods (Actions)
-  withMethods((store, pouchService = inject(PouchdbService), ngrxStore = inject(Store)) => {
+  withMethods((store, pouchService = inject(PouchdbService)) => {
     
     /**
      * Detect concurrent updates by analyzing event log
@@ -338,10 +335,46 @@ export const VinStore = signalStore(
       });
     });
     
+    /**
+     * Get wines filtered by type ID
+     */
+    const getWinesByType = (typeId: string) => computed(() => {
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values());
+      return vins
+        .filter(vin => vin.type && vin.type._id === typeId)
+        .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+    });
+    
+    /**
+     * Get wines filtered by origine ID
+     */
+    const getWinesByOrigine = (origineId: string) => computed(() => {
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values());
+      return vins
+        .filter(vin => vin.origine && vin.origine._id === origineId)
+        .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+    });
+    
+    /**
+     * Get wines filtered by appellation ID
+     */
+    const getWinesByAppellation = (appellationId: string) => computed(() => {
+      const vinsMap = store.vins();
+      const vins = Array.from(vinsMap.values());
+      return vins
+        .filter(vin => vin.appellation && vin.appellation._id === appellationId)
+        .sort((a, b) => (a.nom + a.annee < b.nom + b.annee ? -1 : 1));
+    });
+    
     return {
     // Expose filter/search methods
     getFilteredWines,
     getWinesByMaturity,
+    getWinesByType,
+    getWinesByOrigine,
+    getWinesByAppellation,
     
     /**
      * Load all vins from PouchDB
@@ -360,9 +393,6 @@ export const VinStore = signalStore(
             status: 'idle' 
           });
           
-          // Dispatch to NgRx Store for backward compatibility
-          ngrxStore.dispatch(VinActions.loadVinsSuccess({ vins }));
-          
           debug('[loadVins] Loaded vins:', vins.length);
         }),
         catchError((error) => {
@@ -371,9 +401,6 @@ export const VinStore = signalStore(
             error: errorMessage, 
             status: 'error' 
           });
-          
-          // Dispatch error to NgRx Store
-          ngrxStore.dispatch(VinActions.loadVinsFailure({ error: errorMessage }));
           
           debug('[loadVins] Error:', errorMessage);
           return of(null);
@@ -435,9 +462,6 @@ export const VinStore = signalStore(
           eventLog: newEventLog,
           status: 'idle'
         });
-        
-        // Dispatch to NgRx Store for backward compatibility
-        ngrxStore.dispatch(VinActions.createVinSuccess({ vin: updatedVin, source: 'internal' }));
         
         const result: VinOperationResult = {
           success: true,
@@ -502,9 +526,6 @@ export const VinStore = signalStore(
           status: 'idle'
         });
         
-        // Dispatch to NgRx Store for backward compatibility
-        ngrxStore.dispatch(VinActions.deleteVinSuccess({ result: { id: vin._id, rev: vin._rev }, source: 'internal' }));
-        
         const result: VinOperationResult = {
           success: true,
           source: 'internal'
@@ -547,16 +568,6 @@ export const VinStore = signalStore(
     },
     
     /**
-     * Sync vins from NgRx store
-     */
-    syncFromNgRxStore(vinsMap: Map<string, VinModel>): void {
-      if (vinsMap && vinsMap.size > 0) {
-        debug('[syncFromNgRxStore] Syncing vins from NgRx store:', vinsMap.size);
-        patchState(store, { vins: new Map(vinsMap) });
-      }
-    },
-    
-    /**
      * Handle external change from PouchDB sync
      */
     handleExternalChange(change: any): void {
@@ -588,9 +599,6 @@ export const VinStore = signalStore(
           eventLog: newEventLog,
           concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
         });
-        
-        // Dispatch to NgRx Store for backward compatibility
-        ngrxStore.dispatch(VinActions.deleteVinSuccess({ result: change, source: 'external' }));
         
         patchState(store, {
           lastOperation: {
@@ -627,9 +635,6 @@ export const VinStore = signalStore(
           eventLog: newEventLog,
           concurrentUpdate: detection.detected ? detection : store.concurrentUpdate()
         });
-        
-        // Dispatch to NgRx Store for backward compatibility
-        ngrxStore.dispatch(VinActions.createVinSuccess({ vin, source: 'external' }));
         
         patchState(store, {
           lastOperation: {
@@ -674,7 +679,7 @@ export const VinStore = signalStore(
   
   // Lifecycle Hooks
   withHooks({
-    onInit(store, pouchService = inject(PouchdbService), ngrxStore = inject(Store)) {
+    onInit(store, pouchService = inject(PouchdbService)) {
       debug('[VinStore] Initialized');
       
       // Subscribe to PouchDB changes
@@ -683,11 +688,6 @@ export const VinStore = signalStore(
           debug('[PouchDB Change] Received change for vin:', change.id);
           store.handleExternalChange(change);
         }
-      });
-      
-      // Subscribe to NgRx store for synchronization
-      ngrxStore.select(VinSelectors.getAllVins).subscribe((vinsMap) => {
-        store.syncFromNgRxStore(vinsMap);
       });
       
       debug('[VinStore] Hooks initialized');

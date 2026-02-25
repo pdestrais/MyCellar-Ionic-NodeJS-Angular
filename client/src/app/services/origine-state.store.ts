@@ -1,4 +1,4 @@
-import { computed, inject, DestroyRef } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
@@ -7,11 +7,8 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Store } from '@ngrx/store';
 import { OrigineModel } from '../models/cellar.model';
-import { AppState } from '../state/app.state';
-import * as OrigineSelectors from '../state/origine/origine.selectors';
+import { PouchdbService } from './pouchdb.service';
 import Debugger from 'debug';
 
 const debug = Debugger('app:origine-store');
@@ -70,7 +67,7 @@ export const OrigineStore = signalStore(
   // ============================================
   // METHODS
   // ============================================
-  withMethods((store, ngrxStore = inject(Store<AppState>), destroyRef = inject(DestroyRef)) => {
+  withMethods((store, pouchService = inject(PouchdbService)) => {
     // Local function to get a specific origine by ID
     const getOrigineById = (id: string) =>
       computed(() => {
@@ -82,43 +79,113 @@ export const OrigineStore = signalStore(
       // Get a specific origine by ID (returns computed signal)
       getOrigineById,
 
-      // Load origines from NgRx store (keeps subscription alive for updates)
-      loadOrigines: () => {
-        debug('[loadOrigines] Loading origines and subscribing to updates');
+      // Handle external change from PouchDB sync
+      handleExternalChange(change: any): void {
+        debug('[handleExternalChange] Received change:', change);
+        
+        if (change.deleted) {
+          // External delete
+          const newOriginesMap = new Map(store.origines());
+          newOriginesMap.delete(change.id);
+          patchState(store, { origines: newOriginesMap });
+        } else {
+          // External create/update
+          const origine = change.doc as OrigineModel;
+          const newOriginesMap = new Map(store.origines());
+          newOriginesMap.set(origine._id, origine);
+          patchState(store, { origines: newOriginesMap });
+        }
+      },
+
+      // Load origines from PouchDB
+      loadOrigines: async () => {
+        debug('[loadOrigines] Loading origines from PouchDB');
         patchState(store, { isLoading: true });
         
-        // Subscribe to NgRx store and keep subscription alive for continuous updates
-        ngrxStore.select(OrigineSelectors.getAllOrigines)
-          .pipe(takeUntilDestroyed(destroyRef))
-          .subscribe({
-            next: (originesMap) => {
-              debug('[loadOrigines] Received origines update. Size:', originesMap.size);
-              
-              // Filter out any non-origine documents and create new Map
-              const newMap = new Map<string, OrigineModel>();
-              originesMap.forEach((value, key) => {
-                // Only add if it's a valid origine document
-                if (key && key.startsWith('origine|') && value && value._id) {
-                  newMap.set(key, value);
-                } else {
-                  debug('[loadOrigines] Filtered out invalid entry:', { key, value });
-                }
-              });
-              
-              patchState(store, {
-                origines: newMap,
-                isLoading: false,
-                error: null,
-              });
-            },
-            error: (error) => {
-              debug('[loadOrigines] Error:', error);
-              patchState(store, {
-                isLoading: false,
-                error: error.message || 'Failed to load origines',
-              });
-            },
+        try {
+          const origines = await pouchService.getDocsOfType$('origine').toPromise() as OrigineModel[];
+          const originesMap = new Map<string, OrigineModel>(origines.map(o => [o._id, o]));
+          
+          debug('[loadOrigines] Loaded origines:', originesMap.size);
+          patchState(store, {
+            origines: originesMap,
+            isLoading: false,
+            error: null,
           });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to load origines';
+          debug('[loadOrigines] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+        }
+      },
+
+      // Save origine (create or update)
+      saveOrigine: async (origine: OrigineModel) => {
+        debug('[saveOrigine] Saving origine:', origine.pays, origine.region);
+        patchState(store, { isLoading: true, error: null });
+        
+        try {
+          const result = await pouchService.saveDoc(origine, 'origine');
+          
+          const updatedOrigine: OrigineModel = {
+            ...origine,
+            _id: result.id,
+            _rev: result.rev
+          };
+          
+          // Update local state
+          const newOriginesMap = new Map(store.origines());
+          newOriginesMap.set(result.id, updatedOrigine);
+          
+          debug('[saveOrigine] Origine saved successfully:', updatedOrigine._id);
+          patchState(store, {
+            origines: newOriginesMap,
+            isLoading: false,
+            error: null,
+          });
+          
+          return updatedOrigine;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to save origine';
+          debug('[saveOrigine] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
+      },
+
+      // Delete origine
+      deleteOrigine: async (origine: OrigineModel) => {
+        debug('[deleteOrigine] Deleting origine:', origine._id);
+        patchState(store, { isLoading: true, error: null });
+        
+        try {
+          await pouchService.deleteDoc(origine);
+          
+          // Remove from local state
+          const newOriginesMap = new Map(store.origines());
+          newOriginesMap.delete(origine._id);
+          
+          debug('[deleteOrigine] Origine deleted successfully:', origine._id);
+          patchState(store, {
+            origines: newOriginesMap,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to delete origine';
+          debug('[deleteOrigine] Error:', errorMessage);
+          patchState(store, {
+            isLoading: false,
+            error: errorMessage,
+          });
+          throw error;
+        }
       },
     };
   }),
@@ -127,10 +194,21 @@ export const OrigineStore = signalStore(
   // LIFECYCLE HOOKS
   // ============================================
   withHooks({
-    onInit(store) {
+    onInit(store, pouchService = inject(PouchdbService)) {
       debug('[OrigineStore] Initializing');
+      
       // Auto-load origines on initialization
       store.loadOrigines();
+      
+      // Subscribe to PouchDB changes for real-time sync
+      pouchService.dbChanges$.subscribe((change) => {
+        if (change.id && change.id.startsWith('origine|')) {
+          debug('[PouchDB Change] Received change for origine:', change.id);
+          store.handleExternalChange(change);
+        }
+      });
+      
+      debug('[OrigineStore] Hooks initialized');
     },
     onDestroy() {
       debug('[OrigineStore] Destroying');

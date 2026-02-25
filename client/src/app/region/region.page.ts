@@ -1,23 +1,18 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect, signal, computed, inject, DestroyRef } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Component, OnInit, effect, signal, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonLabel, IonInput } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { OrigineModel, VinModel } from "../models/cellar.model";
 import { ToastController } from "@ionic/angular/standalone";
 import { ActivatedRoute } from "@angular/router";
 
-import { Store } from "@ngrx/store";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
-import * as VinSelectors from "../state/vin/vin.selectors";
-import * as OrigineActions from "../state/origine/origine.actions";
-import { AppState } from "../state/app.state";
 import { OrigineStore } from "../services/origine-state.store";
-
-import { replacer } from "../util/util";
+import { VinStore } from "../services/vin-state.store";
 
 import Debugger from "debug";
 import { addIcons } from "ionicons";
@@ -54,9 +49,8 @@ export class RegionPage implements OnInit {
     private readonly translate = inject(TranslateService);
     private readonly alertController = inject(AlertController);
     private readonly toastCtrl = inject(ToastController);
-    private readonly store = inject(Store<AppState>);
     private readonly origineStore = inject(OrigineStore);
-    private readonly destroyRef = inject(DestroyRef);
+    private readonly vinStore = inject(VinStore);
 
     // ============================================
     // COMPONENT STATE (Signals)
@@ -74,10 +68,6 @@ export class RegionPage implements OnInit {
     // Get duplicate map from OrigineStore
     readonly originesMap = this.origineStore.origineMapForDuplicates;
 
-    // Wines for this origine - using a writable signal updated by effect
-    private readonly _winesForOrigine = signal<VinModel[]>([]);
-    readonly winesForOrigine = this._winesForOrigine.asReadonly();
-
     public submitted = signal<boolean>(false);
     public origineForm!: FormGroup;
     public list = signal<boolean>(true);
@@ -90,22 +80,6 @@ export class RegionPage implements OnInit {
 
     constructor() {
         addIcons({ caretForwardOutline });
-
-        // Effect: Load wines for the selected origine
-        effect(() => {
-            const id = this.origineId();
-            if (!id) {
-                this._winesForOrigine.set([]);
-                return;
-            }
-            
-            // Subscribe to wines for this origine
-            this.store.select(VinSelectors.getWinesByOrigine(id))
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe(wines => {
-                    this._winesForOrigine.set(wines || []);
-                });
-        });
 
         // Effect: Load selected origine when origineId changes
         effect(() => {
@@ -121,140 +95,18 @@ export class RegionPage implements OnInit {
                     this.list.set(false);
                     this.currentOrigine.set(origine);
                     this.newOrigine.set(false);
-                    
-                    // Reset Origine state to avoid shadow UI messages
-                    this.store.dispatch(
-                        OrigineActions.editOrigine({
-                            id: origine._id!,
-                            rev: origine._rev!,
-                        })
-                    );
                     this.origineForm.get("pays")!.setValue(origine.pays);
                     this.origineForm.get("region")!.setValue(origine.region);
-                    debug("[ngOnInit]Origine loaded : " + JSON.stringify(origine));
+                    debug("[Effect:origineId] Origine loaded:", JSON.stringify(origine));
                 }
             } else {
                 // No origine selected, creating new origine
                 this.newOrigine.set(true);
-                // Reset to empty origine for new creation
                 this.currentOrigine.set(new OrigineModel({
                     _id: "",
                     pays: "",
                     region: "",
                 }));
-                this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
-            }
-        }, { allowSignalWrites: true });
-
-        // Effect: Handle state changes from NgRx (for save/delete operations)
-        const origineStateSignal = toSignal(this.store.select((state: AppState) => state.origines));
-        effect(() => {
-            const origineState = origineStateSignal();
-            if (!origineState) return;
-            
-            switch (origineState.status) {
-                case "saved":
-                    debug(
-                        "[ngOnInit] handling change to 'saved' status - ts " +
-                        window.performance.now() +
-                        "\norigineState : " +
-                        JSON.stringify(origineState, replacer)
-                    );
-
-                    if (origineState.source == "internal") {
-                        debug("[ngInit](I) Standard origine saved");
-                        this.presentToast(
-                            this.translate.instant("general.dataSaved"),
-                            "success",
-                            "home",
-                            2000
-                        );
-                        this.store.dispatch(OrigineActions.setStatusToLoaded());
-                    } else {
-                        let filteredEventLog = origineState.eventLog.filter(
-                            (value) =>
-                                value.id == origineState.currentOrigine!.id &&
-                                value.rev == origineState.currentOrigine!.rev &&
-                                value.action == "create"
-                        );
-                        debug("[ngInit](II) FilteredEventLog : " + JSON.stringify(filteredEventLog));
-                        
-                        if (filteredEventLog.length == 2) {
-                            debug("[ngInit](II.A) Duplicate state change for the same origine");
-                            this.store.dispatch(OrigineActions.setStatusToLoaded());
-                        } else if (
-                            origineState.eventLog[origineState.eventLog.length - 1].id ==
-                            origineState.currentOrigine!.id &&
-                            origineState.eventLog[origineState.eventLog.length - 1].rev ==
-                            origineState.currentOrigine!.rev &&
-                            origineState.eventLog[origineState.eventLog.length - 1].action ==
-                            "create" &&
-                            this.origineForm.dirty
-                        ) {
-                            debug("[ngInit](II.C) Concurrent editing on the same origine");
-                            this.presentToast(
-                                this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
-                                "warning",
-                                "",
-                                0,
-                                "Close"
-                            );
-                        } else {
-                            debug("[ngInit](II.B) Update of another origine");
-                        }
-                    }
-                    break;
-                    
-                case "error":
-                    this.presentToast(
-                        this.translate.instant("general.DBError") + " " + origineState.error,
-                        "error",
-                        null,
-                        5000
-                    );
-                    break;
-                    
-                case "deleted":
-                    if (origineState.source == "internal") {
-                        debug("[ngInit](I) Standard origine deleted");
-                        this.presentToast(
-                            this.translate.instant("wine.wineDeleted"),
-                            "success",
-                            "home",
-                            2000
-                        );
-                        this.store.dispatch(OrigineActions.setStatusToLoaded());
-                    } else {
-                        const deleteEventsForCurrentOrigine = origineState.eventLog.filter(
-                            (value) =>
-                                value.id == origineState.currentOrigine!.id &&
-                                value.rev >= origineState.currentOrigine!.rev &&
-                                value.action == "delete"
-                        );
-                        
-                        if (deleteEventsForCurrentOrigine.length >= 1) {
-                            // This is the external event following our internal delete
-                            debug("[ngInit](II.A) Duplicate state change for the same origine (external after internal)");
-                            this.store.dispatch(OrigineActions.setStatusToLoaded());
-                        } else if (
-                            origineState.eventLog[origineState.eventLog.length - 1].id ==
-                            origineState.currentOrigine!.id &&
-                            origineState.eventLog[origineState.eventLog.length - 1].action ==
-                            "delete"
-                        ) {
-                            debug("[ngInit](II.C) Concurrent editing on the same origine");
-                            this.presentToast(
-                                this.translate.instant("wine.deletedConcurrentlyOnAnotherInstance"),
-                                "warning",
-                                "home",
-                                0,
-                                "Close"
-                            );
-                        } else {
-                            debug("[ngInit](II.B) Delete of another origine");
-                        }
-                    }
-                    break;
             }
         }, { allowSignalWrites: true });
     }
@@ -303,24 +155,37 @@ export class RegionPage implements OnInit {
         else this.navCtrl.navigateForward(["/region"]);
     }
 
-    public saveOrigine() {
-        debug("[saveOrigine]entering");
+    public async saveOrigine() {
+        debug("[saveOrigine] Entering");
         this.submitted.set(true);
         
         if (this.origineForm.valid) {
-            debug("[saveOrigine]Origine valid");
+            debug("[saveOrigine] Origine valid");
             const currentOrigine = this.currentOrigine();
             const updatedOrigine = {
                 ...currentOrigine,
                 ...this.origineForm.value,
             };
-            this.currentOrigine.set(updatedOrigine);
-
-            this.store.dispatch(
-                OrigineActions.createOrigine({ origine: updatedOrigine })
-            );
+            
+            try {
+                await this.origineStore.saveOrigine(updatedOrigine);
+                this.presentToast(
+                    this.translate.instant("general.dataSaved"),
+                    "success",
+                    "home",
+                    2000
+                );
+            } catch (error) {
+                debug("[saveOrigine] Error:", error);
+                this.presentToast(
+                    this.translate.instant("general.DBError"),
+                    "error",
+                    null,
+                    5000
+                );
+            }
         } else {
-            debug("[saveOrigine]origine invalid");
+            debug("[saveOrigine] Origine invalid");
             this.presentToast(
                 this.translate.instant("general.invalidData"),
                 "error",
@@ -329,36 +194,46 @@ export class RegionPage implements OnInit {
         }
     }
 
-    public deleteOrigine() {
+    public async deleteOrigine() {
         // Check if origine is used by any wines
         const currentOrigine = this.currentOrigine();
-        const wineList = this.winesForOrigine();
+        const winesByOrigineSignal = this.vinStore.getWinesByOrigine(currentOrigine._id);
+        const wineList = winesByOrigineSignal();
         const used = wineList.length > 0;
         
         if (!used) {
-            this.alertController
-                .create({
-                    header: this.translate.instant("general.confirm"),
-                    message: this.translate.instant("general.sure"),
-                    buttons: [
-                        {
-                            text: this.translate.instant("general.cancel"),
-                        },
-                        {
-                            text: this.translate.instant("general.ok"),
-                            handler: () => {
-                                this.store.dispatch(
-                                    OrigineActions.deleteOrigine({
-                                        origine: currentOrigine,
-                                    })
+            const alert = await this.alertController.create({
+                header: this.translate.instant("general.confirm"),
+                message: this.translate.instant("general.sure"),
+                buttons: [
+                    {
+                        text: this.translate.instant("general.cancel"),
+                    },
+                    {
+                        text: this.translate.instant("general.ok"),
+                        handler: async () => {
+                            try {
+                                await this.origineStore.deleteOrigine(currentOrigine);
+                                this.presentToast(
+                                    this.translate.instant("wine.wineDeleted"),
+                                    "success",
+                                    "home",
+                                    2000
                                 );
-                            },
+                            } catch (error) {
+                                debug("[deleteOrigine] Error:", error);
+                                this.presentToast(
+                                    this.translate.instant("general.DBError"),
+                                    "error",
+                                    null,
+                                    5000
+                                );
+                            }
                         },
-                    ],
-                })
-                .then((alert) => {
-                    alert.present();
-                });
+                    },
+                ],
+            });
+            await alert.present();
         } else {
             this.presentToast(
                 this.translate.instant("origine.cantDeleteBecauseUsed"),

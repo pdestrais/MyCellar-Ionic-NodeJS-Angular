@@ -1,5 +1,5 @@
 import { PouchdbService } from "./../../services/pouchdb.service";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { first } from "rxjs/operators";
@@ -18,11 +18,10 @@ import Debugger from "debug";
 import { TranslateService } from "@ngx-translate/core";
 import { environment } from "../../../environments/environment";
 
-import { Store, select } from "@ngrx/store";
-import * as VinActions from "../../state/vin/vin.actions";
-import * as TypeActions from "../../state/type/type.actions";
-import * as OrigineActions from "../../state/origine/origine.actions";
-import * as AppellationActions from "../../state/appellation/appellation.actions";
+import { VinStore } from "../../services/vin-state.store";
+import { TypeStore } from "../../services/type-state.store";
+import { OrigineStore } from "../../services/origine-state.store";
+import { AppellationStore } from "../../services/appellation-state.store";
 
 const debug = Debugger("app:login");
 
@@ -33,6 +32,21 @@ const debug = Debugger("app:login");
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, IonRouterLinkWithHref, IonContent, IonGrid, IonRow, IonCol, IonInput, IonButton]
 })
 export class LoginComponent implements OnInit {
+  // Inject dependencies
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly toastCtrl = inject(ToastController);
+  private readonly alertController = inject(AlertController);
+  private readonly translate = inject(TranslateService);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly dataService = inject(PouchdbService);
+  private readonly vinStore = inject(VinStore);
+  private readonly typeStore = inject(TypeStore);
+  private readonly origineStore = inject(OrigineStore);
+  private readonly appellationStore = inject(AppellationStore);
+
   public loginForm!: FormGroup;
   loading = false;
   submitted = false;
@@ -41,18 +55,7 @@ export class LoginComponent implements OnInit {
   cloudantURL = "https://";
   version = environment.version;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authenticationService: AuthenticationService,
-    private toastCtrl: ToastController,
-    private alertController: AlertController,
-    private translate: TranslateService,
-    private loadingCtrl: LoadingController,
-    private dataService: PouchdbService,
-    private store: Store
-  ) {
+  constructor() {
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
       this.router.navigate(["/"]);
@@ -139,11 +142,14 @@ export class LoginComponent implements OnInit {
                   null
                 );
 
-                this.store.dispatch(VinActions.loadVins());
-                // not need in home page but I'm loading the type, origine and appellation information in the state so that it's ready to use in other modules
-                this.store.dispatch(TypeActions.loadTypes());
-                this.store.dispatch(OrigineActions.loadOrigines());
-                this.store.dispatch(AppellationActions.loadAppellations());
+                // Load data using signal stores
+                this.vinStore.loadVins();
+                // TypeStore, OrigineStore, and AppellationStore auto-load in their onInit hooks
+                // They're already loaded when injected, but we can explicitly reload if needed
+                this.typeStore.loadTypes();
+                this.origineStore.loadOrigines();
+                this.appellationStore.loadAppellations();
+                
                 this.router.navigate([this.returnUrl]);
                 subscription.unsubscribe();
               }
