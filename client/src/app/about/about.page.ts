@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TranslateModule } from "@ngx-translate/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -12,16 +12,13 @@ import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent,
     standalone: true,
     imports: [CommonModule, TranslateModule, FormsModule, ReactiveFormsModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent]
 })
-export class AboutPage implements OnInit {
-    public appInfo: any = {
+export class AboutPage {
+    // Convert to signal for consistency with signal-based architecture
+    readonly appInfo = signal({
         name: "MyCellar",
         version: environment.version,
         author: "Philippe Destrais",
         ionic: environment.ionic,
         angular: environment.angular,
-    };
-
-    constructor() { }
-
-    ngOnInit() { }
+    });
 }

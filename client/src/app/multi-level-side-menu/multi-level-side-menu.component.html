@@ -1,12 +1,12 @@
 <ion-list class="ion-no-margin" no-lines>
-  @for (option of collapsableItems; track option.id; let i = $index) {
+  @for (option of collapsableItems(); track option.id; let i = $index) {
     <!-- It is a simple option -->
     @if (!option.suboptionsCount) {
       <ion-item
         class="option"
         [ngClass]="
-          menuSettings?.showSelectedOption && option.selected
-            ? menuSettings.selectedOptionClass
+          menuSettings()?.showSelectedOption && option.selected
+            ? menuSettings()!.selectedOptionClass
             : null
         "
         (click)="select(option)"
@@ -43,8 +43,8 @@
           class="header"
           color="light"
           [ngClass]="
-            menuSettings?.showSelectedOption && option.selected
-              ? menuSettings.selectedOptionClass
+            menuSettings()?.showSelectedOption && option.selected
+              ? menuSettings()!.selectedOptionClass
               : null
           "
           (click)="toggleItemOptions(option)"
@@ -64,7 +64,7 @@
         <div
           [style.height]="
             option.expanded
-              ? (optionHeight + 1) * option.suboptionsCount + 'px'
+              ? (optionHeight() + 1) * option.suboptionsCount + 'px'
               : '0px'
           "
           class="options"
@@ -72,13 +72,13 @@
           @for (item of option.subOptions; track item.id) {
             <ion-item
               class="sub-option"
-              [style.padding-left]="subOptionIndentation + 'px'"
+              [style.padding-left]="subOptionIndentation() + 'px'"
               [class.no-icon]="
-                menuSettings?.indentSubOptionsWithoutIcons && !item.iconName
+                menuSettings()?.indentSubOptionsWithoutIcons && !item.iconName
               "
               [ngClass]="
-                menuSettings?.showSelectedOption && item.selected
-                  ? menuSettings.selectedOptionClass
+                menuSettings()?.showSelectedOption && item.selected
+                  ? menuSettings()!.selectedOptionClass
                   : null
               "
               (click)="select(item)"

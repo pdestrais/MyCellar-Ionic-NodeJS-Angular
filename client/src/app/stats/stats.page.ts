@@ -1,19 +1,15 @@
-import { Component, OnInit, NgZone, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, signal, inject, ViewEncapsulation } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { TranslateModule } from "@ngx-translate/core";
 import { FormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Router } from "@angular/router";
 import { VinModel } from "../models/cellar.model";
-import { PouchdbService } from "../services/pouchdb.service";
+import { VinStore } from "../services/vin-state.store";
 import * as d3 from "d3";
 import * as d3scale from "d3-scale";
 import * as d3shape from "d3-shape";
 import * as d3select from "d3-selection";
-import { Store, select } from "@ngrx/store";
-import { AppState } from "../state/app.state";
-import * as VinSelectors from "../state/vin/vin.selectors";
-import * as VinActions from "../state/vin/vin.actions";
 import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonSelect, IonSelectOption, IonButton } from "@ionic/angular/standalone";
 
 @Component({
@@ -25,25 +21,24 @@ import { IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent,
     imports: [CommonModule, TranslateModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonItem, IonSelect, IonSelectOption, IonButton]
 })
 export class StatsPage implements OnInit {
-    private total: number = 0;
-    public dataset: Array<any> = [];
-    private vins: Array<VinModel> = [];
-    public from: number = 0;
-    public to: number = 1;
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly vinStore = inject(VinStore);
+
+    // Convert to signals for reactive state management
+    private readonly total = signal<number>(0);
+    readonly dataset = signal<Array<any>>([]);
+    readonly from = signal<number>(0);
+    readonly to = signal<number>(1);
     private margin: any;
     private width: number = 0;
     private height: number = 0;
-    public fromOptions: Array<any>;
-    public toOptions: Array<any>;
+    readonly fromOptions: Array<any>;
+    readonly toOptions: Array<any>;
     private colors: any;
-    public ready: boolean = false;
+    readonly ready = signal<boolean>(false);
 
-    constructor(
-        public router: Router,
-        private translate: TranslateService,
-        private zone: NgZone,
-        private store: Store<AppState>
-    ) {
+    constructor() {
         this.fromOptions = [
             { value: 0, display: this.translate.instant("stats.now") },
             { value: 1, display: this.translate.instant("stats.oneYear") },
@@ -58,66 +53,62 @@ export class StatsPage implements OnInit {
     }
 
     ngOnInit() {
-        this.store.dispatch(VinActions.loadVins());
-        this.store.pipe(select(VinSelectors.getAllVins)).subscribe((wineList) => {
-            this.vins = Array.from(wineList.values());
-            console.log("[Stats]" + this.vins.length + " wines loaded");
-        });
+        // Load wines via VinStore
+        this.vinStore.loadVins();
     }
 
     draw() {
-        this.zone.run(() => {
-            this.prepareData().then(() => {
-                this.ready = true;
-                console.log("ready");
-            });
+        this.prepareData().then(() => {
+            this.ready.set(true);
+            console.log("ready");
         });
         // I have to delay chart initialization and rendering as angular change detection is not fast enough to generate the table before
         // the chart renders (and background color setting relies on data in table). I tried using ngZone but it doesn't help.
-        var _self1 = this;
-        setTimeout(function() {
-            _self1.initializeChart();
+        setTimeout(() => {
+            this.initializeChart();
         }, 200);
     }
 
     prepareData() {
-        let currentDate = new Date();
-        this.total = 0;
-        this.dataset = [];
-        var _self = this;
-        this.vins.forEach(function(item, index) {
+        const currentDate = new Date();
+        const vins = this.vinStore.vinsList();
+        let totalCount = 0;
+        const datasetArray: Array<any> = [];
+        
+        vins.forEach((item) => {
             if (typeof item.history != "undefined" && item.history.length > 0) {
-                var _self1 = _self;
-                item.history.forEach(function(h, ih) {
+                item.history.forEach((h) => {
                     let into = false;
                     if (
                         h &&
                         h.type == "update" &&
                         Date.parse(h.date) <=
-                        currentDate.getTime() - _self.from * 365 * 1000 * 3600 * 24 &&
+                        currentDate.getTime() - this.from() * 365 * 1000 * 3600 * 24 &&
                         Date.parse(h.date) >
-                        currentDate.getTime() - _self.to * 365 * 1000 * 3600 * 24
+                        currentDate.getTime() - this.to() * 365 * 1000 * 3600 * 24
                     ) {
                         // if dataset already contains the region, add the difference to dataset's count. If not, create dataset element with label and count
-                        var _self2 = _self1;
-                        _self.dataset.forEach(function(d, id) {
+                        datasetArray.forEach((d) => {
                             if (d.label == item.origine.region && h.difference < 0) {
                                 d.count = d.count - h.difference;
-                                _self2.total = _self2.total - h.difference;
+                                totalCount = totalCount - h.difference;
                                 into = true;
                             }
                         });
                         if (!into && h.difference < 0) {
-                            _self.dataset.push({
+                            datasetArray.push({
                                 label: item.origine.region,
                                 count: -h.difference,
                             });
-                            _self2.total = _self2.total - h.difference;
+                            totalCount = totalCount - h.difference;
                         }
                     }
                 });
             }
         });
+        
+        this.total.set(totalCount);
+        this.dataset.set(datasetArray);
         return Promise.resolve();
     }
 
@@ -177,7 +168,7 @@ export class StatsPage implements OnInit {
         title = d3
             .select("#title")
             .append("h3")
-            .html("total : &nbsp;" + this.total);
+            .html("total : &nbsp;" + this.total());
         svg = d3
             .select("#chart")
             .append("svg")
@@ -211,7 +202,7 @@ export class StatsPage implements OnInit {
         tooltip.style("display", "none"); // NEW
         var path = svg
             .selectAll("path")
-            .data(pie(this.dataset))
+            .data(pie(this.dataset()))
             .enter()
             .append("path")
             .attr("d", arc)
@@ -223,7 +214,7 @@ export class StatsPage implements OnInit {
         path.on("mouseover", function(event: any, d: any) {
             // NEW
             var total = d3.sum(
-                _self.dataset.map(function(d: any) {
+                _self.dataset().map(function(d: any) {
                     // NEW
                     return d.count; // NEW
                 })
@@ -242,7 +233,7 @@ export class StatsPage implements OnInit {
         console.log("adapt table style");
         d3select
             .selectAll(".tabcolor")
-            .data(this.dataset)
+            .data(this.dataset())
             .style("background-color", function(d, i) {
                 return color(d.label);
             });
