@@ -19,7 +19,7 @@
         </ion-item>
 
         <ion-list slot="content">
-          @for (wineToDrink of AlertRTDList; track wineToDrink) {
+          @for (wineToDrink of AlertRTDList(); track wineToDrink) {
             <ion-item
               [routerLink]="['/vin', wineToDrink._id]"
               routerDirection="root"
@@ -55,7 +55,7 @@
           </ion-item>
 
           <ion-list slot="content">
-            @for (wineToDrink of RTDList; track wineToDrink) {
+            @for (wineToDrink of RTDList(); track wineToDrink) {
               <ion-item
                 [routerLink]="['/vin', wineToDrink._id]"
                 routerDirection="root"
@@ -94,7 +94,7 @@
               </ion-item>
 
               <ion-list slot="content">
-                @for (wineToDrink of NearlyRTDList; track wineToDrink) {
+                @for (wineToDrink of NearlyRTDList(); track wineToDrink) {
                   <ion-item
                     [routerLink]="['/vin', wineToDrink._id]"
                     routerDirection="root"
@@ -130,7 +130,7 @@
                 </ion-item>
 
                 <ion-list slot="content">
-                  @for (wineToDrink of NotRTDList; track wineToDrink) {
+                  @for (wineToDrink of NotRTDList(); track wineToDrink) {
                     <ion-item
                       [routerLink]="['/vin', wineToDrink._id]"
                       routerDirection="root"

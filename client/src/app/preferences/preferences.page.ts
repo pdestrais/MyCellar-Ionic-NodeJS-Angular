@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from "@angular/core";
+import { Component, OnInit, signal, inject, effect } from "@angular/core";
 import { Location } from "@angular/common";
 import { CommonModule } from "@angular/common";
 import { TranslateModule } from "@ngx-translate/core";
@@ -18,25 +18,39 @@ const debug = Debugger("app:preferences");
     imports: [CommonModule, TranslateModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItemGroup, IonItemDivider, IonLabel, IonItem, IonSelect, IonSelectOption]
 })
 export class PreferencesPage implements OnInit {
-    public language: string = "en";
-    public remoteDB: string = "";
-    public supportedLanguages: Map<string, string> = new Map([
+    private readonly location = inject(Location);
+    private readonly translate = inject(TranslateService);
+
+    // Convert to signals for reactive state management
+    readonly language = signal<string>("en");
+    readonly remoteDB = signal<string>("");
+    readonly supportedLanguages: Map<string, string> = new Map([
         ["fr", "français"],
         ["en", "english"],
     ]);
-    constructor(
-        private location: Location,
-        private zone: NgZone,
-        private translate: TranslateService
-    ) { }
+
+    constructor() {
+        // Effect to persist language changes
+        effect(() => {
+            const lang = this.language();
+            if (lang) {
+                window.localStorage.setItem("myCellar.language", lang);
+            }
+        });
+    }
 
     ngOnInit() {
         debug("[ngOnInit]");
-        this.zone.run(() => {
-            this.language = window.localStorage.getItem("myCellar.language")!;
-            let tmpRemoteDB = localStorage.getItem("myCellar.remoteDBURL")!;
-            this.remoteDB = tmpRemoteDB.split("@")[1];
-        });
+        // Load preferences from localStorage
+        const storedLanguage = window.localStorage.getItem("myCellar.language");
+        if (storedLanguage) {
+            this.language.set(storedLanguage);
+        }
+        
+        const tmpRemoteDB = localStorage.getItem("myCellar.remoteDBURL");
+        if (tmpRemoteDB) {
+            this.remoteDB.set(tmpRemoteDB.split("@")[1] || "");
+        }
     }
 
     goBack() {
@@ -44,12 +58,13 @@ export class PreferencesPage implements OnInit {
     }
 
     languageChange(val: any) {
-        this.language = val.detail.value;
+        const newLanguage = val.detail.value;
         debug("Language Change:", val);
-        this.zone.run(() => {
-            this.translate.use(this.language).subscribe((changed) => {
-                window.localStorage.setItem("myCellar.language", this.language);
-            });
+        
+        // Update signal and apply translation
+        this.language.set(newLanguage);
+        this.translate.use(newLanguage).subscribe((changed) => {
+            debug("Language changed successfully");
         });
     }
 }

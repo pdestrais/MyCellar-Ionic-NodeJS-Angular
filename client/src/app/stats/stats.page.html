@@ -15,7 +15,8 @@
     <ion-item id="stats-from">
       <ion-select
         label="{{'stats.from' | translate }}"
-        [(ngModel)]="from"
+        [ngModel]="from()"
+        (ngModelChange)="from.set($event)"
         interface="popover"
         name="end"
         >
@@ -31,7 +32,8 @@
     <ion-item id="stats-to">
       <ion-select
         label="{{'stats.to' | translate }}"
-        [(ngModel)]="to"
+        [ngModel]="to()"
+        (ngModelChange)="to.set($event)"
         interface="popover"
         name="start"
         >
@@ -50,7 +52,7 @@
   </ion-button>
   <div id="title"></div>
   <div id="chart"></div>
-  @if (ready) {
+  @if (ready()) {
     <div class="statTable">
       <table border="0" cellpadding="10">
         <thead>
@@ -61,7 +63,7 @@
           </tr>
         </thead>
         <tbody id="chartTableBody">
-          @for (d of dataset; track d) {
+          @for (d of dataset(); track d) {
             <tr>
               <td class="tabcolor"></td>
               <td>{{d.label}}</td>

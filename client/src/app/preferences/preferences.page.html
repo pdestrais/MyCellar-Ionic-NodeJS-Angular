@@ -22,7 +22,8 @@
           </ion-item-divider>
           <ion-item id="configuration-select5">
             <ion-select
-              [(ngModel)]="language"
+              [ngModel]="language()"
+              (ngModelChange)="language.set($event)"
               (ionChange)="languageChange($event)"
               name="langue"
               interface="popover"
@@ -50,7 +51,7 @@
           <ion-item-divider color="secondary">
             <ion-label>{{'config.dbServerURL' | translate }}</ion-label>
           </ion-item-divider>
-          <ion-item id="configuration-select5"> {{remoteDB}} </ion-item>
+          <ion-item id="configuration-select5"> {{remoteDB()}} </ion-item>
         </ion-item-group>
       </ion-col>
     </ion-row>

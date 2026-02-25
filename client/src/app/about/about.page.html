@@ -17,11 +17,11 @@
     </ion-card-header>
 
     <ion-card-content>
-      <p>{{'about.appName' | translate }} : {{appInfo.name}}</p>
-      <p>{{'about.appVersion' | translate }} : {{appInfo.version}}</p>
+      <p>{{'about.appName' | translate }} : {{appInfo().name}}</p>
+      <p>{{'about.appVersion' | translate }} : {{appInfo().version}}</p>
       <p></p>
-      <p>ionic : {{appInfo.ionic}}</p>
-      <p>angular : {{appInfo.angular}}</p>
+      <p>ionic : {{appInfo().ionic}}</p>
+      <p>angular : {{appInfo().angular}}</p>
     </ion-card-content>
 
   </ion-card>
