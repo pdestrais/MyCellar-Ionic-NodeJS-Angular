@@ -8,30 +8,28 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (list) {
+  @if (list()) {
     <div>
-      @if (appellations$ | async) {
+      @if (appellations().length > 0) {
         <div>
           <ion-list>
-            @for (appellation of appellations$ | async; track appellation) {
+            @for (appellation of appellations(); track appellation._id) {
               <ion-item
                 (click)="editAppellation(appellation)"
                 >
                 {{ appellation.courte }} - {{appellation.longue}}
-                <!-- <ion-button slot="end" fill="outline">Modify -->
                 <ion-icon slot="end" color="dark" name="caret-forward-outline"></ion-icon>
-              <!-- </ion-button> -->
             </ion-item>
           }
         </ion-list>
       </div>
     }
-    <ion-button expand="full" (click)="editAppellation(appellation)">
+    <ion-button expand="full" (click)="editAppellation(null)">
       {{'general.add' | translate }} {{'appellation.appellation' | translate }}
     </ion-button>
   </div>
 }
-@if (!list) {
+@if (!list()) {
   <div>
     <form [formGroup]="appellationForm" id="appellation-form4">
       <ion-item id="appellation-input1">
@@ -42,11 +40,11 @@
           placeholder="{{ 'appellation.appellationShort' | translate }}"
           formControlName="courte"
           class="ion-text-right"
-          [class.invalid]="!appellationForm.controls.courte.valid && (appellationForm.controls.courte.dirty || submitted)"
+          [class.invalid]="!appellationForm.controls.courte.valid && (appellationForm.controls.courte.dirty || submitted())"
           >
         </ion-input>
       </ion-item>
-      @if (!appellationForm.controls.courte.valid  && (appellationForm.controls.courte.dirty || submitted)) {
+      @if (!appellationForm.controls.courte.valid  && (appellationForm.controls.courte.dirty || submitted())) {
         <ion-item
           >
           <p class="invalid">
@@ -62,7 +60,7 @@
           placeholder="{{ 'appellation.appellationLong' | translate }}"
           formControlName="longue"
           class="ion-text-right"
-          [class.invalid]="!appellationForm.controls.longue.valid && (appellationForm.controls.longue.dirty || submitted)"
+          [class.invalid]="!appellationForm.controls.longue.valid && (appellationForm.controls.longue.dirty || submitted())"
           >
         </ion-input>
       </ion-item>
@@ -86,31 +84,29 @@
         {{'general.cancel' | translate }}
       </ion-button>
     </form>
-    @if (!showWines) {
+    @if (!showWines()) {
       <ion-button
         color="secondary"
         fill="outline"
-        (click)="showWines = !showWines"
+        (click)="showWines.set(!showWines())"
         >
         {{'appellation.showWinesForAppellation' | translate }}
       </ion-button>
     }
-    @if (showWines) {
-      <ion-button color="secondary" fill="outline" (click)="showWines = !showWines">
+    @if (showWines()) {
+      <ion-button color="secondary" fill="outline" (click)="showWines.set(!showWines())">
         {{'appellation.hideWinesForAppellation' | translate }}
       </ion-button>
     }
-    @if (showWines && (winesForAppellation$ | async)) {
+    @if (showWines() && winesForAppellation().length > 0) {
       <div [ngClass]="'border'">
         <ion-list>
-          @for (wine of winesForAppellation$ | async; track wine) {
+          @for (wine of winesForAppellation(); track wine._id) {
             <ion-item
               [routerLink]="['/vin', wine._id]"
               >
               {{ wine.nom }} - {{wine.annee}} - {{wine.type.nom}}
-              <!-- <ion-button slot="end" fill="outline">Modify -->
               <ion-icon slot="end" color="dark" name="caret-forward-outline"></ion-icon>
-            <!-- </ion-button> -->
           </ion-item>
         }
       </ion-list>

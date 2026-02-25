@@ -54,14 +54,15 @@ export class OrigineEffects {
       this.actions$.pipe(
         ofType(OrigineAction.createOrigine),
         switchMap((action) => {
-          //        this.lastSavedWine = action.origine;
-          return of(
+          // Convert Promise to Observable using from()
+          return from(
             this.pouchService.saveDoc(
               Object.assign({}, action.origine),
               "origine"
-            )
+            ) as Promise<IResult>
           ).pipe(
             map((result: IResult) => {
+              debug("[saveOrigine$] Save result:", result);
               return OrigineAction.createOrigineSuccess({
                 origine: {
                   ...action.origine,
@@ -71,9 +72,10 @@ export class OrigineEffects {
                 source: "internal",
               });
             }),
-            catchError((error) =>
-              of(OrigineAction.createOrigineFailure({ error }))
-            )
+            catchError((error) => {
+              debug("[saveOrigine$] Save error:", error);
+              return of(OrigineAction.createOrigineFailure({ error }));
+            })
           );
         })
         /*        exhaustMap((action) =>
@@ -125,25 +127,35 @@ export class OrigineEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
+        // Filter to only process origine documents
         tap((change) =>
           debug(
             "[handleChanges Effect]ts: " +
               window.performance.now() +
               "\n - change : " +
-              JSON.stringify(change)
+              JSON.stringify(change) +
+              "\n - doc._id: " +
+              change.doc?._id
           )
         ),
+        // Only process changes for origine documents (those with _id starting with "origine|")
         map((change) => {
-          if (!change.deleted) {
-            return OrigineAction.createOrigineSuccess({
-              origine: change.doc,
-              source: "external",
-            });
-          } else
-            return OrigineAction.deleteOrigineSuccess({
-              result: change,
-              source: "external",
-            });
+          // Check if this is an origine document
+          if (change.doc && change.doc._id && change.doc._id.startsWith("origine|")) {
+            if (!change.deleted) {
+              return OrigineAction.createOrigineSuccess({
+                origine: change.doc,
+                source: "external",
+              });
+            } else {
+              return OrigineAction.deleteOrigineSuccess({
+                result: change,
+                source: "external",
+              });
+            }
+          }
+          // Return a no-op action for non-origine documents
+          return OrigineAction.setStatusToLoaded();
         })
       ),
     { dispatch: true }

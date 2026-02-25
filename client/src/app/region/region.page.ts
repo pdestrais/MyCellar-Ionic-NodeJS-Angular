@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Component, OnInit, effect } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { Component, OnInit, effect, signal, computed, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { NavController, AlertController, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonLabel, IonInput } from "@ionic/angular/standalone";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { OrigineModel, VinModel } from "../models/cellar.model";
@@ -12,12 +12,10 @@ import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { RouterModule } from "@angular/router";
-import * as OrigineSelectors from "../state/origine/origine.selectors";
 import * as VinSelectors from "../state/vin/vin.selectors";
 import * as OrigineActions from "../state/origine/origine.actions";
-import { Observable, Subject } from "rxjs";
-import { flatMap, takeUntil, tap } from "rxjs/operators";
 import { AppState } from "../state/app.state";
+import { OrigineStore } from "../services/origine-state.store";
 
 import { replacer } from "../util/util";
 
@@ -47,94 +45,113 @@ const debug = Debugger("app:region");
     imports: [CommonModule, ReactiveFormsModule, FormsModule, TranslateModule, RouterModule, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonLabel, IonInput]
 })
 export class RegionPage implements OnInit {
-    public origine: OrigineModel = new OrigineModel({
+    // ============================================
+    // DEPENDENCIES (Inject)
+    // ============================================
+    private readonly route = inject(ActivatedRoute);
+    private readonly navCtrl = inject(NavController);
+    private readonly formBuilder = inject(FormBuilder);
+    private readonly translate = inject(TranslateService);
+    private readonly alertController = inject(AlertController);
+    private readonly toastCtrl = inject(ToastController);
+    private readonly store = inject(Store<AppState>);
+    private readonly origineStore = inject(OrigineStore);
+    private readonly destroyRef = inject(DestroyRef);
+
+    // ============================================
+    // COMPONENT STATE (Signals)
+    // ============================================
+    // Current origine being edited - as a signal
+    readonly currentOrigine = signal<OrigineModel>(new OrigineModel({
         _id: "",
         pays: "",
         region: "",
-    });
-    public origines$!: Observable<OrigineModel[]>;
-    private unsubscribe$ = new Subject<void>();
-    public winesForOrigine$!: Observable<VinModel[]>;
+    }));
 
-    public origineList: Array<OrigineModel> = [];
-    public originesMap: Map<any, any> = new Map<any, any>();
-    public submitted: boolean = false;
+    // Get origines list from OrigineStore
+    readonly origines = this.origineStore.originesList;
+    
+    // Get duplicate map from OrigineStore
+    readonly originesMap = this.origineStore.origineMapForDuplicates;
+
+    // Wines for this origine - using a writable signal updated by effect
+    private readonly _winesForOrigine = signal<VinModel[]>([]);
+    readonly winesForOrigine = this._winesForOrigine.asReadonly();
+
+    public submitted = signal<boolean>(false);
     public origineForm!: FormGroup;
-    public list: boolean = true;
-    public showWines: boolean = false;
-    public newOrigine: boolean = false;
+    public list = signal<boolean>(true);
+    public showWines = signal<boolean>(false);
+    public newOrigine = signal<boolean>(false);
 
-    constructor(
-        private route: ActivatedRoute,
-        private navCtrl: NavController,
-        private formBuilder: FormBuilder,
-        private translate: TranslateService,
-        private alertController: AlertController,
-        private toastCtrl: ToastController,
-        private store: Store<AppState>
-    ) {
-        addIcons({ caretForwardOutline });
-        addIcons({ caretForwardOutline });
-    }
+    // Route parameter as signal
+    private readonly routeParams = toSignal(this.route.params);
+    readonly origineId = computed(() => this.routeParams()?.["id"] || null);
 
-    public ngOnInit() {
-        debug("[ngOnInit]called");
-        // form initialization
-        this.origineForm = this.formBuilder.group(
-            {
-                pays: ["", Validators.required],
-                region: ["", Validators.required],
-            },
-            { validator: this.noDouble.bind(this) }
-        );
-        this.submitted = false;
-        this.route.snapshot.data["action"] == "list"
-            ? (this.list = true)
-            : (this.list = false);
-        // We need to load the origine list even if we create or modify an origine because in this case we need the origine list to check for doubles
-        this.origines$ = this.store.select(OrigineSelectors.getAllOriginesArraySorted);
-        // loading origines map from state (used for double check) via signal
-        const originesMapSignal = toSignal(this.store.select(OrigineSelectors.origineMapForDuplicates));
+    constructor() {
+        addIcons({ caretForwardOutline });
+
+        // Effect: Load wines for the selected origine
         effect(() => {
-            this.originesMap = originesMapSignal() ?? new Map<any, any>(); // Guarded assignment
+            const id = this.origineId();
+            if (!id) {
+                this._winesForOrigine.set([]);
+                return;
+            }
+            
+            // Subscribe to wines for this origine
+            this.store.select(VinSelectors.getWinesByOrigine(id))
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe(wines => {
+                    this._winesForOrigine.set(wines || []);
+                });
         });
-        // Now loading selected wine from the state
-        // if id param is there, the origine will be loaded, if not, we want to create a new origine and the form values will remain as initialized
-        const selectedOrigineSignal = toSignal(
-            this.store.select(OrigineSelectors.getOrigine(this.route.snapshot.paramMap.get("id")!))
-        );
-        effect(() => {
-            const origine = selectedOrigineSignal();
-            if (origine) {
-                this.list = false;
-                this.origine = origine;
-                this.newOrigine = false;
-                // We have selected an origine
-                // reset VinState status to avoid shadow UI messages coming from previous updates on other app instances
 
-                this.store.dispatch(
-                    OrigineActions.editOrigine({
-                        id: origine._id!,
-                        rev: origine._rev!,
-                    })
-                );
-                this.origineForm.get("pays")!.setValue(origine.pays);
-                this.origineForm.get("region")!.setValue(origine.region);
-                debug("[Vin.ngOnInit]Origine loaded : " + JSON.stringify(origine));
+        // Effect: Load selected origine when origineId changes
+        effect(() => {
+            const id = this.origineId();
+            debug("[Effect:origineId] Origine ID changed:", id);
+
+            if (id) {
+                // Get origine from store
+                const origineSignal = this.origineStore.getOrigineById(id);
+                const origine = origineSignal();
+                
+                if (origine) {
+                    this.list.set(false);
+                    this.currentOrigine.set(origine);
+                    this.newOrigine.set(false);
+                    
+                    // Reset Origine state to avoid shadow UI messages
+                    this.store.dispatch(
+                        OrigineActions.editOrigine({
+                            id: origine._id!,
+                            rev: origine._rev!,
+                        })
+                    );
+                    this.origineForm.get("pays")!.setValue(origine.pays);
+                    this.origineForm.get("region")!.setValue(origine.region);
+                    debug("[ngOnInit]Origine loaded : " + JSON.stringify(origine));
+                }
             } else {
-                // No wine was selected, when will register a new origine
-                this.newOrigine = true;
+                // No origine selected, creating new origine
+                this.newOrigine.set(true);
+                // Reset to empty origine for new creation
+                this.currentOrigine.set(new OrigineModel({
+                    _id: "",
+                    pays: "",
+                    region: "",
+                }));
                 this.store.dispatch(OrigineActions.editOrigine({ id: "", rev: "" }));
             }
-        });
+        }, { allowSignalWrites: true });
 
-        this.winesForOrigine$ = this.store.select(VinSelectors.getWinesByOrigine(this.origine._id));
-
-        // Handling state changes (originating from save, update or delete operations in the UI but also coming for synchronization with data from other application instances)
+        // Effect: Handle state changes from NgRx (for save/delete operations)
         const origineStateSignal = toSignal(this.store.select((state: AppState) => state.origines));
         effect(() => {
             const origineState = origineStateSignal();
-            if (!origineState) return; // guard against undefined
+            if (!origineState) return;
+            
             switch (origineState.status) {
                 case "saved":
                     debug(
@@ -144,16 +161,8 @@ export class RegionPage implements OnInit {
                         JSON.stringify(origineState, replacer)
                     );
 
-                    // if we get an event that a wine is saved. We need to check it's id and
-                    // if the event source is internal (saved within this instance of the application) or external.
-                    // - (I) internal ? => (wine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-                    // - (II) external ?
-                    //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-                    //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-                    //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
                     if (origineState.source == "internal") {
-                        debug("[ngInit](I) Standard wine saved");
-                        // Internal event
+                        debug("[ngInit](I) Standard origine saved");
                         this.presentToast(
                             this.translate.instant("general.dataSaved"),
                             "success",
@@ -162,7 +171,6 @@ export class RegionPage implements OnInit {
                         );
                         this.store.dispatch(OrigineActions.setStatusToLoaded());
                     } else {
-                        // let's try to find a duplicate event in the eventLog
                         let filteredEventLog = origineState.eventLog.filter(
                             (value) =>
                                 value.id == origineState.currentOrigine!.id &&
@@ -170,8 +178,9 @@ export class RegionPage implements OnInit {
                                 value.action == "create"
                         );
                         debug("[ngInit](II) FilteredEventLog : " + JSON.stringify(filteredEventLog));
+                        
                         if (filteredEventLog.length == 2) {
-                            debug("[ngInit](II.A) Duplicate state change for the same wine");
+                            debug("[ngInit](II.A) Duplicate state change for the same origine");
                             this.store.dispatch(OrigineActions.setStatusToLoaded());
                         } else if (
                             origineState.eventLog[origineState.eventLog.length - 1].id ==
@@ -180,10 +189,9 @@ export class RegionPage implements OnInit {
                             origineState.currentOrigine!.rev &&
                             origineState.eventLog[origineState.eventLog.length - 1].action ==
                             "create" &&
-                            this.origineForm.dirty // otherwize, there is no way to make the distinction when you open a brand new editing form for a wine that has been created in another application instance
+                            this.origineForm.dirty
                         ) {
-                            // Event showing concurrent editing on the same wine that was saved somewhere else
-                            debug("[ngInit](II.C) Concurrent editing on the same wine");
+                            debug("[ngInit](II.C) Concurrent editing on the same origine");
                             this.presentToast(
                                 this.translate.instant("wine.savedConcurrentlyOnAnotherInstance"),
                                 "warning",
@@ -192,10 +200,11 @@ export class RegionPage implements OnInit {
                                 "Close"
                             );
                         } else {
-                            debug("[ngInit](II.B) Update of another wine");
+                            debug("[ngInit](II.B) Update of another origine");
                         }
                     }
                     break;
+                    
                 case "error":
                     this.presentToast(
                         this.translate.instant("general.DBError") + " " + origineState.error,
@@ -204,18 +213,10 @@ export class RegionPage implements OnInit {
                         5000
                     );
                     break;
+                    
                 case "deleted":
-                    // if we get an event that an origine is saved. We need to check it's id and
-                    // if the event source is internal (saved within this instance of the application) or external.
-                    // - (I) internal ? => (origine is saved in the application) a confirmation message is shown to the user and the app goes to the home scree
-                    // - (II) external ?
-                    //       - (A) event comes from the local DB resulting from the update of the wine we just saved
-                    //       - (B) event comes from the remoteDB resulting from the update of a wine ( not the one we are working on or having been working on)
-                    //       - (C) event coming from the remoteDB resulting from the update of the wine we are working on. (concurrent updata)
-                    // Delete does not suppress a doc or it's revision. It just creates a new document (with a new revision) that has the "_delete" attribute set to true
                     if (origineState.source == "internal") {
-                        debug("[ngInit](I) Standard wine deleted");
-                        // Internal event
+                        debug("[ngInit](I) Standard origine deleted");
                         this.presentToast(
                             this.translate.instant("wine.wineDeleted"),
                             "success",
@@ -224,17 +225,16 @@ export class RegionPage implements OnInit {
                         );
                         this.store.dispatch(OrigineActions.setStatusToLoaded());
                     } else {
-                        // let's try to find a duplicate event in the eventLog
-                        // this should never happen for a delete
-                        if (
-                            origineState.eventLog.filter(
-                                (value) =>
-                                    value.id == origineState.currentOrigine!.id &&
-                                    value.rev >= origineState.currentOrigine!.rev &&
-                                    value.action == "delete"
-                            ).length == 2
-                        ) {
-                            debug("[ngInit](II.A) Duplicate state change for the same wine");
+                        const deleteEventsForCurrentOrigine = origineState.eventLog.filter(
+                            (value) =>
+                                value.id == origineState.currentOrigine!.id &&
+                                value.rev >= origineState.currentOrigine!.rev &&
+                                value.action == "delete"
+                        );
+                        
+                        if (deleteEventsForCurrentOrigine.length >= 1) {
+                            // This is the external event following our internal delete
+                            debug("[ngInit](II.A) Duplicate state change for the same origine (external after internal)");
                             this.store.dispatch(OrigineActions.setStatusToLoaded());
                         } else if (
                             origineState.eventLog[origineState.eventLog.length - 1].id ==
@@ -242,7 +242,7 @@ export class RegionPage implements OnInit {
                             origineState.eventLog[origineState.eventLog.length - 1].action ==
                             "delete"
                         ) {
-                            debug("[ngInit](II.C) Concurrent editing on the same wine");
+                            debug("[ngInit](II.C) Concurrent editing on the same origine");
                             this.presentToast(
                                 this.translate.instant("wine.deletedConcurrentlyOnAnotherInstance"),
                                 "warning",
@@ -251,19 +251,31 @@ export class RegionPage implements OnInit {
                                 "Close"
                             );
                         } else {
-                            debug("[ngInit](II.B) Delete of another wine");
+                            debug("[ngInit](II.B) Delete of another origine");
                         }
                     }
                     break;
             }
-        });
+        }, { allowSignalWrites: true });
     }
 
-    public ngOnDestroy() {
-        debug("[Origine.ngOnDestroy]called");
-        // Unscubribe all observers
-        this.unsubscribe$.next();
-        this.unsubscribe$.complete();
+    public ngOnInit() {
+        debug("[ngOnInit]called");
+        
+        // form initialization
+        this.origineForm = this.formBuilder.group(
+            {
+                pays: ["", Validators.required],
+                region: ["", Validators.required],
+            },
+            { validator: this.noDouble.bind(this) }
+        );
+        this.submitted.set(false);
+        
+        // Set list mode based on route data
+        this.route.snapshot.data["action"] == "list"
+            ? this.list.set(true)
+            : this.list.set(false);
     }
 
     private noDouble(group: FormGroup) {
@@ -275,39 +287,40 @@ export class RegionPage implements OnInit {
             !group.controls["region"].dirty
         )
             return null;
+        
+        const originesMap = this.originesMap();
         if (
-            this.originesMap &&
-            this.originesMap.has(group.value.pays + group.value.region)
+            originesMap &&
+            originesMap.has(group.value.pays + group.value.region)
         ) {
             debug("[noDouble]double detected");
             return { double: true };
         } else return null;
     }
 
-    public editOrigine(origine) {
-        if (origine._id) this.navCtrl.navigateForward(["/region", origine._id]);
+    public editOrigine(origine: OrigineModel | null) {
+        if (origine && origine._id) this.navCtrl.navigateForward(["/region", origine._id]);
         else this.navCtrl.navigateForward(["/region"]);
     }
 
     public saveOrigine() {
         debug("[saveOrigine]entering");
-        this.submitted = true;
+        this.submitted.set(true);
+        
         if (this.origineForm.valid) {
-            // validation succeeded
-            debug("[OrigineVin]Origine valid");
-            // when the vin has been loaded from the store, it is immutable, we need to deep copy it before being able to update its properties
-            let mutableOrigine = JSON.parse(JSON.stringify(this.origine));
-            // now combine the loaded wine data with the new form data
-            this.origine = {
-                ...mutableOrigine,
+            debug("[saveOrigine]Origine valid");
+            const currentOrigine = this.currentOrigine();
+            const updatedOrigine = {
+                ...currentOrigine,
                 ...this.origineForm.value,
             };
+            this.currentOrigine.set(updatedOrigine);
 
             this.store.dispatch(
-                OrigineActions.createOrigine({ origine: this.origine })
+                OrigineActions.createOrigine({ origine: updatedOrigine })
             );
         } else {
-            debug("[Vin - saveVin]vin invalid");
+            debug("[saveOrigine]origine invalid");
             this.presentToast(
                 this.translate.instant("general.invalidData"),
                 "error",
@@ -317,12 +330,11 @@ export class RegionPage implements OnInit {
     }
 
     public deleteOrigine() {
-        // Before deleting an origine, we need to check if this origine is not used for any of the wines.
-        // If it is used, it can't be deleted.
-        let used = false;
-        // read once from the wines observable without subscribing permanently
-        const wineListForOrigine = toSignal(this.store.select(VinSelectors.getWinesByOrigine(this.origine._id)))();
-        if (wineListForOrigine) used = wineListForOrigine.length > 0;
+        // Check if origine is used by any wines
+        const currentOrigine = this.currentOrigine();
+        const wineList = this.winesForOrigine();
+        const used = wineList.length > 0;
+        
         if (!used) {
             this.alertController
                 .create({
@@ -337,7 +349,7 @@ export class RegionPage implements OnInit {
                             handler: () => {
                                 this.store.dispatch(
                                     OrigineActions.deleteOrigine({
-                                        origine: this.origine,
+                                        origine: currentOrigine,
                                     })
                                 );
                             },
@@ -399,3 +411,5 @@ export class RegionPage implements OnInit {
         }
     }
 }
+
+// Made with Bob

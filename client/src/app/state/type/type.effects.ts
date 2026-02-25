@@ -52,11 +52,12 @@ export class TypeEffects {
       this.actions$.pipe(
         ofType(TypeAction.createType),
         switchMap((action) => {
-          //        this.lastSavedWine = action.type;
-          return of(
-            this.pouchService.saveDoc(Object.assign({}, action._type), "type")
+          // Convert Promise to Observable using from()
+          return from(
+            this.pouchService.saveDoc(Object.assign({}, action._type), "type") as Promise<IResult>
           ).pipe(
             map((result: IResult) => {
+              debug("[saveType$] Save result:", result);
               return TypeAction.createTypeSuccess({
                 _type: {
                   ...action._type,
@@ -66,7 +67,10 @@ export class TypeEffects {
                 source: "internal",
               });
             }),
-            catchError((error) => of(TypeAction.createTypeFailure({ error })))
+            catchError((error) => {
+              debug("[saveType$] Save error:", error);
+              return of(TypeAction.createTypeFailure({ error }));
+            })
           );
         })
         /*        exhaustMap((action) =>
@@ -116,25 +120,35 @@ export class TypeEffects {
   handleChanges$ = createEffect(
     () =>
       this.pouchService.dbChanges$.pipe(
+        // Filter to only process type documents
         tap((change) =>
           debug(
             "[handleChanges Effect]ts: " +
               window.performance.now() +
               "\n - change : " +
-              JSON.stringify(change)
+              JSON.stringify(change) +
+              "\n - doc._id: " +
+              change.doc?._id
           )
         ),
+        // Only process changes for type documents (those with _id starting with "type|")
         map((change) => {
-          if (!change.deleted) {
-            return TypeAction.createTypeSuccess({
-              _type: change.doc,
-              source: "external",
-            });
-          } else
-            return TypeAction.deleteTypeSuccess({
-              result: change,
-              source: "external",
-            });
+          // Check if this is a type document
+          if (change.doc && change.doc._id && change.doc._id.startsWith("type|")) {
+            if (!change.deleted) {
+              return TypeAction.createTypeSuccess({
+                _type: change.doc,
+                source: "external",
+              });
+            } else {
+              return TypeAction.deleteTypeSuccess({
+                result: change,
+                source: "external",
+              });
+            }
+          }
+          // Return a no-op action for non-type documents
+          return TypeAction.setStatusToLoaded();
         })
       ),
     { dispatch: true }

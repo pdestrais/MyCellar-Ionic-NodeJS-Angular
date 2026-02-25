@@ -1,5 +1,5 @@
 <ion-list class="ion-no-margin" no-lines>
-  @for (option of collapsableItems(); track option; let i = $index) {
+  @for (option of collapsableItems(); track option.id; let i = $index) {
     <!-- It is a simple option -->
     @if (!option.suboptionsCount) {
       <ion-item
@@ -69,7 +69,7 @@
           "
           class="options"
           >
-          @for (item of option.subOptions; track item) {
+          @for (item of option.subOptions; track item.id) {
             <ion-item
               class="sub-option"
               [style.padding-left]="subOptionIndentation() + 'px'"
